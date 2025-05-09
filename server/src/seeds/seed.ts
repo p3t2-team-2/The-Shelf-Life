@@ -3,12 +3,14 @@ import { Profile } from '../models/index.js';
 import profileSeeds from './profileData.json' with { type: "json" };
 import cleanDB from './cleanDB.js';
 
+
 const seedDatabase = async (): Promise<void> => {
   try {
     await db();
     await cleanDB();
-
-    await Profile.insertMany(profileSeeds);
+    for (const profile of profileSeeds) {
+      await Profile.create(profile);
+    }
 
     console.log('Seeding completed successfully!');
     process.exit(0);

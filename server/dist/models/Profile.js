@@ -18,7 +18,13 @@ const profileSchema = new Schema({
         type: String,
         required: true,
         minlength: 5,
-    }
+    },
+    skills: [
+        {
+            type: String,
+            trim: true,
+        },
+    ],
 }, {
     timestamps: true,
     toJSON: { getters: true },

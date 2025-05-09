@@ -47,7 +47,7 @@ const resolvers = {
       if (context.user) {
         return await Profile.findOne({ _id: context.user._id });
       }
-      throw AuthenticationError;
+      throw new AuthenticationError('invalid token');
     },
   },
   Mutation: {
@@ -59,11 +59,11 @@ const resolvers = {
     login: async (_parent: any, { email, password }: { email: string; password: string }): Promise<{ token: string; profile: Profile }> => {
       const profile = await Profile.findOne({ email });
       if (!profile) {
-        throw AuthenticationError;
+        throw new AuthenticationError('invalid token 2');
       }
       const correctPw = await profile.isCorrectPassword(password);
       if (!correctPw) {
-        throw AuthenticationError;
+        throw new AuthenticationError('invalid token 3');
       }
       const token = signToken(profile.name, profile.email, profile._id);
       return { token, profile };
