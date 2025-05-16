@@ -4,33 +4,40 @@ const typeDefs = `
     name: String
     email: String
     password: String
-    skills: [String]!
+    recipes: [Recipe]
   }
 
   type Auth {
     token: ID!
     profile: Profile
   }
-  
+
   input ProfileInput {
     name: String!
     email: String!
     password: String!
   }
 
+  type Recipe {
+    id: ID!
+    title: String!
+    image: String
+  }
+
   type Query {
     profiles: [Profile]!
     profile(profileId: ID!): Profile
     me: Profile
+
+    
+    spoonacularRecipes: [Recipe]
   }
 
   type Mutation {
     addProfile(input: ProfileInput!): Auth
     login(email: String!, password: String!): Auth
-
-    addSkill(profileId: ID!, skill: String!): Profile
     removeProfile: Profile
-    removeSkill(skill: String!): Profile
+    
   }
 `;
 

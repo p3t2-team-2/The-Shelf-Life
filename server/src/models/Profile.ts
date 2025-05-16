@@ -1,17 +1,54 @@
 import { Schema, model, Document } from 'mongoose';
 import bcrypt from 'bcrypt';
 
-// Define an interface for the Profile document
+interface IIngredient {
+  item: string;
+  quantity: number;
+}
+
+interface IRecipe {
+  name: string;
+  description: string;
+  ingredients: IIngredient[];
+  instructions: string[];
+}
+
 interface IProfile extends Document {
   _id: string;
   name: string;
   email: string;
   password:string;
-  skills: string[];
+  recipes: IRecipe[];
   isCorrectPassword(password: string): Promise<boolean>;
 }
 
 // Define the schema for the Profile document
+const ingredientSchema = new Schema<IIngredient>({
+  item: {
+    type: String,
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+  },
+});
+const recipeSchema = new Schema<IRecipe>({
+  name: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  ingredients: [ingredientSchema],
+  instructions: {
+    type: [String],
+    required: true,
+  },
+});
+
 const profileSchema = new Schema<IProfile>(
   {
     name: {
@@ -31,12 +68,7 @@ const profileSchema = new Schema<IProfile>(
       required: true,
       minlength: 5,
     },
-    skills: [
-      {
-        type: String,
-        trim: true,
-      },
-    ],
+    recipes: [recipeSchema],
   },
   {
     timestamps: true,

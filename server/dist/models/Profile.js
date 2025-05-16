@@ -1,6 +1,31 @@
 import { Schema, model } from 'mongoose';
 import bcrypt from 'bcrypt';
 // Define the schema for the Profile document
+const ingredientSchema = new Schema({
+    item: {
+        type: String,
+        required: true,
+    },
+    quantity: {
+        type: Number,
+        required: true,
+    },
+});
+const recipeSchema = new Schema({
+    name: {
+        type: String,
+        required: true,
+    },
+    description: {
+        type: String,
+        required: true,
+    },
+    ingredients: [ingredientSchema],
+    instructions: {
+        type: [String],
+        required: true,
+    },
+});
 const profileSchema = new Schema({
     name: {
         type: String,
@@ -19,12 +44,7 @@ const profileSchema = new Schema({
         required: true,
         minlength: 5,
     },
-    skills: [
-        {
-            type: String,
-            trim: true,
-        },
-    ],
+    recipes: [recipeSchema],
 }, {
     timestamps: true,
     toJSON: { getters: true },

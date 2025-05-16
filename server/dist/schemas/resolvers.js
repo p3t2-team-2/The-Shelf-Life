@@ -1,5 +1,6 @@
 import { Profile } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js';
+import { searchRecipes as fetchSpoonacularRecipes } from '../utils/spoonacular.js';
 const resolvers = {
     Query: {
         profiles: async () => {
@@ -13,6 +14,9 @@ const resolvers = {
                 return await Profile.findOne({ _id: context.user._id });
             }
             throw new AuthenticationError('invalid token');
+        },
+        spoonacularRecipes: async (_parent) => {
+            return await fetchSpoonacularRecipes();
         },
     },
     Mutation: {
@@ -33,26 +37,9 @@ const resolvers = {
             const token = signToken(profile.name, profile.email, profile._id);
             return { token, profile };
         },
-        addSkill: async (_parent, { profileId, skill }, context) => {
-            if (context.user) {
-                return await Profile.findOneAndUpdate({ _id: profileId }, {
-                    $addToSet: { skills: skill },
-                }, {
-                    new: true,
-                    runValidators: true,
-                });
-            }
-            throw AuthenticationError;
-        },
         removeProfile: async (_parent, _args, context) => {
             if (context.user) {
                 return await Profile.findOneAndDelete({ _id: context.user._id });
-            }
-            throw AuthenticationError;
-        },
-        removeSkill: async (_parent, { skill }, context) => {
-            if (context.user) {
-                return await Profile.findOneAndUpdate({ _id: context.user._id }, { $pull: { skills: skill } }, { new: true });
             }
             throw AuthenticationError;
         },
