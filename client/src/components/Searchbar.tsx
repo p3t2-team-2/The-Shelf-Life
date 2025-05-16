@@ -16,6 +16,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
         onSearch(query);
+        // Call API
     };
 
 return (
