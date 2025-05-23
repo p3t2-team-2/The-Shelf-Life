@@ -1,14 +1,13 @@
 import { Profile } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js';
-import { searchRecipes as fetchSpoonacularRecipes} from '../utils/spoonacular.js';
+import { searchRecipes, searchRecipesByKeyword } from '../utils/spoonacularQueries.js';
 
 
 interface Profile {
   _id: string;
   name: string;
   email: string;
-  password: string;
-  
+  password: string; 
 }
 
 interface ProfileArgs {
@@ -53,9 +52,19 @@ const resolvers = {
       throw new AuthenticationError('invalid token');
     },
     spoonacularRecipes: async (_parent: any): 
-    Promise<SpoonacularRecipe[]> => {
-      return await fetchSpoonacularRecipes();
+    Promise<SpoonacularRecipe[]> => {     
+      const recipes: any = await searchRecipes();
+      console.log('recipes:', recipes);
+      
+      return recipes;
     },
+    spoonacularRecipesByKeyword: async (_parent: any, { keyword }: { keyword: string }): Promise<SpoonacularRecipe[]> => {
+      const recipes: any = await searchRecipesByKeyword(keyword);
+      console.log('recipes:', recipes);
+      
+      return recipes;
+    },
+    
   },
   Mutation: {
     addProfile: async (_parent: any, { input }: AddProfileArgs): Promise<{ token: string; profile: Profile }> => {
@@ -81,6 +90,7 @@ const resolvers = {
       }
       throw AuthenticationError;
     },
+
   },
 };
 

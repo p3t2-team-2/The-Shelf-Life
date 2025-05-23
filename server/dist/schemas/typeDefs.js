@@ -29,14 +29,15 @@ const typeDefs = `
     profile(profileId: ID!): Profile
     me: Profile
 
-    
-    spoonacularRecipes: [Recipe]
+    spoonacularRecipesByKeyword(keyword: String!): [Recipe]!
+    spoonacularRecipes: [Recipe]!
   }
 
   type Mutation {
     addProfile(input: ProfileInput!): Auth
     login(email: String!, password: String!): Auth
     removeProfile: Profile
+    
     
   }
 `;

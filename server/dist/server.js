@@ -5,6 +5,7 @@ import { ApolloServer } from '@apollo/server'; // Note: Import from @apollo/serv
 import { expressMiddleware } from '@apollo/server/express4';
 import { typeDefs, resolvers } from './schemas/index.js';
 import { authenticateToken } from './utils/auth.js';
+console.log('api key', process.env.SPOONACULAR_API_KEY);
 const server = new ApolloServer({
     typeDefs,
     resolvers
