@@ -1,0 +1,29 @@
+import { Schema } from 'mongoose';
+import { ingredientSchema } from './Ingredient';
+const stepSchema = new Schema({
+    number: {
+        type: Number,
+        required: true
+    },
+    step: {
+        type: String,
+        required: true
+    },
+    time: {
+        type: String,
+        required: true
+    }
+});
+const recipeSchema = new Schema({
+    name: {
+        type: String,
+        required: true,
+    },
+    description: {
+        type: String,
+        required: true,
+    },
+    ingredients: [ingredientSchema],
+    instructions: [stepSchema],
+});
+export { recipeSchema, };

@@ -1,6 +1,6 @@
 import { Profile } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js';
-import { searchRecipes as fetchSpoonacularRecipes } from '../utils/spoonacular.js';
+import { searchRecipes, searchRecipesByKeyword } from '../utils/spoonacular.js';
 const resolvers = {
     Query: {
         profiles: async () => {
@@ -16,7 +16,14 @@ const resolvers = {
             throw new AuthenticationError('invalid token');
         },
         spoonacularRecipes: async (_parent) => {
-            return await fetchSpoonacularRecipes();
+            const recipes = await searchRecipes();
+            console.log('recipes:', recipes);
+            return recipes;
+        },
+        spoonacularRecipesByKeyword: async (_parent, { keyword }) => {
+            const recipes = await searchRecipesByKeyword(keyword);
+            console.log('recipes:', recipes);
+            return recipes;
         },
     },
     Mutation: {

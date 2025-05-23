@@ -1,0 +1,76 @@
+.homepage {
+  font-family: Arial, sans-serif;
+  padding: 0;
+  margin: 0;
+}
+
+.searchbar-container {
+  padding: 10px 20px;
+  border-bottom: 1px solid #ccc;
+}
+
+.content-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 20px;
+  gap: 20px;
+}
+
+.box {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  padding: 16px;
+  flex: 1;
+  min-width: 250px;
+  max-width: 30%;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.featured-recipe {
+  text-align: center;
+}
+
+.button-group {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 6px 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn.cook {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn.favorite {
+  background-color: #f1c40f;
+  color: black;
+}
+
+.btn.modal {
+  margin-top: 10px;
+  background-color: #555;
+  color: white;
+}
+
+.footer {
+  text-align: center;
+  margin: 30px 0;
+  font-size: 0.9em;
+  color: #777;
+}
+
+.recipe-img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}

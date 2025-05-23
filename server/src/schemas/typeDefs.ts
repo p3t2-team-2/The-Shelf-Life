@@ -30,7 +30,7 @@ const typeDefs = `
     me: Profile
 
     
-    spoonacularRecipes: [Recipe]
+    spoonacularRecipes: [Recipe]!
   }
 
   type Mutation {
@@ -38,6 +38,8 @@ const typeDefs = `
     login(email: String!, password: String!): Auth
     removeProfile: Profile
     
+    addFavoriteRecipe(recipeId: ID!): Profile
+    removeFavoriteRecipe(recipeId: ID!): Profile
   }
 `;
 
