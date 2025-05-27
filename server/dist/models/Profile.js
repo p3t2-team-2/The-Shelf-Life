@@ -1,31 +1,8 @@
 import { Schema, model } from 'mongoose';
+import { ingredientSchema } from './Ingredient.js';
+import { recipeSchema } from './Recipe.js';
 import bcrypt from 'bcrypt';
 // Define the schema for the Profile document
-const ingredientSchema = new Schema({
-    item: {
-        type: String,
-        required: true,
-    },
-    quantity: {
-        type: Number,
-        required: true,
-    },
-});
-const recipeSchema = new Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    description: {
-        type: String,
-        required: true,
-    },
-    ingredients: [ingredientSchema],
-    instructions: {
-        type: [String],
-        required: true,
-    },
-});
 const profileSchema = new Schema({
     name: {
         type: String,
@@ -44,6 +21,7 @@ const profileSchema = new Schema({
         required: true,
         minlength: 5,
     },
+    pantry: [ingredientSchema],
     recipes: [recipeSchema],
 }, {
     timestamps: true,

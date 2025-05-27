@@ -4,7 +4,6 @@ const typeDefs = `
     name: String
     email: String
     password: String
-    pantry: [Ingredient]
     recipes: [Recipe]
   }
 
@@ -18,26 +17,11 @@ const typeDefs = `
     email: String!
     password: String!
   }
-  type Ingredient {
-    item: String
-    quantity: Int
-    unit: String
-    storage: String
-  }
-  
-  type Step {
-    number: Int
-    step: String
-    time: String
-  }
 
   type Recipe {
     id: ID!
-    name: String!
-    description: String
+    title: String!
     image: String
-    ingredients: [Ingredient]
-    instructions: [Step]
   }
 
   type Query {
@@ -45,16 +29,15 @@ const typeDefs = `
     profile(profileId: ID!): Profile
     me: Profile
 
-    
-    spoonacularRecipes: [Recipe]
+    spoonacularRecipesByKeyword(keyword: String!): [Recipe]!
+    spoonacularRecipes: [Recipe]!
   }
 
   type Mutation {
     addProfile(input: ProfileInput!): Auth
-    addRecipe(id: Int!): Profile
-    removeRecipe(id: Int!): Profile
     login(email: String!, password: String!): Auth
     removeProfile: Profile
+    
     
   }
 `;

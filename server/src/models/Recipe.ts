@@ -1,0 +1,61 @@
+import { Schema } from 'mongoose';
+import { ingredientSchema, IIngredient } from './Ingredient.js';
+
+interface IStep {
+  number: number;
+  step: string;
+  time?: string; 
+}
+
+interface IRecipe {
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+  ingredients: IIngredient[];
+  instructions: IStep[];
+}
+
+const stepSchema = new Schema<IStep>({
+  number: {
+    type: Number,
+    required: true
+  },
+  step:{
+    type: String,
+    required: true
+  },
+  time:{
+    type: String,
+    required: true
+  }
+})
+
+const recipeSchema = new Schema<IRecipe>({
+  id: {
+    type: Number,
+    required: true,
+    unique: true,
+  },
+  image: {
+    type: String,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  ingredients: [ingredientSchema],
+  instructions: [stepSchema],
+});
+
+export {recipeSchema, IRecipe}
+
+
+
+
+

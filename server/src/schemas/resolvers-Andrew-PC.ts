@@ -1,17 +1,13 @@
-import fetch from 'node-fetch';
-// import { time } from 'node:console';
 import { Profile } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js';
-import { searchRecipes as fetchSpoonacularRecipes} from '../utils/spoonacular.js';
-
+import { searchRecipes, searchRecipesByKeyword } from '../utils/spoonacularQueries.js';
 
 
 interface Profile {
   _id: string;
   name: string;
   email: string;
-  password: string;
-  
+  password: string; 
 }
 
 interface ProfileArgs {
@@ -56,9 +52,19 @@ const resolvers = {
       throw new AuthenticationError('invalid token');
     },
     spoonacularRecipes: async (_parent: any): 
-    Promise<SpoonacularRecipe[]> => {
-      return await fetchSpoonacularRecipes();
+    Promise<SpoonacularRecipe[]> => {     
+      const recipes: any = await searchRecipes();
+      console.log('recipes:', recipes);
+      
+      return recipes;
     },
+    spoonacularRecipesByKeyword: async (_parent: any, { keyword }: { keyword: string }): Promise<SpoonacularRecipe[]> => {
+      const recipes: any = await searchRecipesByKeyword(keyword);
+      console.log('recipes:', recipes);
+      
+      return recipes;
+    },
+    
   },
   Mutation: {
     addProfile: async (_parent: any, { input }: AddProfileArgs): Promise<{ token: string; profile: Profile }> => {
@@ -66,49 +72,6 @@ const resolvers = {
       const token = signToken(profile.name, profile.email, profile._id);
       return { token, profile };
     },
-    addRecipe: async (_parent: any, { id }: any, context: Context): Promise<Profile | null> => {
-      if (context.user) {
-        const spoonRecipeRes = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=15d0763886a54674b9f063f359c19d38`) as any;
-        const spoonRecipe = await spoonRecipeRes.json();
-        console.log(spoonRecipe);
-        const recipe = {
-          id: spoonRecipe.id,
-          name: spoonRecipe.title,
-          description: spoonRecipe.summary,
-          image: spoonRecipe.image,
-          ingredients: spoonRecipe?.extendedIngredients?.map((ingredient: any) => ({
-            item: ingredient.name,
-            quantity: ingredient.amount,
-            unit: ingredient.unit,
-          })),
-          instructions: spoonRecipe?.analyzedInstructions[0]?.steps?.map((step: any) => ({
-            number: step.number,
-            step: step.step,
-            time: step.length ? step.length.number : null,
-          })),
-        };
-        return await Profile.findOneAndUpdate(
-          { _id: context.user._id },
-          { $addToSet: { recipes: recipe } },
-          { new: true }
-        );
-      }
-      throw new AuthenticationError('invalid token 1');
-    },
-    removeRecipe: async (_parent: any, { id }: any , context: Context): Promise<Profile | null> => {
-      if (context.user) {
-        const profile = await Profile.findOneAndUpdate(
-          { _id: context.user._id },
-          { $pull: { recipes: {id: id}} },
-          { new: true }
-        );
-        return profile;
-      }
-      throw new AuthenticationError('You need to be logged in to remove favorite recipes');
-    },
-
-    
-
     login: async (_parent: any, { email, password }: { email: string; password: string }): Promise<{ token: string; profile: Profile }> => {
       const profile = await Profile.findOne({ email });
       if (!profile) {
@@ -127,6 +90,7 @@ const resolvers = {
       }
       throw AuthenticationError;
     },
+
   },
 };
 
