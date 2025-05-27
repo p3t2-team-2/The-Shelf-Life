@@ -31,6 +31,18 @@ const typeDefs = `
 
     
     spoonacularRecipes: [Recipe]!
+
+    // Get favorite recipes for the logged-in user?
+    // favoriteRecipes: [Recipe]!
+
+    // Get all items currently in pantry?
+    // allPantryItems: [PantryItem]!
+    // Get refrigerated items in pantry?
+    // allRefrigeratedItems: [PantryItem]!
+    // Get frozen items in pantry?
+    // allFrozenItems: [PantryItem]!
+    // Get dry goods in pantry?
+    // allDryGoods: [PantryItem]!
   }
 
   type Mutation {
@@ -40,6 +52,13 @@ const typeDefs = `
     
     addFavoriteRecipe(recipeId: ID!): Profile
     removeFavoriteRecipe(recipeId: ID!): Profile
+
+    // addPantryItem(name: String!, quantity: Int!): Profile
+    // removePantryItem(itemId: ID!): Profile
+    // updatePantryItem(itemId: ID!, name: String, quantity: Int): Profile
+
+    // Cook a meal and remove ingredients from pantry
+    // cookMeal(recipeId: ID!): Profile
   }
 `;
 

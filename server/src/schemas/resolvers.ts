@@ -64,7 +64,41 @@ const resolvers = {
       
       return recipes;
     },
-    
+    // Get all favorite recipes for the logged-in user
+    // favoriteRecipes: async (_parent: any, _args: any, context: Context): Promise<Recipe[]> => {
+    //   if (context.user) {
+    //     return await Recipe.find({ _id: { $in: context.user.favoriteRecipes } });
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to view favorite recipes');
+    // },
+    // Get all items currently in pantry
+    // allPantryItems: async (_parent: any, _args: any, context: Context): Promise<PantryItem[]> => {
+    //   if (context.user) {
+    //     return await PantryItem.find({ userId: context.user._id });
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to view pantry items');
+    // },
+    // Get refrigerated items in pantry
+    // allRefrigeratedItems: async (_parent: any, _args: any, context: Context): Promise<PantryItem[]> => {
+    //   if (context.user) {
+    //     return await PantryItem.find({ userId: context.user._id, category: 'refrigerated' });
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to view refrigerated items');
+    // },
+    // Get frozen items in pantry
+    // allFrozenItems: async (_parent: any, _args: any, context: Context): Promise<PantryItem[]> => {
+    //   if (context.user) {
+    //     return await PantryItem.find({ userId: context.user._id, category: 'frozen' });
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to view frozen items');
+    // },
+    // Get dry goods in pantry  
+    // allDryGoods: async (_parent: any, _args: any, context: Context): Promise<PantryItem[]> => {
+    //   if (context.user) {
+    //     return await PantryItem.find({ userId: context.user._id, category: 'dry goods' });
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to view dry goods');
+    // },
   },
   Mutation: {
     addProfile: async (_parent: any, { input }: AddProfileArgs): Promise<{ token: string; profile: Profile }> => {
@@ -90,6 +124,91 @@ const resolvers = {
       }
       throw AuthenticationError;
     },
+    // Add favorite recipe to user's profile
+    // addFavoriteRecipe: async (_parent: any, { recipeId }: { recipeId: string }, context: Context): Promise<Profile | null> => {
+    //   if (context.user) {
+    //     const profile = await Profile.findOneAndUpdate(
+    //       { _id: context.user._id },
+    //       { $addToSet: { favoriteRecipes: recipeId } },
+    //       { new: true }
+    //     );
+    //     return profile;
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to add favorite recipes');
+    // },
+    // Remove favorite recipe from user's profile
+    // removeFavoriteRecipe: async (_parent: any, { recipeId }: { recipeId: string }, context: Context): Promise<Profile | null> => {
+    //   if (context.user) {
+    //     const profile = await Profile.findOneAndUpdate(
+    //       { _id: context.user._id },
+    //       { $pull: { favoriteRecipes: recipeId } },
+    //       { new: true }
+    //     );
+    //     return profile;
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to remove favorite recipes');
+    // },
+    // Add pantry item to user's profile
+    // addPantryItem: async (_parent: any, { name, quantity }: { name: string; quantity: number }, context: Context): Promise<Profile | null> => {
+    //   if (context.user) {
+    //     const profile = await Profile.findOneAndUpdate(
+    //       { _id: context.user._id },
+    //       { $push: { pantryItems: { name, quantity } } },
+    //       { new: true }
+    //     );
+    //     return profile;
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to add pantry items');
+    // },
+    // Remove pantry item from user's profile
+    // removePantryItem: async (_parent: any, { itemId }: { itemId: string }, context: Context): Promise<Profile | null> => {
+    //   if (context.user) {
+    //     const profile = await Profile.findOneAndUpdate(
+    //       { _id: context.user._id }, 
+    //       { $pull: { pantryItems: { _id: itemId } } },
+    //       { new: true }
+    //     );
+    //     return profile;
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to remove pantry items');
+    // },
+    // Update pantry item in user's profile
+    // updatePantryItem: async (_parent: any, { itemId, name, quantity }: { itemId: string; name?: string; quantity?: number }, context: Context): Promise<Profile | null> => {
+    //   if (context.user) {
+    //     const updateFields: any = {};
+    //     if (name) updateFields['pantryItems.$.name'] = name;
+    //     if (quantity) updateFields['pantryItems.$.quantity'] = quantity;
+    //     const profile = await Profile.findOneAndUpdate(
+    //       { _id: context.user._id, 'pantryItems._id': itemId },
+    //       { $set: updateFields },
+    //       { new: true }
+    //     );
+    //     return profile;
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to update pantry items');
+    // },
+    // Cook a meal and remove ingredients from pantry
+    // cookMeal: async (_parent: any, { recipeId }: { recipeId: string }, context: Context): Promise<Profile | null> => {
+    //   if (context.user) {
+    //     const recipe = await Recipe.findById(recipeId);
+    //     if (!recipe) {
+    //       throw new Error('Recipe not found');
+    //     }
+    //     const profile = await Profile.findOne({ _id: context.user._id });
+    //     if (!profile) {
+    //       throw new AuthenticationError('User not found');
+    //     }
+    //     // Assuming recipe.ingredients is an array of ingredient names
+    //     for (const ingredient of recipe.ingredients) {
+    //       await Profile.findOneAndUpdate(
+    //         { _id: context.user._id, 'pantryItems.name': ingredient },
+    //         { $pull: { pantryItems: { name: ingredient } } }
+    //       );
+    //     }
+    //     return profile;
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to cook meals');
+    // },
 
   },
 };
