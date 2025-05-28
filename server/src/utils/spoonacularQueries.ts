@@ -19,7 +19,7 @@ export const searchRecipes = async () => {
   }
 };
 // Searches for recipes by keyword
-export const searchRecipesByKeyword = async (keywords: [string]) => {
+export const searchRecipesByKeyword = async (keywords: string[]) => {
   try {
     let query = "";
     keywords.forEach((keyword, index) => {

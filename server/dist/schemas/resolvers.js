@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import { Profile } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js';
 import { searchRecipes as fetchSpoonacularRecipes } from '../utils/spoonacular.js';
+import { searchRecipesByKeyword } from '../utils/spoonacularQueries.js';
 const resolvers = {
     Query: {
         profiles: async () => {
@@ -27,6 +28,18 @@ const resolvers = {
         // searchRecipes: async (_parent: any, { keyword }: { keyword: string }): Promise<SpoonacularRecipe[]> => {
         //   return await searchRecipesByKeyword(keyword);
         // },
+        recommendedRecipes: async (_parent, _args, context) => {
+            if (context.user) {
+                const query = [];
+                const userProfile = await Profile.findOne({ _id: context.user._id });
+                userProfile?.pantry.forEach((item) => {
+                    if (item.item) {
+                        query.push(item.item);
+                    }
+                });
+                return await searchRecipesByKeyword(query);
+            }
+        }
     },
     Mutation: {
         addProfile: async (_parent, { input }) => {

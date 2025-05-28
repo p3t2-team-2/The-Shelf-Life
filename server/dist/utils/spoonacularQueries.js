@@ -17,9 +17,21 @@ export const searchRecipes = async () => {
     }
 };
 // Searches for recipes by keyword
-export const searchRecipesByKeyword = async (keyword) => {
+export const searchRecipesByKeyword = async (keywords) => {
     try {
-        const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?query=${keyword}&number=10&apiKey=${apikey}`);
+        let query = "";
+        keywords.forEach((keyword, index) => {
+            if (index === 0) {
+                query += `${keyword},`;
+            }
+            else if (index < keywords.length - 1) {
+                query += `+${keyword},`;
+            }
+            else {
+                query += `+${keyword}`;
+            }
+        });
+        const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=10&apiKey=${apikey}`);
         const recipes = response.data.results;
         return recipes.map((recipe) => ({
             id: recipe.id,
