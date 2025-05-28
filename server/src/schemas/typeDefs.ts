@@ -45,7 +45,7 @@ const typeDefs = `
     profiles: [Profile]!
     profile(profileId: ID!): Profile
     me: Profile
-
+    
     
     spoonacularRecipes: [Recipe]
   }

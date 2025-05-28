@@ -68,6 +68,10 @@ const resolvers = {
         },
         addtoPantry: async (_parent, { id, storage, unit, quantity }, context) => {
             if (context.user) {
+                const userProfile = await Profile.findOne({ _id: context.user._id });
+                if (userProfile?.pantry.some((item) => item.id === id)) {
+                    throw new Error('Item already exists in pantry');
+                }
                 const spoonIngredientRes = await fetch(`https://api.spoonacular.com/food/ingredients/${id}/information?apiKey=15d0763886a54674b9f063f359c19d38`);
                 const spoonIngredient = await spoonIngredientRes.json();
                 console.log(spoonIngredient);
@@ -88,7 +92,9 @@ const resolvers = {
                 const userProfile = await Profile.findOne({ _id: context.user._id });
                 const pantryItem = userProfile?.pantry.find((item) => item.id === id);
                 const storedUnit = pantryItem?.unit;
-                // const storedItem = pantryItem?.item;
+                if (!userProfile?.antry.some((item) => item.id === id)) {
+                    throw new Error('Item does not exists in pantry');
+                }
                 if (storedUnit === unit) {
                     const profile = await Profile.findOneAndUpdate({ _id: context.user._id, 'pantry.id': id }, { $inc: { 'pantry.$.quantity': quantity } }, { new: true });
                     return profile;
@@ -109,7 +115,12 @@ const resolvers = {
                 const userProfile = await Profile.findOne({ _id: context.user._id });
                 const pantryItem = userProfile?.pantry.find((item) => item.id === id);
                 const storedUnit = pantryItem?.unit;
-                // const storedItem = pantryItem?.item;
+                if (!userProfile?.antry.some((item) => item.id === id)) {
+                    throw new Error('Item does not exists in pantry');
+                }
+                if (pantryItem?.quantity < quantity) {
+                    throw new Error('Insufficient quantity in pantry');
+                }
                 if (storedUnit === unit) {
                     const profile = await Profile.findOneAndUpdate({ _id: context.user._id, 'pantry.id': id }, { $inc: { 'pantry.$.quantity': -quantity } }, { new: true });
                     return profile;

@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import { Profile } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js';
 import { searchRecipes as fetchSpoonacularRecipes} from '../utils/spoonacular.js';
-// import { searchRecipesByKeyword } from '../utils/spoonacularQueries.js';
+import { searchRecipesByKeyword } from '../utils/spoonacularQueries.js';
 
 
 
@@ -65,8 +65,21 @@ const resolvers = {
       return await fetchSpoonacularRecipes();
     },
     // searchRecipes: async (_parent: any, { keyword }: { keyword: string }): Promise<SpoonacularRecipe[]> => {
+      
     //   return await searchRecipesByKeyword(keyword);
     // },
+    recommendedRecipes: async (_parent: any, _args: any, context: Context): Promise<SpoonacularRecipe[]> => {
+      if (context.user) {
+        const query: string[] = []
+        const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
+        userProfile?.pantry.forEach((item: any) => {
+          if (item.item) {
+            query.push(item.item);
+          }
+        });
+        return await searchRecipesByKeyword(query);
+      }
+    }
   },
   Mutation: {
     addProfile: async (_parent: any, { input }: AddProfileArgs): Promise<{ token: string; profile: Profile }> => {
@@ -117,6 +130,10 @@ const resolvers = {
 
     addtoPantry: async (_parent: any, { id, storage, unit, quantity }: any, context: Context): Promise<Profile | null> => {
       if (context.user) {
+        const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
+        if (userProfile?.pantry.some((item: any) => item.id === id)) {
+          throw new Error('Item already exists in pantry');
+        }
         const spoonIngredientRes = await fetch(`https://api.spoonacular.com/food/ingredients/${id}/information?apiKey=15d0763886a54674b9f063f359c19d38`) as any;
         const spoonIngredient = await spoonIngredientRes.json();
         console.log(spoonIngredient);
@@ -142,7 +159,9 @@ const resolvers = {
         const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
         const pantryItem = userProfile?.pantry.find((item: any) => item.id === id);
         const  storedUnit  =  pantryItem?.unit;
-        // const storedItem = pantryItem?.item;
+        if (!userProfile?.antry.some((item: any) => item.id === id)) {
+          throw new Error('Item does not exists in pantry');
+        }
         if (storedUnit === unit) {
           const profile = await Profile.findOneAndUpdate(
             { _id: context.user._id, 'pantry.id': id },
@@ -150,7 +169,7 @@ const resolvers = {
             { new: true }
           );
           return profile; 
-        }else { 
+        } else { 
           console.log("hi");
           const conversionRes = await fetch(`https://api.spoonacular.com/recipes/convert?ingredientName=something&sourceUnit=${unit}&sourceAmount=${quantity}&targetUnit=grams&apiKey=15d0763886a54674b9f063f359c19d38`) as any;
           console.log('conversionRes:', conversionRes);
@@ -171,7 +190,12 @@ const resolvers = {
         const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
         const pantryItem = userProfile?.pantry.find((item: any) => item.id === id);
         const storedUnit = pantryItem?.unit;
-        // const storedItem = pantryItem?.item;
+        if (!userProfile?.antry.some((item: any) => item.id === id)) {
+          throw new Error('Item does not exists in pantry');
+        } 
+        if (pantryItem?.quantity < quantity) {
+          throw new Error('Insufficient quantity in pantry');
+        }
         if (storedUnit === unit) {
           const profile = await Profile.findOneAndUpdate(
             { _id: context.user._id, 'pantry.id': id },
