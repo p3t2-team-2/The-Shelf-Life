@@ -55,7 +55,8 @@ const typeDefs = `
     removeRecipe(id: Int!): Profile
     login(email: String!, password: String!): Auth
     removeProfile: Profile
-    
+    addtoPantry(id: Int!, Storage: String!): Profile
+    removeFromPantry(id: Int!): Profile
   }
 `;
 

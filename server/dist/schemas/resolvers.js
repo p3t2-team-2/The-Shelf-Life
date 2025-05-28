@@ -59,6 +59,27 @@ const resolvers = {
             }
             throw new AuthenticationError('You need to be logged in to remove favorite recipes');
         },
+        addtoPantry: async (_parent, { id, storage }, context) => {
+            if (context.user) {
+                const spoonIngredientRes = await fetch(`https://api.spoonacular.com/food/ingredients/${id}/information?apiKey=15d0763886a54674b9f063f359c19d38`);
+                const spoonIngredient = await spoonIngredientRes.json();
+                const ingredient = {
+                    item: spoonIngredient.name,
+                    quantity: spoonIngredient.amount,
+                    unit: spoonIngredient.unit,
+                    storage: storage
+                };
+                return await Profile.findOneAndUpdate({ _id: context.user._id }, { $addToSet: { pantry: ingredient } }, { new: true });
+            }
+            throw new AuthenticationError('invalid token 1');
+        },
+        removeFromPantry: async (_parent, { id }, context) => {
+            if (context.user) {
+                const profile = await Profile.findOneAndUpdate({ _id: context.user._id }, { $pull: { pantry: { id: id } } }, { new: true });
+                return profile;
+            }
+            throw new AuthenticationError('You need to be logged in to remove items from your pantry');
+        },
         login: async (_parent, { email, password }) => {
             const profile = await Profile.findOne({ email });
             if (!profile) {

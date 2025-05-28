@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import { Profile } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js';
 import { searchRecipes as fetchSpoonacularRecipes} from '../utils/spoonacular.js';
+import { searchRecipesByKeyword } from '../utils/spoonacularQueries.js';
 
 
 
@@ -59,6 +60,9 @@ const resolvers = {
     Promise<SpoonacularRecipe[]> => {
       return await fetchSpoonacularRecipes();
     },
+    searchRecipes: async (_parent: any, { keyword }: { keyword: string }): Promise<SpoonacularRecipe[]> => {
+      return await searchRecipesByKeyword(keyword);
+    },
   },
   Mutation: {
     addProfile: async (_parent: any, { input }: AddProfileArgs): Promise<{ token: string; profile: Profile }> => {
@@ -107,6 +111,36 @@ const resolvers = {
       throw new AuthenticationError('You need to be logged in to remove favorite recipes');
     },
 
+    addtoPantry: async (_parent: any, { id, storage }: any, context: Context): Promise<Profile | null> => {
+      if (context.user) {
+        const spoonIngredientRes = await fetch(`https://api.spoonacular.com/food/ingredients/${id}/information?apiKey=15d0763886a54674b9f063f359c19d38`) as any;
+        const spoonIngredient = await spoonIngredientRes.json();
+        const ingredient = {
+          item: spoonIngredient.name,
+          quantity: spoonIngredient.amount,
+          unit: spoonIngredient.unit,
+          storage: storage 
+        };
+        return await Profile.findOneAndUpdate(
+          { _id: context.user._id },
+          { $addToSet: { pantry: ingredient } },
+          { new: true }
+        );
+      }
+      throw new AuthenticationError('invalid token 1')
+    },
+
+    removeFromPantry: async (_parent: any, { id }: any, context: Context): Promise<Profile | null> => {
+      if (context.user) {
+        const profile = await Profile.findOneAndUpdate(
+          { _id: context.user._id },
+          { $pull: { pantry: { id: id } } },
+          { new: true }
+        );
+        return profile;
+      }
+      throw new AuthenticationError('You need to be logged in to remove items from your pantry');
+    },
     
 
     login: async (_parent: any, { email, password }: { email: string; password: string }): Promise<{ token: string; profile: Profile }> => {
