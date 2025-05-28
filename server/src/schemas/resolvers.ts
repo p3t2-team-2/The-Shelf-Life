@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import { Profile } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js';
 import { searchRecipes as fetchSpoonacularRecipes} from '../utils/spoonacular.js';
-import { searchRecipesByKeyword } from '../utils/spoonacularQueries.js';
+// import { searchRecipesByKeyword } from '../utils/spoonacularQueries.js';
 
 
 
@@ -52,6 +52,10 @@ const resolvers = {
     },
     me: async (_parent: any, _args: any, context: Context): Promise<Profile | null> => {
       if (context.user) {
+        const id  = 5064;
+        const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
+        const pantryItem = userProfile?.pantry.find((item: any) => item.id === id);
+        console.log('pantryItem:', pantryItem);
         return await Profile.findOne({ _id: context.user._id });
       }
       throw new AuthenticationError('invalid token');
@@ -60,9 +64,9 @@ const resolvers = {
     Promise<SpoonacularRecipe[]> => {
       return await fetchSpoonacularRecipes();
     },
-    searchRecipes: async (_parent: any, { keyword }: { keyword: string }): Promise<SpoonacularRecipe[]> => {
-      return await searchRecipesByKeyword(keyword);
-    },
+    // searchRecipes: async (_parent: any, { keyword }: { keyword: string }): Promise<SpoonacularRecipe[]> => {
+    //   return await searchRecipesByKeyword(keyword);
+    // },
   },
   Mutation: {
     addProfile: async (_parent: any, { input }: AddProfileArgs): Promise<{ token: string; profile: Profile }> => {
@@ -111,16 +115,19 @@ const resolvers = {
       throw new AuthenticationError('You need to be logged in to remove favorite recipes');
     },
 
-    addtoPantry: async (_parent: any, { id, storage }: any, context: Context): Promise<Profile | null> => {
+    addtoPantry: async (_parent: any, { id, storage, unit, quantity }: any, context: Context): Promise<Profile | null> => {
       if (context.user) {
         const spoonIngredientRes = await fetch(`https://api.spoonacular.com/food/ingredients/${id}/information?apiKey=15d0763886a54674b9f063f359c19d38`) as any;
         const spoonIngredient = await spoonIngredientRes.json();
+        console.log(spoonIngredient);
         const ingredient = {
+          id: spoonIngredient.id,
           item: spoonIngredient.name,
-          quantity: spoonIngredient.amount,
-          unit: spoonIngredient.unit,
+          quantity: quantity,
+          unit: unit,
           storage: storage 
         };
+        console.log(ingredient);
         return await Profile.findOneAndUpdate(
           { _id: context.user._id },
           { $addToSet: { pantry: ingredient } },
@@ -128,6 +135,63 @@ const resolvers = {
         );
       }
       throw new AuthenticationError('invalid token 1')
+    },
+
+    increasePantryItem: async (_parent: any, { id, quantity, unit}: any, context: Context): Promise<Profile | null> => { 
+      if (context.user) {
+        const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
+        const pantryItem = userProfile?.pantry.find((item: any) => item.id === id);
+        const  storedUnit  =  pantryItem?.unit;
+        // const storedItem = pantryItem?.item;
+        if (storedUnit === unit) {
+          const profile = await Profile.findOneAndUpdate(
+            { _id: context.user._id, 'pantry.id': id },
+            { $inc: { 'pantry.$.quantity': quantity } },
+            { new: true }
+          );
+          return profile; 
+        }else { 
+          console.log("hi");
+          const conversionRes = await fetch(`https://api.spoonacular.com/recipes/convert?ingredientName=something&sourceUnit=${unit}&sourceAmount=${quantity}&targetUnit=grams&apiKey=15d0763886a54674b9f063f359c19d38`) as any;
+          console.log('conversionRes:', conversionRes);
+          const conversionData = await conversionRes.json();
+          const profile = await Profile.findOneAndUpdate(
+            { _id: context.user._id, 'pantry.id': id },
+            { $inc: { 'pantry.$.quantity': conversionData.targetAmount } },
+            { new: true }
+          );
+          return profile;
+        }
+      }
+      throw new AuthenticationError('You need to be logged in to increase pantry items');
+    },
+
+    decreasePantryItem: async (_parent: any, { id, quantity, unit }: any, context: Context): Promise<Profile | null> => {
+      if (context.user) {
+        const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
+        const pantryItem = userProfile?.pantry.find((item: any) => item.id === id);
+        const storedUnit = pantryItem?.unit;
+        // const storedItem = pantryItem?.item;
+        if (storedUnit === unit) {
+          const profile = await Profile.findOneAndUpdate(
+            { _id: context.user._id, 'pantry.id': id },
+            { $inc: { 'pantry.$.quantity': -quantity } },
+            { new: true }
+          );
+          return profile;
+        } else {
+          const conversionRes = await fetch(`https://api.spoonacular.com/recipes/convert?ingredientName=something&sourceUnit=${unit}&sourceAmount=${quantity}&targetUnit=grams&apiKey=15d0763886a54674b9f063f359c19d38`) as any;
+          console.log('conversionRes:', conversionRes);
+          const conversionData = await conversionRes.json();
+          const profile = await Profile.findOneAndUpdate(
+            { _id: context.user._id, 'pantry.id': id },
+            { $inc: { 'pantry.$.quantity': -conversionData.targetAmount } },
+            { new: true }
+          );
+          return profile;
+        }
+      }
+      throw new AuthenticationError('You need to be logged in to decrease pantry items');
     },
 
     removeFromPantry: async (_parent: any, { id }: any, context: Context): Promise<Profile | null> => {
@@ -142,7 +206,6 @@ const resolvers = {
       throw new AuthenticationError('You need to be logged in to remove items from your pantry');
     },
     
-
     login: async (_parent: any, { email, password }: { email: string; password: string }): Promise<{ token: string; profile: Profile }> => {
       const profile = await Profile.findOne({ email });
       if (!profile) {

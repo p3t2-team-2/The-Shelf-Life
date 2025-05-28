@@ -19,6 +19,7 @@ const typeDefs = `
     password: String!
   }
   type Ingredient {
+    id: Int
     item: String
     quantity: Int
     unit: String
@@ -55,7 +56,10 @@ const typeDefs = `
     removeRecipe(id: Int!): Profile
     login(email: String!, password: String!): Auth
     removeProfile: Profile
-    
+    addtoPantry(id: Int!, storage: String!, unit: String!, quantity: Int!): Profile
+    increasePantryItem(id: Int!, quantity: Int!, unit: String!): Profile
+    decreasePantryItem(id: Int!, quantity: Int!, unit: String!): Profile
+    removeFromPantry(id: Int!): Profile
   }
 `;
 export default typeDefs;
