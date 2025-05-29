@@ -8,7 +8,8 @@ import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Error from './pages/Error';
 import Pantry from './pages/Pantry';
-
+import Bio from './pages/Bio';
+import Recipes from './pages/Recipes';
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,12 @@ const router = createBrowserRouter([
       }, {
         path: '/pantry',
         element: <Pantry />
+      }, {
+        path: '/bio',
+        element: <Bio />
+      }, {
+        path: '/recipes',
+        element: <Recipes />
       }
     ]
   },

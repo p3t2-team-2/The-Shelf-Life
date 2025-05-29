@@ -1,0 +1,91 @@
+.recipes-page {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #000000;
+  color: #90EE90;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.searchbar-container {
+  padding: 12px 24px;
+  border-bottom: 2px solid #A0522D;
+  background: rgba(139, 47, 47, 0.3); /* subtle dark red background tint */
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.box {
+  background: rgba(255, 213, 128, 0.08); /* light yellow transparent background */
+  border: 1px solid #A0522D;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(139, 47, 47, 0.25); /* dark red glow */
+  transition: transform 0.3s ease;
+}
+
+.box:hover {
+  transform: scale(1.02);
+}
+
+.featured-recipe {
+  text-align: center;
+}
+
+.button-group {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.btn {
+  padding: 10px 16px;
+  border: none;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+
+/* Cook = lettuce green */
+.btn.cook {
+  background: #228B22;
+  color: white;
+}
+
+/* Favorite = cheese orange */
+.btn.favorite {
+  background: #FFA500;
+  color: black;
+}
+
+/* Modal = tomato red */
+.btn.modal {
+  background: #FF6347;
+  color: white;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px #90EE90;
+}
+
+.footer {
+  text-align: center;
+  margin: 40px 0;
+  font-size: 0.9em;
+  color: #FFD580;
+}
+
+.recipe-img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(139, 47, 47, 0.25); /* dark red glow */
+}
