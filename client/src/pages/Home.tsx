@@ -2,13 +2,14 @@ import React from 'react';
 import { useQuery, gql } from '@apollo/client';
 import '../css/Home.css';
 import { QUERY_PROFILES } from '../utils/queries';
+import '../css/Home.css'
 
 // GraphQL query to get recipes from Spoonacular through your backend
 const GET_SPOONACULAR_RECIPES = gql`
   query {
     spoonacularRecipes {
       id
-      title
+      name
       image
     }
   }
@@ -17,7 +18,7 @@ const GET_SPOONACULAR_RECIPES = gql`
 // Define the Recipe type
 interface Recipe {
   id: string;
-  title: string;
+  name: string;
   image: string;
 }
 
@@ -58,8 +59,8 @@ const Home: React.FC = () => {
           randomRecipes.map((recipe) => (
             <div className="box random-recipe" key={recipe.id}>
               <h2>Randomly Selected Recipe</h2>
-              <h3>{recipe.title}</h3>
-              <img src={recipe.image} alt={recipe.title} className="recipe-img" />
+              <h3>{recipe.name}</h3>
+              <img src={recipe.image} alt={recipe.name} className="recipe-img" />
               <p>✅ Has all ingredients</p>
               <div className="button-group">
                 <button className="btn cook">Cook</button>

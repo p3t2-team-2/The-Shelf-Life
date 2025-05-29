@@ -1,56 +1,102 @@
 import React, { useState } from 'react';
 import '../css/Home.css';
 import '../css/Modal.css';
+import { gql, useQuery, useMutation } from '@apollo/client';
+
+// GraphQL Queries and Mutations
+const QUERY_PANTRY_ITEMS = gql`
+  query GetPantryItems {
+    pantryItems {
+      _id
+      name
+      quantity
+      storageType
+    }
+  }
+`;
+
+const ADD_PANTRY_ITEM = gql`
+  mutation AddPantryItem($name: String!, $quantity: Int!, $storageType: String!) {
+    addPantryItem(name: $name, quantity: $quantity, storageType: $storageType) {
+      _id
+      name
+      quantity
+      storageType
+    }
+  }
+`;
 
 const Pantry: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
-
-  // Pantry item state
-  const [coldItems, setColdItems] = useState<string[]>([]);
-  const [frozenItems, setFrozenItems] = useState<string[]>([]);
-  const [ambientItems, setAmbientItems] = useState<string[]>([]);
-
-  // Form inputs
   const [itemName, setItemName] = useState('');
-  const [quantity, setQuantity] = useState('');
+  const [quantity, setQuantity] = useState(1);
   const [storageType, setStorageType] = useState('Cold');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { loading, data, refetch } = useQuery(QUERY_PANTRY_ITEMS);
+  const [addPantryItem] = useMutation(ADD_PANTRY_ITEM);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const item = `${itemName} (x${quantity || 1})`;
+    if (!itemName.trim()) return;
 
-    if (storageType === 'Cold') setColdItems([...coldItems, item]);
-    if (storageType === 'Frozen') setFrozenItems([...frozenItems, item]);
-    if (storageType === 'Ambient') setAmbientItems([...ambientItems, item]);
+    try {
+      const result = await addPantryItem({
+        variables: {
+          name: itemName,
+          quantity: Number(quantity),
+          storageType,
+        },
+      });
 
-    // Reset modal and inputs
-    setShowModal(false);
-    setItemName('');
-    setQuantity('');
-    setStorageType('Cold');
+      console.log('Added item:', result.data);
+
+      await refetch(); // ✅ Ensure UI updates after mutation
+      setShowModal(false);
+      setItemName('');
+      setQuantity(1);
+      setStorageType('Cold');
+    } catch (error) {
+      console.error('Error adding pantry item:', error);
+    }
   };
+
+  const coldItems = data?.pantryItems?.filter((item: any) => item.storageType === 'Cold') || [];
+  const frozenItems = data?.pantryItems?.filter((item: any) => item.storageType === 'Frozen') || [];
+  const ambientItems = data?.pantryItems?.filter((item: any) => item.storageType === 'Ambient') || [];
 
   return (
     <div className="homepage">
       <main className="content-grid">
-        {/* Top Controls */}
-        <div
-          className="box filter-modal"
-          style={{
-            gridColumn: 'span 3',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <button className="btn modal" onClick={() => setShowModal(true)}>
-            ➕ Add Items to Pantry
-          </button>
+        {/* Top Buttons */}
+        <div className="box filter-modal" style={{ gridColumn: 'span 3', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <button className="btn modal" onClick={() => setShowModal(true)}>➕ Add Items to Pantry</button>
           <button className="btn modal">⚙️ Filter / Sort</button>
         </div>
 
-        {/* Modal */}
+        {/* Pantry Sections */}
+        <div className="box">
+          <h3>❄️ Fridge</h3>
+          {coldItems.length === 0 ? <p>No cold items.</p> : coldItems.map((item: any) => (
+            <p key={item._id}>{item.name} (x{item.quantity})</p>
+          ))}
+        </div>
+
+        <div className="box">
+          <h3>🧊 Freezer</h3>
+          {frozenItems.length === 0 ? <p>No frozen items.</p> : frozenItems.map((item: any) => (
+            <p key={item._id}>{item.name} (x{item.quantity})</p>
+          ))}
+        </div>
+
+        <div className="box">
+          <h3>🧺 Closet Shelf</h3>
+          {ambientItems.length === 0 ? <p>No ambient items.</p> : ambientItems.map((item: any) => (
+            <p key={item._id}>{item.name} (x{item.quantity})</p>
+          ))}
+        </div>
+
+        {/* Modal for Adding Items */}
         {showModal && (
           <div className="modal-overlay" onClick={() => setShowModal(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -58,83 +104,28 @@ const Pantry: React.FC = () => {
               <form onSubmit={handleSubmit}>
                 <label>
                   Item Name:
-                  <input
-                    type="text"
-                    name="name"
-                    value={itemName}
-                    onChange={(e) => setItemName(e.target.value)}
-                    required
-                  />
+                  <input type="text" value={itemName} onChange={(e) => setItemName(e.target.value)} required />
                 </label>
                 <label>
                   Quantity:
-                  <input
-                    type="number"
-                    name="quantity"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                  />
+                  <input type="number" value={quantity} min="1" onChange={(e) => setQuantity(parseInt(e.target.value))} />
                 </label>
                 <label>
                   Storage Type:
-                  <select
-                    value={storageType}
-                    onChange={(e) => setStorageType(e.target.value)}
-                  >
+                  <select value={storageType} onChange={(e) => setStorageType(e.target.value)}>
                     <option>Cold</option>
                     <option>Frozen</option>
                     <option>Ambient</option>
                   </select>
                 </label>
                 <div className="modal-buttons">
-                  <button type="submit" className="btn cook">
-                    Add
-                  </button>
-                  <button
-                    type="button"
-                    className="btn favorite"
-                    onClick={() => setShowModal(false)}
-                  >
-                    Cancel
-                  </button>
+                  <button type="submit" className="btn cook">Add</button>
+                  <button type="button" className="btn favorite" onClick={() => setShowModal(false)}>Cancel</button>
                 </div>
               </form>
             </div>
           </div>
         )}
-
-        {/* Cold Stuff */}
-        <div className="box">
-          <h2>Cold Stuff</h2>
-          <ul>
-            {coldItems.length === 0 && <li>No items yet</li>}
-            {coldItems.map((item, index) => (
-              <li key={index}>{item} 🗑️</li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Frozen Stuff */}
-        <div className="box">
-          <h2>Frozen Stuff</h2>
-          <ul>
-            {frozenItems.length === 0 && <li>No items yet</li>}
-            {frozenItems.map((item, index) => (
-              <li key={index}>{item} 🗑️</li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Ambient Stuff */}
-        <div className="box">
-          <h2>Ambient Stuff</h2>
-          <ul>
-            {ambientItems.length === 0 && <li>No items yet</li>}
-            {ambientItems.map((item, index) => (
-              <li key={index}>{item} 🗑️</li>
-            ))}
-          </ul>
-        </div>
       </main>
 
       <footer className="footer">(Pantry/Fridge Page)</footer>

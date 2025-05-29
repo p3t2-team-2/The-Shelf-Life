@@ -23,24 +23,22 @@ const Header = () => {
           {Auth.loggedIn() ? (
             <>
               <Link to="/Profile">
-                <img src={profileImg} alt="Profile" /> My Favorites
+                <img src={profileImg} alt="Profile" /> My Profile
               </Link>
-              <button onClick={logout}>
+              <button onClick={logout} className='logout-button'>
                 Logout
               </button>
               <Link to="/Bio">
                 Bio
-              </Link>
-              <Link to="/recipes">
-                Recipes
-              </Link>
+              </Link>              
               <Link to="/pantry">
                 Pantry
               </Link>
               <Link to="/calendar">
                 Meal Planner
               </Link>
-              <SearchBar />
+              <SearchBar onSearch={(_query: string) => { /* handle search here */ }} />
+              
 
             </>
           ) : (

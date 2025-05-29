@@ -1,15 +1,17 @@
 import { Schema } from 'mongoose';
-import { ingredientSchema, IIngredient } from './Ingredient';
+import { ingredientSchema, IIngredient } from './Ingredient.js';
 
 interface IStep {
   number: number;
   step: string;
-  time: string; 
+  time?: string; 
 }
 
 interface IRecipe {
+  id: number;
   name: string;
   description: string;
+  image: string;
   ingredients: IIngredient[];
   instructions: IStep[];
 }
@@ -30,6 +32,14 @@ const stepSchema = new Schema<IStep>({
 })
 
 const recipeSchema = new Schema<IRecipe>({
+  id: {
+    type: Number,
+    required: true,
+  },
+  image: {
+    type: String,
+    required: true,
+  },
   name: {
     type: String,
     required: true,

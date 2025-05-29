@@ -4,11 +4,11 @@ import { useQuery } from '@apollo/client';
 import { QUERY_SINGLE_PROFILE, QUERY_ME } from '../utils/queries';
 
 import Auth from '../utils/auth';
+import '../css/Profile.css';
 
 const Profile = () => {
   const { profileId } = useParams();
 
-  // If there is no `profileId` in the URL as a parameter, execute the `QUERY_ME` query instead for the logged in user's information
   const { loading, data } = useQuery(
     profileId ? QUERY_SINGLE_PROFILE : QUERY_ME,
     {
@@ -16,12 +16,8 @@ const Profile = () => {
     }
   );
 
-  // Check if data is returning from the `QUERY_ME` query, then the `QUERY_SINGLE_PROFILE` query
   const profile = data?.me || data?.profile || {};
-  console.log(profile);
-  
 
-  // Use React Router's `<Navigate />` component to redirect to personal profile page if username is yours
   if (Auth.loggedIn() && Auth.getProfile().data._id === profileId) {
     return <Navigate to="/me" />;
   }
@@ -40,10 +36,52 @@ const Profile = () => {
   }
 
   return (
-    <div>
-      <h2>
-        {profile?.name}
-      </h2>
+    <div className="profile-page">
+      
+
+      <div className="main-content">
+        <aside className="sidebar">
+          <button className="btn">☰ Menu</button>
+          <button className="btn">Calendar</button>
+          <button className="btn">Favorite Recipes</button>
+          <button className="btn">Pantry</button>
+        </aside>
+
+        <section className="favorites">
+          <div className="favorite-card">
+            <h3>Favorited Recipe 1</h3>
+            <p>✅ Has all ingredients</p>
+            <div className="icons">
+              <button className="btn">🗑 Remove</button>
+              <button className="btn">👨‍🍳 Cook</button>
+            </div>
+          </div>
+        </section>
+
+        <section className="modals">
+          <div className="modal-box">
+            <h3>Create Custom Recipe</h3>
+            <p>(Opens modal)</p>
+          </div>
+        </section>
+
+        <section className="filters">
+          <div className="filter-box">
+            <h3>Filter / Sort</h3>
+            <ul>
+              <li>Expiring first</li>
+              <li>Price</li>
+              <li>Cook time / complexity</li>
+              <li>Nutritional value</li>
+              <li>Dietary restrictions</li>
+              <li>Meal type</li>
+              <li>Cuisine</li>
+              <li>Cooking appliance</li>
+            </ul>
+            <p>Sliders – Don’t show with value higher than X</p>
+          </div>
+        </section>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,9 @@
 import { Schema } from 'mongoose';
 const ingredientSchema = new Schema({
+    id: {
+        type: Number,
+        required: true,
+    },
     item: {
         type: String,
         required: true,
@@ -11,6 +15,10 @@ const ingredientSchema = new Schema({
     unit: {
         type: String,
         repuired: true,
+    },
+    storage: {
+        type: String,
+        required: true
     }
 });
 export { ingredientSchema };

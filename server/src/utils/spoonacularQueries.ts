@@ -1,4 +1,5 @@
 import axios from 'axios';
+import fetch from 'node-fetch';
 
 const apikey = process.env.SPOONACULAR_API_KEY;
 
@@ -10,7 +11,7 @@ export const searchRecipes = async () => {
 
     return recipes.map((recipe: any) => ({
       id: recipe.id,
-      title: recipe.title,
+      name: recipe.title,
       image: recipe.image,
     }));
   } catch (error) {
@@ -19,14 +20,29 @@ export const searchRecipes = async () => {
   }
 };
 // Searches for recipes by keyword
-export const searchRecipesByKeyword = async (keyword: string) => {
+export const searchRecipesByKeyword = async (keywords: string | string[]) => {
   try {
-    const response = await axios.get(`https://api.spoonacular.com/recipes/complexSearch?query=${keyword}&number=10&apiKey=${apikey}`);
-    const recipes = response.data.results;
-
+    let query = "";
+    if (Array.isArray(keywords))
+    keywords.forEach((keyword, index) => {
+      if (index === 0) {
+        query += `${keyword},`;
+      }else if (index < keywords.length - 1) {
+        query += `+${keyword},`;
+      }else {
+        query += `+${keyword}`;
+      }
+    })
+    const response = await fetch (`https://api.spoonacular.com/recipes/complexSearch?query=${keywords}&number=10&apiKey=${apikey}`);
+    const data = await response.json();
+    const recipes = data.results;
+    console.log(typeof recipes);
+    // console.log(response.data);
+    
+    
     return recipes.map((recipe: any) => ({
       id: recipe.id,
-      title: recipe.title,
+      name: recipe.title,
       image: recipe.image,
     }));
   } catch (error) {

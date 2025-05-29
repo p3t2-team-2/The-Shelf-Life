@@ -1,5 +1,5 @@
-import axios from 'axios';
-import { Profile } from '../models';
+// import axios from 'axios';
+// import { Profile } from '../models';
 // import { AuthenticationError } from 'apollo-server-express';
 
 // export const addFavoriteRecipe = async (_parent: any, { recipe }: any, context: any) => {
