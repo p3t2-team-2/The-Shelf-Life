@@ -10,6 +10,8 @@ import Error from './pages/Error';
 import Pantry from './pages/Pantry';
 import Bio from './pages/Bio';
 import Recipes from './pages/Recipes';
+import Calendar from './pages/Calendar';
+import Favorites from './pages/Favorites';
 
 const router = createBrowserRouter([
   {
@@ -39,7 +41,13 @@ const router = createBrowserRouter([
       }, {
         path: '/recipes',
         element: <Recipes />
-      }
+      }, {
+        path: "/calendar",
+        element: <Calendar />
+      }, {
+        path: "/favorites",
+        element: <Favorites />
+      },
     ]
   },
 ]);
