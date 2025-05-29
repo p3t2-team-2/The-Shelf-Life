@@ -68,18 +68,19 @@ const resolvers = {
     searchRecipes: async (_parent: any, { keywords }: { keywords: string }): Promise<SpoonacularRecipe[]> => {
       return await searchRecipesByKeyword(keywords);
     },
-    // recommendedRecipes: async (_parent: any, _args: any, context: Context): Promise<SpoonacularRecipe[]> => {
-    //   if (context.user) {
-    //     const query: string[] = []
-    //     const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
-    //     userProfile?.pantry.forEach((item: any) => {
-    //       if (item.item) {
-    //         query.push(item.item);
-    //       }
-    //     });
-    //     return await searchRecipesByKeyword(query) as Promise<SpoonacularRecipe[]>;
-    //   }
-    // }
+    recommendedRecipes: async (_parent: any, _args: any, context: Context): Promise<SpoonacularRecipe[]> => {
+      if (context.user) {
+        const query: string[] = []
+        const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
+        userProfile?.pantry.forEach((item: any) => {
+          if (item.item) {
+            query.push(item.item);
+          }
+        });
+        return await searchRecipesByKeyword(query) as Promise<SpoonacularRecipe[]>;
+      }
+      throw new AuthenticationError('You need to be logged in to get recommended recipes');
+    }
   },
   Mutation: {
     addProfile: async (_parent: any, { input }: AddProfileArgs): Promise<{ token: string; profile: Profile }> => {

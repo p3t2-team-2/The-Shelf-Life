@@ -47,7 +47,7 @@ const typeDefs = `
     me: Profile
     spoonacularRecipes: [Recipe]!
     searchRecipes(keywords: String!): [Recipe]!
-   
+    recommendedRecipes: [Recipe]!
   }
 
   type Mutation {
@@ -60,6 +60,7 @@ const typeDefs = `
     increasePantryItem(id: Int!, quantity: Int!, unit: String!): Profile
     decreasePantryItem(id: Int!, quantity: Int!, unit: String!): Profile
     removeFromPantry(id: Int!): Profile
+    
   }
 `;
     
