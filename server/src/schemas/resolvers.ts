@@ -11,8 +11,7 @@ interface Profile {
   _id: string;
   name: string;
   email: string;
-  password: string;
-  
+  password: string; 
 }
 
 interface ProfileArgs {
@@ -61,8 +60,11 @@ const resolvers = {
       throw new AuthenticationError('invalid token');
     },
     spoonacularRecipes: async (_parent: any): 
-    Promise<SpoonacularRecipe[]> => {
-      return await fetchSpoonacularRecipes();
+    Promise<SpoonacularRecipe[]> => {     
+      const recipes: any = await searchRecipes();
+      console.log('recipes:', recipes);
+      
+      return recipes;
     },
     // searchRecipes: async (_parent: any, { keyword }: { keyword: string }): Promise<SpoonacularRecipe[]> => {
       
@@ -248,6 +250,92 @@ const resolvers = {
       }
       throw AuthenticationError;
     },
+    // Add favorite recipe to user's profile
+    // addFavoriteRecipe: async (_parent: any, { recipeId }: { recipeId: string }, context: Context): Promise<Profile | null> => {
+    //   if (context.user) {
+    //     const profile = await Profile.findOneAndUpdate(
+    //       { _id: context.user._id },
+    //       { $addToSet: { favoriteRecipes: recipeId } },
+    //       { new: true }
+    //     );
+    //     return profile;
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to add favorite recipes');
+    // },
+    // Remove favorite recipe from user's profile
+    // removeFavoriteRecipe: async (_parent: any, { recipeId }: { recipeId: string }, context: Context): Promise<Profile | null> => {
+    //   if (context.user) {
+    //     const profile = await Profile.findOneAndUpdate(
+    //       { _id: context.user._id },
+    //       { $pull: { favoriteRecipes: recipeId } },
+    //       { new: true }
+    //     );
+    //     return profile;
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to remove favorite recipes');
+    // },
+    // Add pantry item to user's profile
+    // addPantryItem: async (_parent: any, { name, quantity }: { name: string; quantity: number }, context: Context): Promise<Profile | null> => {
+    //   if (context.user) {
+    //     const profile = await Profile.findOneAndUpdate(
+    //       { _id: context.user._id },
+    //       { $push: { pantryItems: { name, quantity } } },
+    //       { new: true }
+    //     );
+    //     return profile;
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to add pantry items');
+    // },
+    // Remove pantry item from user's profile
+    // removePantryItem: async (_parent: any, { itemId }: { itemId: string }, context: Context): Promise<Profile | null> => {
+    //   if (context.user) {
+    //     const profile = await Profile.findOneAndUpdate(
+    //       { _id: context.user._id }, 
+    //       { $pull: { pantryItems: { _id: itemId } } },
+    //       { new: true }
+    //     );
+    //     return profile;
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to remove pantry items');
+    // },
+    // Update pantry item in user's profile
+    // updatePantryItem: async (_parent: any, { itemId, name, quantity }: { itemId: string; name?: string; quantity?: number }, context: Context): Promise<Profile | null> => {
+    //   if (context.user) {
+    //     const updateFields: any = {};
+    //     if (name) updateFields['pantryItems.$.name'] = name;
+    //     if (quantity) updateFields['pantryItems.$.quantity'] = quantity;
+    //     const profile = await Profile.findOneAndUpdate(
+    //       { _id: context.user._id, 'pantryItems._id': itemId },
+    //       { $set: updateFields },
+    //       { new: true }
+    //     );
+    //     return profile;
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to update pantry items');
+    // },
+    // Cook a meal and remove ingredients from pantry
+    // cookMeal: async (_parent: any, { recipeId }: { recipeId: string }, context: Context): Promise<Profile | null> => {
+    //   if (context.user) {
+    //     const recipe = await Recipe.findById(recipeId);
+    //     if (!recipe) {
+    //       throw new Error('Recipe not found');
+    //     }
+    //     const profile = await Profile.findOne({ _id: context.user._id });
+    //     if (!profile) {
+    //       throw new AuthenticationError('User not found');
+    //     }
+    //     // Assuming recipe.ingredients is an array of ingredient names
+    //     for (const ingredient of recipe.ingredients) {
+    //       await Profile.findOneAndUpdate(
+    //         { _id: context.user._id, 'pantryItems.name': ingredient },
+    //         { $pull: { pantryItems: { name: ingredient } } }
+    //       );
+    //     }
+    //     return profile;
+    //   }
+    //   throw new AuthenticationError('You need to be logged in to cook meals');
+    // },
+
   },
 };
 

@@ -7,6 +7,7 @@ import Profile from './pages/Profile';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Error from './pages/Error';
+import Pantry from './pages/Pantry';
 
 const router = createBrowserRouter([
   {
@@ -29,6 +30,9 @@ const router = createBrowserRouter([
       }, {
         path: '/me',
         element: <Profile />
+      }, {
+        path: '/pantry',
+        element: <Pantry />
       }
     ]
   },

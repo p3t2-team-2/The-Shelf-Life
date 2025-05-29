@@ -47,7 +47,19 @@ const typeDefs = `
     me: Profile
     
     
-    spoonacularRecipes: [Recipe]
+    spoonacularRecipes: [Recipe]!
+
+    // Get favorite recipes for the logged-in user?
+    // favoriteRecipes: [Recipe]!
+
+    // Get all items currently in pantry?
+    // allPantryItems: [PantryItem]!
+    // Get refrigerated items in pantry?
+    // allRefrigeratedItems: [PantryItem]!
+    // Get frozen items in pantry?
+    // allFrozenItems: [PantryItem]!
+    // Get dry goods in pantry?
+    // allDryGoods: [PantryItem]!
   }
 
   type Mutation {
