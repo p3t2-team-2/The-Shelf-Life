@@ -1,5 +1,5 @@
 import { gql, useLazyQuery } from '@apollo/client';
-import SearchBar from './SearchBar';
+import SearchBar from './Searchbar';
 
 const SEARCH_RECIPES = gql`
   query SearchRecipes($query: String!) {
@@ -15,6 +15,8 @@ const RecipeSearch = () => {
   const [searchRecipes, { data, loading, error }] = useLazyQuery(SEARCH_RECIPES);
 
   const handleSearch = (query: string) => {
+    console.log("Search query:", query);
+    
     searchRecipes({ variables: { query } });
   };
 
