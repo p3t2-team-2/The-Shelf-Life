@@ -19,7 +19,7 @@ const QUERY_ME = gql`
 `;
 
 const ADD_TO_PANTRY = gql`
-  mutation AddToPantry($id: Int!, $quantity: Float!, $unit: String!, $storage: String!) {
+  mutation addtoPantry($id: Int!, $quantity: Float!, $unit: String!, $storage: String!) {
     addtoPantry(id: $id, quantity: $quantity, unit: $unit, storage: $storage) {
       _id
       pantry {
@@ -44,29 +44,39 @@ const Pantry: React.FC = () => {
   const [addToPantry] = useMutation(ADD_TO_PANTRY);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const result = await addToPantry({
-        variables: {
-          id: itemId,
-          quantity: Number(quantity),
-          unit,
-          storage: storageType,
-        },
-      });
+  if (!itemId || itemId === 0) {
+    alert("Please enter a valid Spoonacular Item ID.");
+    return;
+  }
 
+  try {
+    const result = await addToPantry({
+      variables: {
+        id: itemId,
+        quantity: Number(quantity),
+        unit,
+        storage: storageType,
+      },
+    });
+
+    if (!result.data) {
+      alert("Something went wrong while adding the item.");
+    } else {
       console.log('Added item:', result.data);
-      await refetch();
-      setShowModal(false);
-      setItemId(0);
-      setQuantity(1);
-      setUnit('g');
-      setStorageType('Cold');
-    } catch (error) {
-      console.error('Error adding pantry item:', error);
     }
-  };
+
+    await refetch();
+    setShowModal(false);
+    setItemId(0);
+    setQuantity(1);
+    setUnit('g');
+    setStorageType('Cold');
+  } catch (error) {
+    console.error('Error adding pantry item:', error);
+  }
+};
 
   const pantryItems = data?.me?.pantry || [];
   const coldItems = pantryItems.filter((item: any) => item.storage === 'Cold');
