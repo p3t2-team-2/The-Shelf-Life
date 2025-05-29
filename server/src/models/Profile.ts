@@ -1,15 +1,16 @@
 import { Schema, model, Document } from 'mongoose';
-import { recipeSchema, IRecipe } from './Recipe';
-import { ingredientSchema, IIngredient } from './Ingredient';
+import { ingredientSchema, IIngredient } from './Ingredient.js';
+import { recipeSchema, IRecipe } from './Recipe.js';
 import bcrypt from 'bcrypt';
+
 
 interface IProfile extends Document {
   _id: string;
   name: string;
   email: string;
   password:string;
-  pantry: IIngredient[];
-  recipes: IRecipe[];
+  pantry?: IIngredient[];
+  recipes?: IRecipe[];
   isCorrectPassword(password: string): Promise<boolean>;
 }
 

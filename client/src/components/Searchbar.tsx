@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+// import ".Header/Header.css";
 
 type SearchBarProps = {
     onSearch: (query: string) => void;

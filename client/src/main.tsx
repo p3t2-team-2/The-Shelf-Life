@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import Error from './pages/Error';
 import Pantry from './pages/Pantry';
 
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -24,11 +25,9 @@ const router = createBrowserRouter([
       }, {
         path: '/signup',
         element: <Signup />
-      }, {
-        path: '/profiles/:profileId',
-        element: <Profile />
-      }, {
-        path: '/me',
+      },        
+      {
+        path: '/profile',
         element: <Profile />
       }, {
         path: '/pantry',
