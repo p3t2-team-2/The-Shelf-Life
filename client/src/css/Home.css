@@ -1,30 +1,35 @@
 .homepage {
-  font-family: Arial, sans-serif;
-  padding: 0;
-  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #000000;
+  color: #90EE90;
+  min-height: 100vh;
+  padding: 20px;
 }
 
 .searchbar-container {
-  padding: 10px 20px;
-  border-bottom: 1px solid #ccc;
+  padding: 12px 24px;
+  border-bottom: 2px solid #A0522D;
+  background: rgba(139, 47, 47, 0.3); /* subtle dark red background tint */
 }
 
 .content-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  padding: 20px;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
 }
 
 .box {
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  padding: 16px;
-  flex: 1;
-  min-width: 250px;
-  max-width: 30%;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 213, 128, 0.08); /* light yellow transparent background */
+  border: 1px solid #A0522D;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(139, 47, 47, 0.25); /* dark red glow */
+  transition: transform 0.3s ease;
+}
+
+.box:hover {
+  transform: scale(1.02);
 }
 
 .featured-recipe {
@@ -32,45 +37,55 @@
 }
 
 .button-group {
-  margin-top: 10px;
+  margin-top: 12px;
   display: flex;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
 }
 
 .btn {
-  padding: 6px 12px;
+  padding: 10px 16px;
   border: none;
-  cursor: pointer;
   font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
 }
 
+/* Cook = lettuce green */
 .btn.cook {
-  background-color: #3498db;
+  background: #228B22;
   color: white;
 }
 
+/* Favorite = cheese orange */
 .btn.favorite {
-  background-color: #f1c40f;
+  background: #FFA500;
   color: black;
 }
 
+/* Modal = tomato red */
 .btn.modal {
-  margin-top: 10px;
-  background-color: #555;
+  background: #FF6347;
   color: white;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px #90EE90;
 }
 
 .footer {
   text-align: center;
-  margin: 30px 0;
+  margin: 40px 0;
   font-size: 0.9em;
-  color: #777;
+  color: #FFD580;
 }
 
 .recipe-img {
   width: 100%;
-  max-height: 200px;
+  max-height: 220px;
   object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 10px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(139, 47, 47, 0.25); /* dark red glow */
 }

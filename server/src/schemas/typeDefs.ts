@@ -45,21 +45,9 @@ const typeDefs = `
     profiles: [Profile]!
     profile(profileId: ID!): Profile
     me: Profile
-    
-    
     spoonacularRecipes: [Recipe]!
-
-    // Get favorite recipes for the logged-in user?
-    // favoriteRecipes: [Recipe]!
-
-    // Get all items currently in pantry?
-    // allPantryItems: [PantryItem]!
-    // Get refrigerated items in pantry?
-    // allRefrigeratedItems: [PantryItem]!
-    // Get frozen items in pantry?
-    // allFrozenItems: [PantryItem]!
-    // Get dry goods in pantry?
-    // allDryGoods: [PantryItem]!
+    searchRecipes(keywords: String!): [Recipe]!
+   
   }
 
   type Mutation {
@@ -74,5 +62,17 @@ const typeDefs = `
     removeFromPantry(id: Int!): Profile
   }
 `;
+    
 
+    // Get favorite recipes for the logged-in user?
+    // favoriteRecipes: [Recipe]!
+
+    // Get all items currently in pantry?
+    // allPantryItems: [PantryItem]!
+    // Get refrigerated items in pantry?
+    // allRefrigeratedItems: [PantryItem]!
+    // Get frozen items in pantry?
+    // allFrozenItems: [PantryItem]!
+    // Get dry goods in pantry?
+    // allDryGoods: [PantryItem]!
 export default typeDefs;

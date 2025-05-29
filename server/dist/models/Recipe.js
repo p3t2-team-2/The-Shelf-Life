@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { ingredientSchema } from './Ingredient';
+import { ingredientSchema } from './Ingredient.js';
 const stepSchema = new Schema({
     number: {
         type: Number,
@@ -15,6 +15,14 @@ const stepSchema = new Schema({
     }
 });
 const recipeSchema = new Schema({
+    id: {
+        type: Number,
+        required: true,
+    },
+    image: {
+        type: String,
+        required: true,
+    },
     name: {
         type: String,
         required: true,
@@ -26,4 +34,4 @@ const recipeSchema = new Schema({
     ingredients: [ingredientSchema],
     instructions: [stepSchema],
 });
-export { recipeSchema, };
+export { recipeSchema };

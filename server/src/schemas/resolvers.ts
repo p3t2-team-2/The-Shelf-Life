@@ -2,8 +2,7 @@ import fetch from 'node-fetch';
 // import { time } from 'node:console';
 import { Profile } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js';
-import { searchRecipes as fetchSpoonacularRecipes} from '../utils/spoonacular.js';
-import { searchRecipesByKeyword } from '../utils/spoonacularQueries.js';
+import { searchRecipes, searchRecipesByKeyword} from '../utils/spoonacularQueries.js';
 
 
 
@@ -28,7 +27,7 @@ interface AddProfileArgs {
 
 interface SpoonacularRecipe {
   id: number;
-  title: string;
+  name: string;
   image: string;
   // readyInMinutes: number;
   // servings: number;
@@ -66,22 +65,21 @@ const resolvers = {
       
       return recipes;
     },
-    // searchRecipes: async (_parent: any, { keyword }: { keyword: string }): Promise<SpoonacularRecipe[]> => {
-      
-    //   return await searchRecipesByKeyword(keyword);
-    // },
-    recommendedRecipes: async (_parent: any, _args: any, context: Context): Promise<SpoonacularRecipe[]> => {
-      if (context.user) {
-        const query: string[] = []
-        const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
-        userProfile?.pantry.forEach((item: any) => {
-          if (item.item) {
-            query.push(item.item);
-          }
-        });
-        return await searchRecipesByKeyword(query);
-      }
-    }
+    searchRecipes: async (_parent: any, { keywords }: { keywords: string }): Promise<SpoonacularRecipe[]> => {
+      return await searchRecipesByKeyword(keywords);
+    },
+    // recommendedRecipes: async (_parent: any, _args: any, context: Context): Promise<SpoonacularRecipe[]> => {
+    //   if (context.user) {
+    //     const query: string[] = []
+    //     const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
+    //     userProfile?.pantry.forEach((item: any) => {
+    //       if (item.item) {
+    //         query.push(item.item);
+    //       }
+    //     });
+    //     return await searchRecipesByKeyword(query) as Promise<SpoonacularRecipe[]>;
+    //   }
+    // }
   },
   Mutation: {
     addProfile: async (_parent: any, { input }: AddProfileArgs): Promise<{ token: string; profile: Profile }> => {
@@ -93,13 +91,13 @@ const resolvers = {
       if (context.user) {
         const spoonRecipeRes = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=15d0763886a54674b9f063f359c19d38`) as any;
         const spoonRecipe = await spoonRecipeRes.json();
-        console.log(spoonRecipe);
         const recipe = {
           id: spoonRecipe.id,
           name: spoonRecipe.title,
           description: spoonRecipe.summary,
           image: spoonRecipe.image,
           ingredients: spoonRecipe?.extendedIngredients?.map((ingredient: any) => ({
+            id: ingredient.id,
             item: ingredient.name,
             quantity: ingredient.amount,
             unit: ingredient.unit,
@@ -110,6 +108,8 @@ const resolvers = {
             time: step.length ? step.length.number : null,
           })),
         };
+        console.log(spoonRecipe.title);
+        
         return await Profile.findOneAndUpdate(
           { _id: context.user._id },
           { $addToSet: { recipes: recipe } },
