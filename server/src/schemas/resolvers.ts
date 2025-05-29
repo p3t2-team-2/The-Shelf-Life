@@ -162,7 +162,7 @@ const resolvers = {
         const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
         const pantryItem = userProfile?.pantry.find((item: any) => item.id === id);
         const  storedUnit  =  pantryItem?.unit;
-        if (!userProfile?.antry.some((item: any) => item.id === id)) {
+        if (!userProfile?.pantry.some((item: any) => item.id === id)) {
           throw new Error('Item does not exists in pantry');
         }
         if (storedUnit === unit) {
