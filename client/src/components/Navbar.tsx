@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import auth from '../utils/auth.js';
 import SearchBar from './Searchbar.tsx';
 import '../css/Navbar.css'; 
+import '../css/main.css'
 
 
 const Navbar = () => {
