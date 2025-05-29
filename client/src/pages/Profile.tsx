@@ -1,8 +1,7 @@
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams, Link } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 
 import { QUERY_SINGLE_PROFILE, QUERY_ME } from '../utils/queries';
-
 import Auth from '../utils/auth';
 import '../css/Profile.css';
 
@@ -37,14 +36,12 @@ const Profile = () => {
 
   return (
     <div className="profile-page">
-      
-
       <div className="main-content">
         <aside className="sidebar">
           <button className="btn">☰ Menu</button>
-          <button className="btn">Calendar</button>
-          <button className="btn">Favorite Recipes</button>
-          <button className="btn">Pantry</button>
+          <Link to="/calendar" className="btn">Calendar</Link>
+          <Link to="/favorites" className="btn">Favorite Recipes</Link>
+          <Link to="/pantry" className="btn">Pantry</Link>
         </aside>
 
         <section className="favorites">
