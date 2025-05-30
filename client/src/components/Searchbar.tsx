@@ -1,13 +1,15 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // import ".Header/Header.css";
 
 type SearchBarProps = {
     onSearch: (query: string) => void;
-}
-
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
+  }
+  
+  const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     const [query, setQuery] = useState<string>("");
+    const navigate = useNavigate();
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setQuery(event.target.value);
@@ -17,8 +19,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     const handleSubmit = (event: React.FormEvent) => {
         event.preventDefault();
         console.log("Search query submitted:", query);
-        onSearch(query);
+        // onSearch(query);
         // Call API
+        if (query.trim()) {
+          navigate(`/search?query=${query}`)
+        }
     };
 
 return (
