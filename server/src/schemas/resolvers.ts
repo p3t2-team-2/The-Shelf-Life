@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 // import { time } from 'node:console';
 import { Profile } from '../models/index.js';
+import { SpoonIngredient } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js';
 import { searchRecipes, searchRecipesByKeyword} from '../utils/spoonacularQueries.js';
 
@@ -50,13 +51,12 @@ const resolvers = {
     },
     me: async (_parent: any, _args: any, context: Context): Promise<Profile | null> => {
       if (context.user) {
-        const id  = 5064;
-        const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
-        const pantryItem = userProfile?.pantry.find((item: any) => item.id === id);
-        console.log('pantryItem:', pantryItem);
         return await Profile.findOne({ _id: context.user._id });
       }
       throw new AuthenticationError('invalid token');
+    },
+    ingredients: async (_parent: any, { keyword } : { keyword: string }): Promise<any[]> => {
+      return await SpoonIngredient.find({ item: { $regex: keyword, $options: 'i' } });
     },
     spoonacularRecipes: async (_parent: any): 
     Promise<SpoonacularRecipe[]> => {     
@@ -227,7 +227,7 @@ const resolvers = {
       }
       throw new AuthenticationError('You need to be logged in to decrease pantry items');
     },
-
+    
     removeFromPantry: async (_parent: any, { id }: any, context: Context): Promise<Profile | null> => {
       if (context.user) {
         const profile = await Profile.findOneAndUpdate(
