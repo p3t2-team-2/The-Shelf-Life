@@ -1,64 +1,138 @@
-/* Add CSS for the header to put it all in a bar across the top of the page */
-/* I want h1 to be on the same line as the links, and the links to be on the right side of the page */
-
+/* Header Container */
 header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #333;
-    padding: 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #000000;
+  padding: 1em 2em;
+  border-bottom: 2px solid #A0522D;
+  box-shadow: 0 4px 10px rgba(139, 47, 47, 0.3);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  flex-wrap: wrap;
 }
+
+/* Brand Title */
 header h1 {
-    color: white;
-    margin: 0;
+  color: #FFD580;
+  font-size: 1.8rem;
+  text-shadow: 0 0 5px #90EE90;
+  margin: 0;
+  flex-shrink: 0;
 }
+
+/* Navigation Links */
+header nav {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+/* Navigation Buttons */
 header a {
-    color: white;
-    text-decoration: none;
-    padding: 0.5em 1em;
-    border-radius: 5px;
+  color: #FFD580;
+  text-decoration: none;
+  padding: 0.5em 1em;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
 }
+
 header a:hover {
-    background-color: #555;
+  background-color: #8B2F2F;
+  box-shadow: 0 0 8px #FFA50088;
 }
+
 header a:visited {
-    color: white;
+  color: #FFD580;
 }
+
 header a:active {
-    background-color: #777;
+  background-color: #FFA50033;
 }
 
-header a {
-    margin: 1em;
-}
-
-/* I want the image .png to be the same size as the links and at the same height as the links*/
+/* Logo Styling */
 header img {
-    width: 30px;
-    height: 30px;
-    margin-left: 1em;
+  width: 32px;
+  height: 32px;
+  vertical-align: middle;
+  margin-left: 1em;
 }
-/* Using the classname 'logo' make the image a little larger than other images */
+
 header img.logo {
-    width: 80px;
-    height: 50px;
+  width: 80px;
+  height: 50px;
 }
 
-/* Add styling to the buttons */
-logout-button {
-    background-color: #f44336; /* Red */
-    color: white;
-    border: none;
-    padding: 0.5em 1em;
-    border-radius: 5px;
-    cursor: pointer;
+/* Themed Buttons */
+.logout-button,
+.search-button {
+  font-weight: bold;
+  padding: 0.5em 1em;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
 }
 
-search-button {
-    background-color: #4CAF50; /* Green */
-    color: white;
-    border: none;
-    padding: 0.5em 1em;
-    border-radius: 5px;
-    cursor: pointer;
+/* Logout Button */
+.logout-button {
+  background: linear-gradient(145deg, #ff4c4c, #ff7b7b);
+  color: white;
+  box-shadow: 0 3px 8px rgba(255, 99, 71, 0.3);
 }
+
+.logout-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px #ff4c4c;
+}
+
+/* Search Button */
+.search-button {
+  background: linear-gradient(145deg, #4CAF50, #90EE90);
+  color: black;
+  box-shadow: 0 3px 8px rgba(72, 239, 128, 0.3);
+}
+
+.search-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px #90EE90;
+}
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  header h1 {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+  }
+
+  header nav {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  header a,
+  .logout-button,
+  .search-button {
+    width: 100%;
+    text-align: left;
+  }
+
+  header img.logo {
+    width: 100px;
+    height: auto;
+    margin-top: 0.5rem;
+  }
+}
+
+

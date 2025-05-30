@@ -90,7 +90,7 @@ const resolvers = {
     },
     addRecipe: async (_parent: any, { id }: any, context: Context): Promise<Profile | null> => {
       if (context.user) {
-        const spoonRecipeRes = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=15d0763886a54674b9f063f359c19d38`) as any;
+        const spoonRecipeRes = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`) as any;
         const spoonRecipe = await spoonRecipeRes.json();
         const recipe = {
           id: spoonRecipe.id,
@@ -132,12 +132,19 @@ const resolvers = {
     },
 
     addtoPantry: async (_parent: any, { id, storage, unit, quantity }: any, context: Context): Promise<Profile | null> => {
-      if (context.user) {
-        const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
-        if (userProfile?.pantry.some((item: any) => item.id === id)) {
-          throw new Error('Item already exists in pantry');
-        }
-        const spoonIngredientRes = await fetch(`https://api.spoonacular.com/food/ingredients/${id}/information?apiKey=15d0763886a54674b9f063f359c19d38`) as any;
+    if (context.user) {
+    const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
+    const existingItem = userProfile?.pantry.find((item: any) => item.id === id);
+
+     if (existingItem) {
+      const updatedProfile = await Profile.findOneAndUpdate(
+        { _id: context.user._id, 'pantry.id': id },
+        { $inc: { 'pantry.$.quantity': quantity } },
+        { new: true }
+      );
+      return updatedProfile;
+    }
+        const spoonIngredientRes = await fetch(`https://api.spoonacular.com/food/ingredients/${id}/information?apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`) as any;
         const spoonIngredient = await spoonIngredientRes.json();
         console.log(spoonIngredient);
         const ingredient = {
@@ -174,7 +181,7 @@ const resolvers = {
           return profile; 
         } else { 
           console.log("hi");
-          const conversionRes = await fetch(`https://api.spoonacular.com/recipes/convert?ingredientName=something&sourceUnit=${unit}&sourceAmount=${quantity}&targetUnit=grams&apiKey=15d0763886a54674b9f063f359c19d38`) as any;
+          const conversionRes = await fetch(`https://api.spoonacular.com/recipes/convert?ingredientName=something&sourceUnit=${unit}&sourceAmount=${quantity}&targetUnit=grams&apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`) as any;
           console.log('conversionRes:', conversionRes);
           const conversionData = await conversionRes.json();
           const profile = await Profile.findOneAndUpdate(
@@ -207,7 +214,7 @@ const resolvers = {
           );
           return profile;
         } else {
-          const conversionRes = await fetch(`https://api.spoonacular.com/recipes/convert?ingredientName=something&sourceUnit=${unit}&sourceAmount=${quantity}&targetUnit=grams&apiKey=15d0763886a54674b9f063f359c19d38`) as any;
+          const conversionRes = await fetch(`https://api.spoonacular.com/recipes/convert?ingredientName=something&sourceUnit=${unit}&sourceAmount=${quantity}&targetUnit=grams&apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`) as any;
           console.log('conversionRes:', conversionRes);
           const conversionData = await conversionRes.json();
           const profile = await Profile.findOneAndUpdate(

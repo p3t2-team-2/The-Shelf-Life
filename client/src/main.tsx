@@ -12,6 +12,8 @@ import Bio from './pages/Bio';
 import Recipes from './pages/Recipes';
 import Calendar from './pages/Calendar';
 import Favorites from './pages/Favorites';
+import SearchResults from './pages/SearchResults';
+import RecipeDetails from './pages/fullRecipes';
 
 const router = createBrowserRouter([
   {
@@ -47,7 +49,13 @@ const router = createBrowserRouter([
       }, {
         path: "/favorites",
         element: <Favorites />
-      },
+      }, {
+        path: "/search",
+        element: <SearchResults />
+      }, {
+        path: "/recipes",
+        element: <Recipes />
+      }
     ]
   },
 ]);
