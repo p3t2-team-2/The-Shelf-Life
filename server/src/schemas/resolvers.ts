@@ -1,6 +1,7 @@
 import fetch from 'node-fetch';
 // import { time } from 'node:console';
 import { Profile } from '../models/index.js';
+import { IRecipe } from '../models/Recipe.js';
 import { SpoonIngredient } from '../models/index.js';
 import { signToken, AuthenticationError } from '../utils/auth.js';
 import { searchRecipes, searchRecipesByKeyword} from '../utils/spoonacularQueries.js';
@@ -64,6 +65,31 @@ const resolvers = {
       console.log('recipes:', recipes);
       
       return recipes;
+    },
+    recipeById: async (_parent: any, { id }: { id: number }): Promise<IRecipe | null> => {
+      const response = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`);
+      if (!response.ok) {
+        throw new Error(`Error fetching recipe with ID ${id}: ${response.statusText}`);
+      }
+      const recipeData = await response.json();
+      const recipe: IRecipe = {
+        id: recipeData.id,
+        name: recipeData.title,
+        description: recipeData.summary,
+        image: recipeData.image,
+        ingredients: recipeData.extendedIngredients.map((ingredient: any) => ({
+          id: ingredient.id,
+          item: ingredient.name,
+          quantity: ingredient.amount,
+          unit: ingredient.unit,
+        })),
+        instructions: recipeData.analyzedInstructions[0]?.steps.map((step: any) => ({
+          number: step.number,
+          step: step.step,
+          time: step.length ? step.length.number : null, // Assuming length is optional
+        })) || [],
+      };
+      return recipe;
     },
     searchRecipes: async (_parent: any, { keywords }: { keywords: string }): Promise<SpoonacularRecipe[]> => {
       return await searchRecipesByKeyword(keywords);

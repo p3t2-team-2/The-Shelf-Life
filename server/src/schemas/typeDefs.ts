@@ -25,7 +25,7 @@ const typeDefs = `
   type Ingredient {
     id: Int
     item: String
-    quantity: Int
+    quantity: Float
     unit: String
     storage: String
   }
@@ -53,6 +53,7 @@ const typeDefs = `
     spoonacularRecipes: [Recipe]!
     searchRecipes(keywords: String!): [Recipe]!
     recommendedRecipes: [Recipe]!
+    recipeById(id: Int!): Recipe
   }
 
   type Mutation {
