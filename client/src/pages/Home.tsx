@@ -1,10 +1,9 @@
 import React from 'react';
 import { useQuery, gql } from '@apollo/client';
 import '../css/Home.css';
+import FilterModal from '../components/FilterModal';
 import { QUERY_PROFILES } from '../utils/queries';
-import '../css/Home.css'
 
-// GraphQL query to get recipes from Spoonacular through your backend
 const GET_SPOONACULAR_RECIPES = gql`
   query {
     spoonacularRecipes {
@@ -15,7 +14,6 @@ const GET_SPOONACULAR_RECIPES = gql`
   }
 `;
 
-// Define the Recipe type
 interface Recipe {
   id: string;
   name: string;
@@ -29,36 +27,75 @@ const Home: React.FC = () => {
   const { loading: loadingRecipes, data: recipeData, error } = useQuery(GET_SPOONACULAR_RECIPES);
   const recipes: Recipe[] = recipeData?.spoonacularRecipes || [];
 
-  // Utility function to pick N random items from an array
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [filters, setFilters] = React.useState({
+    sort: "random",
+    expiringFirst: false,
+    maxPrice: 100,
+    maxCookTime: 180,
+    dietary: [],
+    mealType: "",
+    cuisine: "",
+    appliance: "",
+    maxValue: 100
+  });
+
   function getRandomItems<T>(arr: T[], count: number): T[] {
     const shuffled = [...arr].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
   }
 
-  const randomRecipeCount = 5; // Number of random recipes to display
+  function filterRecipes(recipes: Recipe[]) {
+    return recipes.filter((recipe) => {
+      if (filters.maxPrice < 50 && recipe.name.toLowerCase().includes("steak")) return false;
+      if (filters.mealType && !recipe.name.toLowerCase().includes(filters.mealType)) return false;
+      if (filters.cuisine && !recipe.name.toLowerCase().includes(filters.cuisine)) return false;
+      return true;
+    });
+  }
 
-  // Get 2 random recipes (or fewer if not enough available)
-  const randomRecipes: Recipe[] = recipes.length > 0 ? getRandomItems(recipes, randomRecipeCount) : [];
+  function sortRecipes(recipes: Recipe[]) {
+    switch (filters.sort) {
+      case "name":
+        return [...recipes].sort((a, b) => a.name.localeCompare(b.name));
+      case "id":
+        return [...recipes].sort((a, b) => a.id.localeCompare(b.id));
+      case "random":
+      default:
+        return getRandomItems(recipes, 5);
+    }
+  }
+
+  const filtered = filterRecipes(recipes);
+  const sorted = sortRecipes(filtered);
 
   return (
-    <div className="homepage">   
+    <div className="homepage">
+
+      {/* ✅ Top right Filter/Sort button */}
+      <div className="top-bar">
+        <button className="btn modal" onClick={() => setModalOpen(true)}>
+          🔍 Filter & Sort
+        </button>
+      </div>
+
       <main className="content-grid">
 
-        {/* Left: Random Recipes */}
+        {/* Filtered Recipes */}
         {loadingRecipes ? (
           <div className="box random-recipe">
-            <h2>Randomly Selected Recipes</h2>
+            <h2>Recipes</h2>
             <p>Loading recipes...</p>
           </div>
         ) : error ? (
           <div className="box random-recipe">
-            <h2>Randomly Selected Recipes</h2>
+            <h2>Recipes</h2>
             <p>Error loading recipes: {error.message}</p>
           </div>
-        ) : randomRecipes.length > 0 ? (
-          randomRecipes.map((recipe) => (
+        ) : sorted.length > 0 ? (
+          sorted.map((recipe) => (
             <div className="box random-recipe" key={recipe.id}>
-              <h2>Randomly Selected Recipe</h2>
+              <h2>Filtered Recipe</h2>
               <h3>{recipe.name}</h3>
               <img src={recipe.image} alt={recipe.name} className="recipe-img" />
               <p>✅ Has all ingredients</p>
@@ -70,12 +107,12 @@ const Home: React.FC = () => {
           ))
         ) : (
           <div className="box random-recipe">
-            <h2>Randomly Selected Recipes</h2>
-            <p>No recipes found.</p>
+            <h2>Recipes</h2>
+            <p>No recipes found with selected filters.</p>
           </div>
         )}
 
-        {/* Center: Featured Recipe */}
+        {/* Featured Recipe */}
         <div className="box featured-recipe">
           <h2>⭐ Featured (User Favorite) Recipe</h2>
           <ul>
@@ -90,25 +127,17 @@ const Home: React.FC = () => {
             <p>There are {profiles.length} users.</p>
           )}
         </div>
-
-        {/* Right: Filter/Sort Modal Trigger */}
-        <div className="box filter-modal">
-          <h2>Filter / Sort</h2>
-          <ul>
-            <li>Expiring first</li>
-            <li>Price</li>
-            <li>Cook time / complexity</li>
-            <li>Nutritional value</li>
-            <li>Dietary restrictions</li>
-            <li>Meal type</li>
-            <li>Cuisine</li>
-            <li>Cooking appliance</li>
-          </ul>
-          <p>Sliders – Don’t show with value higher than X</p>
-          <button className="btn modal">Open Filter Modal</button>
-        </div>
-
       </main>
+
+      <FilterModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onApply={(newFilters) => {
+          setFilters(newFilters);
+          setModalOpen(false);
+        }}
+        sortOption={filters.sort}
+      />
 
       <footer className="footer">(Home Page)</footer>
     </div>

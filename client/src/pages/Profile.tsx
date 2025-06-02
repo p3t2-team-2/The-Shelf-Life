@@ -1,9 +1,13 @@
+import React from 'react';
 import { Navigate, useParams, Link } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 
 import { QUERY_SINGLE_PROFILE, QUERY_ME } from '../utils/queries';
 import Auth from '../utils/auth';
 import '../css/Profile.css';
+
+import FilterModal from '../components/FilterModal';
+import CreateRecipeModal from '../components/CreateRecipeModal';
 
 const Profile = () => {
   const { profileId } = useParams();
@@ -16,6 +20,21 @@ const Profile = () => {
   );
 
   const profile = data?.me || data?.profile || {};
+
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [createModalOpen, setCreateModalOpen] = React.useState(false);
+
+  const [filters, setFilters] = React.useState({
+    sort: 'random',
+    expiringFirst: false,
+    maxPrice: 100,
+    maxCookTime: 180,
+    dietary: [],
+    mealType: '',
+    cuisine: '',
+    appliance: '',
+    maxValue: 100,
+  });
 
   if (Auth.loggedIn() && Auth.getProfile().data._id === profileId) {
     return <Navigate to="/me" />;
@@ -36,6 +55,14 @@ const Profile = () => {
 
   return (
     <div className="profile-page">
+
+      {/* ✅ Top bar with Filter/Sort button */}
+      <div className="top-bar">
+        <button className="btn modal" onClick={() => setModalOpen(true)}>
+          🔍 Filter & Sort
+        </button>
+      </div>
+
       <div className="main-content">
         <aside className="sidebar">
           <button className="btn">☰ Menu</button>
@@ -58,27 +85,34 @@ const Profile = () => {
         <section className="modals">
           <div className="modal-box">
             <h3>Create Custom Recipe</h3>
-            <p>(Opens modal)</p>
-          </div>
-        </section>
-
-        <section className="filters">
-          <div className="filter-box">
-            <h3>Filter / Sort</h3>
-            <ul>
-              <li>Expiring first</li>
-              <li>Price</li>
-              <li>Cook time / complexity</li>
-              <li>Nutritional value</li>
-              <li>Dietary restrictions</li>
-              <li>Meal type</li>
-              <li>Cuisine</li>
-              <li>Cooking appliance</li>
-            </ul>
-            <p>Sliders – Don’t show with value higher than X</p>
+            <button className="btn" onClick={() => setCreateModalOpen(true)}>
+              Open Recipe Modal
+            </button>
           </div>
         </section>
       </div>
+
+      {/* ✅ Filter Modal */}
+      <FilterModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onApply={(newFilters) => {
+          setFilters(newFilters);
+          setModalOpen(false);
+        }}
+        sortOption={filters.sort}
+      />
+
+      {/* ✅ Create Recipe Modal */}
+      <CreateRecipeModal
+        isOpen={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onSave={(recipe) => {
+          console.log('Recipe created:', recipe);
+          setCreateModalOpen(false);
+          // Future: send to backend or local storage
+        }}
+      />
     </div>
   );
 };
