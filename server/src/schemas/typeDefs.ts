@@ -7,6 +7,10 @@ const typeDefs = `
     pantry: [Ingredient]
     recipes: [Recipe]
   }
+  type SpoonIngredient {
+    id: Int
+    item: String
+  }
 
   type Auth {
     token: ID!
@@ -21,7 +25,7 @@ const typeDefs = `
   type Ingredient {
     id: Int
     item: String
-    quantity: Int
+    quantity: Float
     unit: String
     storage: String
   }
@@ -45,9 +49,11 @@ const typeDefs = `
     profiles: [Profile]!
     profile(profileId: ID!): Profile
     me: Profile
+    ingredients(keyword: String!): [SpoonIngredient]!
     spoonacularRecipes: [Recipe]!
     searchRecipes(keywords: String!): [Recipe]!
     recommendedRecipes: [Recipe]!
+    recipeById(id: Int!): Recipe
   }
 
   type Mutation {
