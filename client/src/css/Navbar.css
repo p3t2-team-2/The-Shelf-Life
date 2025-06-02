@@ -1,151 +1,116 @@
-/* Reset & Base */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.navbar-container {
+  background-color: #111;
+  color: #fff;
+  padding: 1rem 2rem;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  border-bottom: 2px solid #333;
 }
 
-/* Header Styling */
-header {
+.navbar-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  background-color: #000000;
-  color: #FFD580;
-  padding: 1em 1.5em;
-  border-bottom: 2px solid #A0522D;
-  flex-wrap: wrap;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-header h1 {
-  font-size: 1.6rem;
-  text-shadow: 0 0 5px #90EE90;
-  flex-shrink: 0;
-}
-
-/* Search Bar Styling */
-.search-bar-container {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  margin: 1em 0;
-}
-
-/* Navigation Links */
-.navbar-links {
-  display: flex;
   align-items: center;
-  gap: 0.5rem;
   flex-wrap: wrap;
-  justify-content: flex-end;
-  transition: all 0.3s ease-in-out;
 }
 
-.navbar-links a,
-.btn-logout {
-  background: transparent;
+.navbar-container h1 {
+  font-size: 1.8rem;
   color: #FFD580;
-  text-decoration: none;
-  padding: 0.5em 1em;
-  border-radius: 10px;
-  font-weight: bold;
-  border: 1px solid #A0522D;
-  transition: all 0.3s ease;
+  text-shadow: 0 0 5px #90EE90;
+  margin: 0;
 }
 
-.navbar-links a:hover,
-.btn-logout:hover {
-  background-color: #8B2F2F;
-  color: #FFF;
-  box-shadow: 0 0 8px #FFA50088;
+.search-bar-container {
+  margin: 1rem 0;
+  width: 100%;
 }
 
-/* Login / Logout Buttons */
-.btn-login {
-  background: linear-gradient(145deg, #FFA500, #FFD580);
-  color: #000;
-  border: none;
-  padding: 0.5em 1em;
-  border-radius: 10px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.btn-logout {
-  background: linear-gradient(145deg, #ff4c4c, #ff7b7b);
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-/* Hamburger */
 .hamburger {
   display: none;
   flex-direction: column;
-  justify-content: space-between;
-  width: 25px;
-  height: 20px;
-  background: none;
-  border: none;
+  gap: 5px;
   cursor: pointer;
-  padding: 0;
-  margin-left: auto;
 }
 
 .hamburger div {
-  width: 100%;
+  width: 25px;
   height: 3px;
-  background-color: #FFD580;
-  border-radius: 4px;
+  background-color: white;
   transition: all 0.3s ease;
 }
 
 .hamburger.active div:nth-child(1) {
-  transform: translateY(8px) rotate(45deg);
+  transform: rotate(45deg) translate(5px, 5px);
 }
 .hamburger.active div:nth-child(2) {
   opacity: 0;
 }
 .hamburger.active div:nth-child(3) {
-  transform: translateY(-8px) rotate(-45deg);
+  transform: rotate(-45deg) translate(5px, -5px);
 }
 
-/* Mobile Layout */
-@media (max-width: 768px) {
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+.navbar-links {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
 
-  .search-bar-container {
-    width: 100%;
-    justify-content: center;
+.navbar-links a,
+.navbar-links button {
+  background-color: #222;
+  color: white;
+  text-decoration: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.navbar-links a:hover,
+.navbar-links button:hover {
+  background-color: #333;
+}
+
+.btn-logout {
+  background-color: crimson;
+}
+.btn-logout:hover {
+  background-color: #b30000;
+}
+
+.theme-toggle {
+  background-color: #444;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.8rem;
+  margin-left: auto;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
   }
 
   .navbar-links {
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
     display: none;
-    padding: 1rem 0;
+    flex-direction: column;
+    align-items: center;
   }
 
   .navbar-links.active {
     display: flex;
   }
 
-  .navbar-links a,
-  .btn-logout {
-    width: 100%;
-    text-align: left;
-    margin: 0.25rem 0;
-  }
-
-  .hamburger {
-    display: flex;
+  .search-bar-container {
+    order: 2;
   }
 }
-

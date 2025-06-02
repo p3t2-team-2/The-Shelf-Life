@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import auth from '../utils/auth.js';
 import SearchBar from './Searchbar.tsx';
-import '../css/Navbar.css'; 
-import '../css/main.css'
-
+import '../css/Navbar.css';
+import '../css/main.css';
 
 const ThemeToggle = () => {
   const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
@@ -14,12 +13,8 @@ const ThemeToggle = () => {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
-
   return (
-    <button className="theme-toggle" onClick={toggleTheme}>
+    <button className="theme-toggle" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
       {theme === "dark" ? "🌞 Light Mode" : "🌙 Dark Mode"}
     </button>
   );
@@ -30,11 +25,11 @@ const Navbar = () => {
   const [menuActive, setMenuActive] = useState(false);
   const navigate = useNavigate();
 
-  const isLoginPage = window.location.pathname === '/login';
-
   useEffect(() => {
     if (auth.loggedIn()) setLoginCheck(true);
-  }, [loginCheck]);
+  }, []);
+
+  const isLoginPage = window.location.pathname === '/login';
 
   const handleSearch = (query: string) => {
     if (query) navigate(`/search?query=${query}`);
@@ -43,8 +38,14 @@ const Navbar = () => {
   const toggleMenu = () => setMenuActive(!menuActive);
 
   return (
-    <header>
-      <h1>The Shelf Life</h1>
+    <header className="navbar-container">
+      <div className="navbar-header">
+        <h1>The Shelf Life</h1>
+
+        <button className={`hamburger ${menuActive ? 'active' : ''}`} onClick={toggleMenu}>
+          <div></div><div></div><div></div>
+        </button>
+      </div>
 
       {!isLoginPage && auth.loggedIn() && (
         <div className="search-bar-container">
@@ -52,32 +53,22 @@ const Navbar = () => {
         </div>
       )}
 
-      {/* Hamburger for mobile */}
-      <button className={`hamburger ${menuActive ? 'active' : ''}`} onClick={toggleMenu}>
-        <div></div>
-        <div></div>
-        <div></div>
-      </button>
-
-      {/* Navigation */}
       <nav className={`navbar-links ${menuActive ? 'active' : ''}`}>
+        {!isLoginPage && auth.loggedIn() && (
+          <>
+            <Link to="/" className="btn">Home</Link>
+            <Link to="/profile" className="btn">My Profile</Link>
+            <Link to="/pantry" className="btn">Pantry</Link>
+            <Link to="/calendar" className="btn">Meal Planner</Link>
+            <Link to="/bio" className="btn">Bio</Link>
+            <button className="btn-logout" onClick={() => auth.logout()}>Logout</button>
+          </>
+        )}
+
         {!isLoginPage && !auth.loggedIn() && (
           <Link to="/login" className="btn-login">Login</Link>
         )}
 
-        {!isLoginPage && auth.loggedIn() && (
-          <>
-            <Link to="/" className="btn">Home</Link>
-            <Link to="/profile" className="btn">Profile</Link>
-            <Link to="/recipes" className="btn">Recipes</Link>
-            <Link to="/pantry" className="btn">Pantry</Link>
-            <button className="btn-logout" type="button" onClick={() => auth.logout()}>
-              Logout
-            </button>
-          </>
-        )}
-
-        {/* Show theme toggle when logged in */}
         {!isLoginPage && <ThemeToggle />}
       </nav>
     </header>
