@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom';
 import { type MouseEvent} from 'react';
 import Auth from '../../utils/auth';
 import "./Header.css"
-import profileImg from "../../assets/profile-user.png" 
 import logo from "../../assets/shelf_life_logo_transparent_aggressive.png"
-import SearchBar from '../Searchbar';
+// import SearchBar from '../Searchbar';
+import RecipeSearch from '../RecipeSearch';
 
 const Header = () => {
   const logout = (event: MouseEvent<HTMLButtonElement>) => {
@@ -23,11 +23,8 @@ const Header = () => {
           {Auth.loggedIn() ? (
             <>
               <Link to="/Profile">
-                <img src={profileImg} alt="Profile" /> My Profile
+                 My Profile
               </Link>
-              <button onClick={logout} className='logout-button'>
-                Logout
-              </button>
               <Link to="/Bio">
                 Bio
               </Link>              
@@ -37,7 +34,10 @@ const Header = () => {
               <Link to="/calendar">
                 Meal Planner
               </Link>
-              <SearchBar onSearch={(_query: string) => { /* handle search here */ }} />
+              <button onClick={logout} className='logout-button'>
+                Logout
+              </button>
+              <RecipeSearch />
               
 
             </>

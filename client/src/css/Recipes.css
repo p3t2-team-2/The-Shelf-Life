@@ -20,12 +20,15 @@
 }
 
 .box {
-  background: rgba(255, 213, 128, 0.08); /* light yellow transparent background */
-  border: 1px solid #A0522D;
+  background-color: rgba(250, 5, 5, 0.75); /* Vibrant red with slight transparency */
+  border: 1px solid #6d5240;
   padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(139, 47, 47, 0.25); /* dark red glow */
-  transition: transform 0.3s ease;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  color: #fff9f0;
+  line-height: 1.6;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  animation: fadeInUp 0.6s ease;
 }
 
 .box:hover {
