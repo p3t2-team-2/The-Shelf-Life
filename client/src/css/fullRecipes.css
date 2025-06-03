@@ -1,0 +1,82 @@
+.recipe-details {
+  background-color: #0d0d0d;
+  color: #f0f0f0;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.1);
+  max-width: 900px;
+  margin: 2rem auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(0, 255, 255, 0.1);
+}
+
+.recipe-details h2 {
+  font-size: 2.5rem;
+  color: #00ffe7;
+  text-shadow: 0 0 10px #00ffcc;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: bold;
+}
+
+.recipe-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.recipe-image {
+  width: 90%;
+  max-width: 600px;
+  border-radius: 16px;
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.15),
+              0 0 5px rgba(0, 255, 255, 0.3),
+              inset 0 0 8px rgba(0, 255, 255, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.recipe-image:hover {
+  transform: scale(1.02);
+}
+
+.recipe-description {
+  background: linear-gradient(145deg, #1a1a1a, #222);
+  padding: 1.25rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+  line-height: 1.7;
+  color: #ccc;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.05);
+}
+
+.recipe-details h3 {
+  margin-top: 1.5rem;
+  font-size: 1.6rem;
+  color: #ffd166;
+  text-shadow: 0 0 8px rgba(255, 209, 102, 0.3);
+}
+
+.ingredients-list,
+.instructions-list {
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+  line-height: 1.6;
+}
+
+.ingredients-list li,
+.instructions-list li {
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, #1f1f1f, #292929);
+  padding: 0.65rem 1.2rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.07);
+  color: #f0f0f0;
+  transition: background 0.3s;
+}
+
+.ingredients-list li:hover,
+.instructions-list li:hover {
+  background: linear-gradient(135deg, #252525, #303030);
+}

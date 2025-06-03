@@ -1,10 +1,10 @@
-.homepage {
+/* .homepage {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #000000;
   color: #90EE90;
   min-height: 100vh;
   padding: 20px;
-}
+} */
 
 .searchbar-container {
   padding: 12px 24px;
@@ -20,13 +20,14 @@
 }
 
 .box {
-  background: rgba(255, 213, 128, 0.08); /* light yellow transparent background */
-  border: 1px solid #A0522D;
+  background: rgba(60, 40, 20, 0.65); /* darker brownish overlay */
+  border: 1px solid #8B2F2F; /* slightly deeper red for border */
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(139, 47, 47, 0.25); /* dark red glow */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* stronger neutral shadow */
   transition: transform 0.3s ease;
 }
+
 
 .box:hover {
   transform: scale(1.02);

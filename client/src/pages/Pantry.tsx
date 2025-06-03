@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import '../css/Home.css';
-import '../css/Modal.css';
+import '../css/Pantry.css';
 import { gql, useQuery, useMutation } from '@apollo/client';
 
 const QUERY_ME = gql`
   query Me {
     me {
-      _id
       pantry {
         id
         item
@@ -14,6 +12,15 @@ const QUERY_ME = gql`
         unit
         storage
       }
+    }
+  }
+`;
+
+const QUERY_INGREDIENTS = gql`
+  query Ingredients($keyword: String!) {
+    ingredients(keyword: $keyword) {
+      item
+      id
     }
   }
 `;
@@ -22,124 +29,150 @@ const ADD_TO_PANTRY = gql`
   mutation Mutation($addtoPantryId: Int!, $storage: String!, $unit: String!, $quantity: Int!) {
     addtoPantry(id: $addtoPantryId, storage: $storage, unit: $unit, quantity: $quantity) {
       pantry {
+        id
         item
         quantity
         storage
         unit
-        id
       }
     }
   }
 `;
 
+const GET_INGREDIENT_UNITS = gql`
+  query Query($ingredientByIdId: Int!) {
+    ingredientById(id: $ingredientByIdId) {
+      unit
+    }
+  }
+`;
+
 const Pantry: React.FC = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [itemId, setItemId] = useState<number>(0);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedItemName, setSelectedItemName] = useState('');
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [unit, setUnit] = useState('g');
-  const [storageType, setStorageType] = useState('Fridge'); // matches options
+  const [storageType, setStorageType] = useState('Fridge');
 
-  const { loading, data, refetch } = useQuery(QUERY_ME);
-  const [addToPantry] = useMutation(ADD_TO_PANTRY);
+  const { data: userData, refetch } = useQuery(QUERY_ME);
+  const { data: searchData } = useQuery(QUERY_INGREDIENTS, {
+    variables: { keyword: searchTerm },
+    skip: searchTerm.length < 2,
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const { data: unitData } = useQuery(GET_INGREDIENT_UNITS, {
+    variables: { ingredientByIdId: selectedItemId },
+    skip: !selectedItemId,
+  });
+
+  const [addToPantry] = useMutation(ADD_TO_PANTRY, {
+    onCompleted: () => {
+      refetch();
+      resetForm();
+    },
+    onError: (error) => console.error('Error adding item to pantry:', error),
+  });
+
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedItemId || !selectedItemName) return;
 
     try {
-      const result = await addToPantry({
+      await addToPantry({
         variables: {
-          addtoPantryId: itemId,
-          quantity: Number(quantity),
-          unit,
+          addtoPantryId: selectedItemId,
           storage: storageType,
+          unit,
+          quantity,
         },
       });
-
-      console.log('Added item:', result.data);
-      await refetch();
-      setShowModal(false);
-      setItemId(0);
-      setQuantity(1);
-      setUnit('g');
-      setStorageType('Fridge');
-    } catch (error) {
-      console.error('Error adding pantry item:', error);
+    } catch (err) {
+      console.error('Add error:', err);
     }
   };
 
-  const pantryItems = data?.me?.pantry || [];
-  const fridgeItems = pantryItems.filter((item: any) => item.storage === 'Fridge');
-  const freezerItems = pantryItems.filter((item: any) => item.storage === 'Freezer');
-  const closetItems = pantryItems.filter((item: any) => item.storage === 'Closet');
+  const handleIngredientSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedName = e.target.value;
+    setSelectedItemName(selectedName);
+    const selected = searchData?.ingredients.find((item: any) => item.item === selectedName);
+    if (selected) {
+      setSelectedItemId(parseInt(selected.id));
+    }
+  };
+
+  const resetForm = () => {
+    setSearchTerm('');
+    setSelectedItemName('');
+    setSelectedItemId(null);
+    setQuantity(1);
+    setUnit('');
+  };
+
+  const pantryItems = userData?.me?.pantry || [];
 
   return (
-    <div className="homepage">
-      <main className="content-grid">
-        <div
-          className="box filter-modal"
-          style={{ gridColumn: 'span 3', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-        >
-          <button className="btn modal" onClick={() => setShowModal(true)}>➕ Add Items to Pantry</button>
-          <button className="btn modal">⚙️ Filter / Sort</button>
-        </div>
+    <div className="pantry-page">
+      <h2>Pantry Inventory</h2>
 
-        <div className="box">
-          <h3>❄️ Fridge</h3>
-          {fridgeItems.length === 0 ? <p>No fridge items.</p> : fridgeItems.map((item: any) => (
-            <p key={item.id}>{item.item} (x{item.quantity} {item.unit})</p>
-          ))}
-        </div>
-
-        <div className="box">
-          <h3>🧊 Freezer</h3>
-          {freezerItems.length === 0 ? <p>No freezer items.</p> : freezerItems.map((item: any) => (
-            <p key={item.id}>{item.item} (x{item.quantity} {item.unit})</p>
-          ))}
-        </div>
-
-        <div className="box">
-          <h3>🧺 Closet Shelf</h3>
-          {closetItems.length === 0 ? <p>No closet items.</p> : closetItems.map((item: any) => (
-            <p key={item.id}>{item.item} (x{item.quantity} {item.unit})</p>
-          ))}
-        </div>
-
-        {showModal && (
-          <div className="modal-overlay" onClick={() => setShowModal(false)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <h3>Add Item to Pantry</h3>
-              <form onSubmit={handleSubmit}>
-                <label>
-                  Spoonacular Item ID:
-                  <input type="number" value={itemId} onChange={(e) => setItemId(parseInt(e.target.value))} required />
-                </label>
-                <label>
-                  Quantity:
-                  <input type="number" value={quantity} min="1" onChange={(e) => setQuantity(parseInt(e.target.value))} />
-                </label>
-                <label>
-                  Unit:
-                  <input type="text" value={unit} onChange={(e) => setUnit(e.target.value)} />
-                </label>
-                <label>
-                  Storage Type:
-                  <select value={storageType} onChange={(e) => setStorageType(e.target.value)}>
-                    <option>Fridge</option>
-                    <option>Freezer</option>
-                    <option>Closet</option>
-                  </select>
-                </label>
-                <div className="modal-buttons">
-                  <button type="submit" className="btn cook">Add</button>
-                  <button type="button" className="btn favorite" onClick={() => setShowModal(false)}>Cancel</button>
-                </div>
-              </form>
-            </div>
-          </div>
+      <form className="pantry-form" onSubmit={handleAdd}>
+        <input
+          type="text"
+          placeholder="Search ingredients..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {searchData?.ingredients && (
+          <select value={selectedItemName} onChange={handleIngredientSelection} required>
+            <option value="">Select Ingredient</option>
+            {searchData.ingredients.map((item: any, index: number) => (
+              <option key={index} value={item.item}>
+                {item.item}
+              </option>
+            ))}
+          </select>
         )}
-      </main>
+        <input
+          type="number"
+          placeholder="Quantity"
+          value={quantity}
+          onChange={(e) => setQuantity(parseInt(e.target.value))}
+          min="1"
+          required
+        />
+        {unitData?.ingredientById?.unit?.length > 0 ? (
+          <select value={unit} onChange={(e) => setUnit(e.target.value)} required>
+            <option value="">Select Unit</option>
+            {unitData.ingredientById.unit.map((u: string, i: number) => (
+              <option key={i} value={u}>{u}</option>
+            ))}
+          </select>
+        ) : (
+          <input
+            type="text"
+            placeholder="Unit (e.g., g)"
+            value={unit}
+            onChange={(e) => setUnit(e.target.value)}
+            required
+          />
+        )}
+        <select value={storageType} onChange={(e) => setStorageType(e.target.value)}>
+          <option value="Fridge">Fridge</option>
+          <option value="Freezer">Freezer</option>
+          <option value="Closet">Closet</option>
+        </select>
+        <button type="submit">➕ Add to Pantry</button>
+      </form>
 
-      <footer className="footer">(Pantry/Fridge Page)</footer>
+      <div className="pantry-list">
+        {pantryItems.map((item: any) => (
+          <div key={item.id} className="pantry-item">
+            <p><strong>{item.item}</strong></p>
+            <p>Qty: {item.quantity} {item.unit}</p>
+            <p>Storage: {item.storage}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

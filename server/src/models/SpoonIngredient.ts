@@ -4,6 +4,7 @@ import { Schema, model, Document } from 'mongoose';
 interface ISpoonIngredient extends Document {
   id: number;
   item: string;
+  unit?: string[]; // Optional field for unit
 }
 
 const spoonIngredientSchema = new Schema<ISpoonIngredient>(
@@ -18,6 +19,10 @@ const spoonIngredientSchema = new Schema<ISpoonIngredient>(
       required: true,
       trim: true,
     },
+    unit: {
+      type: [String], // Array of strings for units
+      default: [], // Default to an empty array if no units are provided
+    },
   },
   {
     timestamps: true,
@@ -28,4 +33,4 @@ const spoonIngredientSchema = new Schema<ISpoonIngredient>(
 
 const SpoonIngredient = model<ISpoonIngredient>('SpoonIngredient', spoonIngredientSchema);
 
-export default SpoonIngredient;
+export  { SpoonIngredient, ISpoonIngredient }; ;

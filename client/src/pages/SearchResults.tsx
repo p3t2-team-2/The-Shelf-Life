@@ -1,52 +1,76 @@
-import { useSearchParams } from 'react-router-dom';
-import { gql, useQuery } from '@apollo/client';
-import '../css/SearchResults.css'; 
+import React, { useState } from 'react';
+import { gql, useMutation } from '@apollo/client';
+import { useNavigate } from 'react-router-dom';
+import AlertModal from '../components/AlertModal';
+import '../css/searchResults.css';
 
-type Recipe = {
+interface Recipe {
   id: number;
   name: string;
   image: string;
-};
-
-const SEARCH_RECIPES = gql`
-query SearchRecipes($keywords: String!) {
-  searchRecipes(keywords: $keywords) {
-    id
-    image
-    name
-  }
 }
+
+interface SearchResultsProps {
+  results: Recipe[];
+}
+
+const ADD_RECIPE = gql`
+  mutation AddRecipe($id: Int!) {
+    addRecipe(id: $id) {
+      _id
+      recipes {
+        id
+        name
+        image
+      }
+    }
+  }
 `;
 
-const SearchResults = () => {
-  const [searchParams] = useSearchParams();
-  const query = searchParams.get("query");
+const SearchResults: React.FC<SearchResultsProps> = ({ results }) => {
+  const [addRecipe, { loading }] = useMutation(ADD_RECIPE);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  const { loading, error, data } = useQuery(SEARCH_RECIPES, {
-    variables: { keywords: query || "" },
-    skip: !query, 
-  });
+  const handleAddToFavorites = async (recipe: Recipe) => {
+    try {
+      await addRecipe({ variables: { id: recipe.id } });
+      setAlertMessage(`${recipe.name} added to favorites!`);
+    } catch (error: any) {
+      setAlertMessage(`Failed to add ${recipe.name}: ${error.message}`);
+    }
+  };
 
-  const results: Recipe[] = data?.searchRecipes || [];
-
-
+  const handleViewDetails = (id: number) => {
+    navigate(`/recipe/${id}`);
+  };
 
   return (
-    <div className="search-results-page">
-      <h2>Search Results for: <em>{query}</em></h2>
-      {loading && <p>Loading...</p>}
-      {error && <p>Error: {error.message}</p>}
-      {!loading && !error && results.length === 0 && (
-        <p>No recipes found for your query.</p>
-      )}
-      <div className="results-grid">
-        {results.map((recipe) => (
-          <div key={recipe.id} className="recipe-card">
-            <img src={recipe.image} alt={recipe.name} />
-            <p>{recipe.name}</p>
+    <div className="search-results">
+      {results.map((recipe) => (
+        <div key={recipe.id} className="recipe-card">
+          <img src={recipe.image} alt={recipe.name} />
+          <h3>{recipe.name}</h3>
+          <div className="card-buttons">
+            <button
+              onClick={() => handleViewDetails(recipe.id)}
+              className="view-button"
+            >
+              View Recipe
+            </button>
+            <button
+              onClick={() => handleAddToFavorites(recipe)}
+              disabled={loading}
+              className="favorite-button"
+            >
+              {loading ? 'Adding...' : 'Add to Favorites'}
+            </button>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
+      {alertMessage && (
+        <AlertModal message={alertMessage} onClose={() => setAlertMessage(null)} />
+      )}
     </div>
   );
 };

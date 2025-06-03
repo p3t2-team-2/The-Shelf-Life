@@ -7,7 +7,7 @@ const creators = [
     image: "placeholder-andrew.jpg" 
   },
   { 
-    name: "Christopher Del Grasso", 
+    name: "Christopher Del Grosso", 
     description: "<Insert description of CDG here>", 
     image: "placeholder-christopher.jpg" 
   },

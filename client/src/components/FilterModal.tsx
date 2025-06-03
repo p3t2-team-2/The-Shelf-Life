@@ -47,14 +47,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
         </select>
 
         <label>
-          <input type="checkbox" name="expiringFirst" checked={filters.expiringFirst} onChange={handleCheckbox} />
-          Expiring First
-        </label>
-
-        <label>Max Price: ${filters.maxPrice}</label>
-        <input type="range" name="maxPrice" min="1" max="100" value={filters.maxPrice} onChange={handleChange} />
-
-        <label>
   Max Cook Time: {filters.maxCookTime} minutes
 </label>
 <input
@@ -67,11 +59,20 @@ const FilterModal: React.FC<FilterModalProps> = ({
 />
 
         <label>Dietary Restrictions:</label>
-        <select name="dietary" onChange={handleChange} multiple>
-          <option value="vegetarian">Vegetarian</option>
-          <option value="vegan">Vegan</option>
-          <option value="gluten-free">Gluten-Free</option>
-        </select>
+<select name="dietary" onChange={handleChange} multiple>
+  <option value="dairy">Dairy</option>
+  <option value="egg">Egg</option>
+  <option value="gluten">Gluten</option>
+  <option value="grain">Grain</option>
+  <option value="peanut">Peanut</option>
+  <option value="seafood">Seafood</option>
+  <option value="sesame">Sesame</option>
+  <option value="shellfish">Shellfish</option>
+  <option value="soy">Soy</option>
+  <option value="sulfite">Sulfite</option>
+  <option value="tree-nut">Tree Nut</option>
+  <option value="wheat">Wheat</option>
+</select>
 
         <label>Meal Type:</label>
         <select name="mealType" onChange={handleChange}>
