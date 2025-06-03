@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 // import ".Header/Header.css";
 
 type SearchBarProps = {
-    onSearch: (query: string) => void;
+    onSearch?: (query: string) => void;
   }
   
   const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useQuery, gql, useMutation } from '@apollo/client';
+import { Link } from 'react-router-dom';
 import '../css/Home.css';
 import FilterModal from '../components/FilterModal';
 import { QUERY_PROFILES } from '../utils/queries';
@@ -28,7 +29,6 @@ const ADD_RECIPE = gql`
   }
 `;
 
-
 interface Recipe {
   id: string;
   name: string;
@@ -40,28 +40,23 @@ const Home: React.FC = () => {
   const profiles = profileData?.profiles || [];
 
   const [addToFavorites] = useMutation(ADD_RECIPE, {
-  onCompleted: (data) => {
-    console.log('Added to favorites:', data);
-  },
-  onError: (error) => {
-    console.error('Error adding to favorites:', error);
-  }
-});
-
+    onCompleted: (data) => console.log('Added to favorites:', data),
+    onError: (error) => console.error('Error adding to favorites:', error),
+  });
 
   const { loading: loadingRecipes, data: recipeData, error } = useQuery(GET_SPOONACULAR_RECIPES);
   const recipes: Recipe[] = recipeData?.spoonacularRecipes || [];
 
   const [modalOpen, setModalOpen] = React.useState(false);
   const [filters, setFilters] = React.useState({
-    sort: "random",
+    sort: 'random',
     expiringFirst: false,
     maxPrice: 100,
     maxCookTime: 180,
     dietary: [],
-    mealType: "",
-    cuisine: "",
-    appliance: "",
+    mealType: '',
+    cuisine: '',
+    appliance: '',
     maxValue: 100
   });
 
@@ -72,7 +67,7 @@ const Home: React.FC = () => {
 
   function filterRecipes(recipes: Recipe[]) {
     return recipes.filter((recipe) => {
-      if (filters.maxPrice < 50 && recipe.name.toLowerCase().includes("steak")) return false;
+      if (filters.maxPrice < 50 && recipe.name.toLowerCase().includes('steak')) return false;
       if (filters.mealType && !recipe.name.toLowerCase().includes(filters.mealType)) return false;
       if (filters.cuisine && !recipe.name.toLowerCase().includes(filters.cuisine)) return false;
       return true;
@@ -81,11 +76,11 @@ const Home: React.FC = () => {
 
   function sortRecipes(recipes: Recipe[]) {
     switch (filters.sort) {
-      case "name":
+      case 'name':
         return [...recipes].sort((a, b) => a.name.localeCompare(b.name));
-      case "id":
+      case 'id':
         return [...recipes].sort((a, b) => a.id.localeCompare(b.id));
-      case "random":
+      case 'random':
       default:
         return getRandomItems(recipes, 5);
     }
@@ -96,8 +91,6 @@ const Home: React.FC = () => {
 
   return (
     <div className="homepage">
-
-      {/* ✅ Top right Filter/Sort button */}
       <div className="top-bar">
         <button className="btn modal" onClick={() => setModalOpen(true)}>
           🔍 Filter & Sort
@@ -105,8 +98,6 @@ const Home: React.FC = () => {
       </div>
 
       <main className="content-grid">
-
-        {/* Filtered Recipes */}
         {loadingRecipes ? (
           <div className="box random-recipe">
             <h2>Recipes</h2>
@@ -120,19 +111,22 @@ const Home: React.FC = () => {
         ) : sorted.length > 0 ? (
           sorted.map((recipe) => (
             <div className="box random-recipe" key={recipe.id}>
-              <h2>Filtered Recipe</h2>
-              <h3>{recipe.name}</h3>
-              <img src={recipe.image} alt={recipe.name} className="recipe-img" />
+              <h2>{recipe.name}</h2>
+              <Link to={`/recipes/${recipe.id}`}>
+                
+                <img src={recipe.image} alt={recipe.name} className="recipe-img" />
+              </Link>
               <p>✅ Has all ingredients</p>
               <div className="button-group">
                 <button className="btn cook">Cook</button>
-                <button 
-  className="btn favorite"
-  onClick={() => addToFavorites({ variables: { addRecipeId: parseInt(recipe.id) } })}
->
-  Add to Favorites
-</button>
-
+                <button
+                  className="btn favorite"
+                  onClick={() =>
+                    addToFavorites({ variables: { addRecipeId: parseInt(recipe.id) } })
+                  }
+                >
+                  Add to Favorites
+                </button>
               </div>
             </div>
           ))
@@ -143,7 +137,6 @@ const Home: React.FC = () => {
           </div>
         )}
 
-        {/* Featured Recipe */}
         <div className="box featured-recipe">
           <h2>⭐ Featured (User Favorite) Recipe</h2>
           <ul>
@@ -169,8 +162,6 @@ const Home: React.FC = () => {
         }}
         sortOption={filters.sort}
       />
-
-      
     </div>
   );
 };

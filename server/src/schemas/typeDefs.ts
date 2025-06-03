@@ -8,8 +8,9 @@ const typeDefs = `
     recipes: [Recipe]
   }
   type SpoonIngredient {
-    id: Int
-    item: String
+    id: Int!
+    item: String!
+    unit: [String!]!
   }
 
   type Auth {
@@ -26,9 +27,15 @@ const typeDefs = `
     id: Int
     item: String
     quantity: Float
-    unit: String
+    unit: String!
     storage: String
   }
+
+  input IngredientUnits {
+    id: Int
+    item: String
+    unit: [String]
+    }
   
   type Step {
     number: Int
@@ -54,7 +61,7 @@ const typeDefs = `
     searchRecipes(keywords: String!): [Recipe]!
     recommendedRecipes: [Recipe]!
     recipeById(id: Int!): Recipe
-    ingredientById(id: Int!): Ingredient
+    ingredientById(id: Int!): SpoonIngredient
   }
 
   type Mutation {

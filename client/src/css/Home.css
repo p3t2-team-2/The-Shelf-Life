@@ -1,96 +1,3 @@
-/* .homepage {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #000000;
-  color: #90EE90;
-  min-height: 100vh;
-  padding: 20px;
-} */
-
-.searchbar-container {
-  padding: 12px 24px;
-  border-bottom: 2px solid #A0522D;
-  background: rgba(139, 47, 47, 0.3); /* subtle dark red background tint */
-}
-
-.content-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-  margin-top: 24px;
-}
-
-.box {
-  background: rgba(60, 40, 20, 0.65); /* darker brownish overlay */
-  border: 1px solid #8B2F2F; /* slightly deeper red for border */
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4); /* stronger neutral shadow */
-  transition: transform 0.3s ease;
-}
-
-
-.box:hover {
-  transform: scale(1.02);
-}
-
-.featured-recipe {
-  text-align: center;
-}
-
-.button-group {
-  margin-top: 12px;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-}
-
-.btn {
-  padding: 10px 16px;
-  border: none;
-  font-weight: bold;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.3s;
-}
-
-/* Cook = lettuce green */
-.btn.cook {
-  background: #228B22;
-  color: white;
-}
-
-/* Favorite = cheese orange */
-.btn.favorite {
-  background: #FFA500;
-  color: black;
-}
-
-/* Modal = tomato red */
-.btn.modal {
-  background: #FF6347;
-  color: white;
-}
-
-.btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 10px #90EE90;
-}
-
-.footer {
-  text-align: center;
-  margin: 40px 0;
-  font-size: 0.9em;
-  color: #FFD580;
-}
-
-.recipe-img {
-  width: 100%;
-  max-height: 220px;
-  object-fit: cover;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(139, 47, 47, 0.25); /* dark red glow */
-}
-
 * {
   margin: 0;
   padding: 0;
@@ -102,8 +9,94 @@ html, body {
   height: 100%;
   overflow-x: hidden;
   background-color: #000000;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #f0f0f0;
 }
 
+/* Search Bar */
+.searchbar-container {
+  padding: 12px 24px;
+  border-bottom: 2px solid #A0522D;
+  background: rgba(139, 47, 47, 0.3);
+}
+
+/* Grid Layout for Recipe Cards */
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+  padding: 0 16px;
+}
+
+.box {
+  background: #3e2f1f; /* Solid warm brown with no transparency */
+  border: 1px solid #4f3b2d; /* Slight contrast border */
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  color: #fffbe6; /* Soft creamy white text for readability */
+  line-height: 1.6;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  animation: fadeInUp 0.6s ease;
+}
+
+.box:hover {
+  transform: scale(1.02);
+  background: #4c3828;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.85);
+}
+
+/* ✅ Make "Filtered Recipe" header green */
+.box.random-recipe h2 {
+  color: #23e5ff; /* vibrant green */
+}
+
+/* Featured Recipe */
+.featured-recipe {
+  text-align: center;
+}
+
+/* Buttons */
+.button-group {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 10px 16px;
+  border: none;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.3s;
+  font-size: 0.9rem;
+}
+
+.btn.cook {
+  background: #32CD32;
+  color: white;
+}
+
+.btn.favorite {
+  background: #FFA500;
+  color: black;
+}
+
+.btn.modal {
+  background: #FF6347;
+  color: white;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px #90EE90;
+}
+
+/* Top Right Filter Button */
 .top-bar {
   display: flex;
   justify-content: flex-end;
@@ -125,4 +118,56 @@ html, body {
 
 .top-bar .btn.modal:hover {
   background-color: #ff5722;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  margin: 40px 0;
+  font-size: 0.9em;
+  color: #FFD580;
+}
+
+/* Recipe Image */
+.recipe-img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(139, 47, 47, 0.25);
+  transition: transform 0.3s ease;
+}
+
+.recipe-img:hover {
+  transform: scale(1.02);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+    padding: 0 10px;
+  }
+
+  .top-bar {
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .btn {
+    width: 100%;
+    text-align: center;
+  }
 }
