@@ -4,7 +4,7 @@ import Auth from '../../utils/auth';
 import "./Header.css"
 import logo from "../../assets/shelf_life_logo_transparent_aggressive.png"
 // import SearchBar from '../Searchbar';
-import RecipeSearch from '../RecipeSearch';
+import SearchBar from '../Searchbar';
 
 const Header = () => {
   const logout = (event: MouseEvent<HTMLButtonElement>) => {
@@ -37,7 +37,7 @@ const Header = () => {
               <button onClick={logout} className='logout-button'>
                 Logout
               </button>
-              <RecipeSearch />
+              <SearchBar />
               
 
             </>

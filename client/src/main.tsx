@@ -15,7 +15,7 @@ import Favorites from './pages/Favorites';
 // import SearchResults from './pages/SearchResults';
 // import SearchResults from './pages/SearchResults';
 import RecipeDetails from './pages/fullRecipes';
-import SearchResults from './pages/SearchResults.js';
+import RecipeSearch from './components/RecipeSearch.js';
 
 const router = createBrowserRouter([
   {
@@ -54,7 +54,7 @@ const router = createBrowserRouter([
       },
        {
         path: "/search",
-        element: <SearchResults />
+        element: <RecipeSearch />
       }, 
       {
         path: "/recipes",

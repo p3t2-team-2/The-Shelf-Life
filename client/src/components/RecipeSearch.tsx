@@ -1,7 +1,6 @@
 import { gql, useLazyQuery } from '@apollo/client';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import SearchBar from './Searchbar';
 
 const SEARCH_RECIPES = gql`
   query SearchRecipes($keywords: String!) {
@@ -32,7 +31,7 @@ const RecipeSearch = () => {
 
   return (
     <div>
-      <SearchBar />
+      <h2>Search Results</h2>
       {loading && <p>Loading recipes...</p>}
       {error && <p>Error: {error.message}</p>}
       {data?.searchRecipes && (
