@@ -16,7 +16,7 @@ const Footer: React.FC = () => {
     <footer>
       <div>
         {location.pathname !== '/' && (
-          <button
+          <button className="button"
             onClick={handleGoBack}
           >
             &larr; Go Back

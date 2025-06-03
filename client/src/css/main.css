@@ -1,87 +1,20 @@
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #000000;
-  color: #90EE90;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+/* App.css */
+
+.background {
+  background-image: url('../assets/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   min-height: 100vh;
-}
-
-main {
-  background: rgba(255, 213, 128, 0.08);
-  padding: 2.5rem 3.5rem;
-  border-radius: 16px;
-  box-shadow: 0 12px 30px rgba(139, 47, 47, 0.25);
-  border: 1px solid #A0522D;
-  transition: all 0.3s ease-in-out;
-}
-
-h1, h2, h4 {
-  color: #FFD580;
-  text-shadow: 0 0 5px #90EE90;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-input {
-  background: #111;
-  border: 1px solid #2f2f2f;
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  color: #FFD580;
-  transition: 0.3s;
-}
-
-input:focus {
-  outline: none;
-  border-color: #228B22;
-  box-shadow: 0 0 10px #228B22;
-}
-
-button {
-  background: linear-gradient(145deg, #FFA500, #FFD580);
-  color: black;
-  border: none;
-  padding: 0.75rem 1rem;
-  font-weight: bold;
-  border-radius: 12px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(255, 99, 71, 0.3);
-  transition: transform 0.2s, box-shadow 0.3s;
-}
-
-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 12px #FF6347;
-}
-
-.recipe-img {
   width: 100%;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(139, 47, 47, 0.3);
-  transition: transform 0.3s ease;
 }
 
-.recipe-img:hover {
-  transform: scale(1.02);
+.page-content {
+  background-color: rgba(255, 255, 255, 0.85); /* Makes content readable on light background */
+  min-height: 100vh;
+  padding: 2rem 0;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.container {
+  padding: 1rem 2rem;
 }
-
-html, body {
-  width: 100%;
-  height: 100%;
-  overflow-x: hidden;
-  background-color: #000000;
-}
-

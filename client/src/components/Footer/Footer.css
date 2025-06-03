@@ -6,6 +6,11 @@ footer {
   padding: 20px;
   border-top: 2px solid #A0522D;
   box-shadow: 0 -4px 10px rgba(139, 47, 47, 0.25); /* subtle dark red glow */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
 }
 
 footer div {

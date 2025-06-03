@@ -1,5 +1,5 @@
 import React from 'react';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery, gql, useMutation } from '@apollo/client';
 import '../css/Home.css';
 import FilterModal from '../components/FilterModal';
 import { QUERY_PROFILES } from '../utils/queries';
@@ -14,6 +14,21 @@ const GET_SPOONACULAR_RECIPES = gql`
   }
 `;
 
+const ADD_RECIPE = gql`
+  mutation Mutation($addRecipeId: Int!) {
+    addRecipe(id: $addRecipeId) {
+      pantry {
+        id
+        item
+        quantity
+        storage
+        unit
+      }
+    }
+  }
+`;
+
+
 interface Recipe {
   id: string;
   name: string;
@@ -23,6 +38,16 @@ interface Recipe {
 const Home: React.FC = () => {
   const { loading: loadingProfiles, data: profileData } = useQuery(QUERY_PROFILES);
   const profiles = profileData?.profiles || [];
+
+  const [addToFavorites] = useMutation(ADD_RECIPE, {
+  onCompleted: (data) => {
+    console.log('Added to favorites:', data);
+  },
+  onError: (error) => {
+    console.error('Error adding to favorites:', error);
+  }
+});
+
 
   const { loading: loadingRecipes, data: recipeData, error } = useQuery(GET_SPOONACULAR_RECIPES);
   const recipes: Recipe[] = recipeData?.spoonacularRecipes || [];
@@ -101,7 +126,13 @@ const Home: React.FC = () => {
               <p>✅ Has all ingredients</p>
               <div className="button-group">
                 <button className="btn cook">Cook</button>
-                <button className="btn favorite">Add to Favorites</button>
+                <button 
+  className="btn favorite"
+  onClick={() => addToFavorites({ variables: { addRecipeId: parseInt(recipe.id) } })}
+>
+  Add to Favorites
+</button>
+
               </div>
             </div>
           ))
@@ -139,7 +170,7 @@ const Home: React.FC = () => {
         sortOption={filters.sort}
       />
 
-      <footer className="footer">(Home Page)</footer>
+      
     </div>
   );
 };

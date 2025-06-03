@@ -54,6 +54,7 @@ const typeDefs = `
     searchRecipes(keywords: String!): [Recipe]!
     recommendedRecipes: [Recipe]!
     recipeById(id: Int!): Recipe
+    ingredientById(id: Int!): Ingredient
   }
 
   type Mutation {
@@ -66,6 +67,7 @@ const typeDefs = `
     increasePantryItem(id: Int!, quantity: Int!, unit: String!): Profile
     decreasePantryItem(id: Int!, quantity: Int!, unit: String!): Profile
     removeFromPantry(id: Int!): Profile
+    addtoPantryByName(name: String!, storage: String!, unit: String!, quantity: Int!): Profile
     
   }
 `;

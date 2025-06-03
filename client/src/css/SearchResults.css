@@ -51,6 +51,17 @@
   text-shadow: 0 0 2px #FFD580;
 }
 
+.add-to-favorites-button {
+  background-color: #A0522D;
+  color: #FFD580;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
 @media (max-width: 768px) {
   .search-results-page {
     padding: 1rem;
@@ -60,5 +71,6 @@
     font-size: 1rem;
   }
 }
+
 
 

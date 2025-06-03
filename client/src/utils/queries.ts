@@ -26,7 +26,29 @@ export const QUERY_ME = gql`
     }
   }
 `
-// const QUERY_RECIPE = gql`
-
+export const QUERY_RECIPE = gql`
+  query Query($recipeByIdId: Int!) {
+  recipeById(id: $recipeByIdId) {
+    description
+    id
+    image
+    ingredients {
+      id
+      item
+      quantity
+      storage
+      unit
+    }
+    instructions {
+      number
+      step
+      time
+    }
+    name
+  }
+}
+`
+// export const  QUERY_INGREDIENT = gql`
+  
 // `
 ;
