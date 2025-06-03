@@ -2,13 +2,13 @@ import { gql, useLazyQuery } from '@apollo/client';
 import SearchBar from './Searchbar';
 
 const SEARCH_RECIPES = gql`
-  query SearchRecipes($query: String!) {
-    searchRecipes(query: $query) {
-      id
-      title
-      image
-    }
+query SearchRecipes($keywords: String!) {
+  searchRecipes(keywords: $keywords) {
+    id
+    image
+    name
   }
+}
 `;
 
 const RecipeSearch = () => {

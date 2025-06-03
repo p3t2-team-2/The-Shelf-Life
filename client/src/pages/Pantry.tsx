@@ -111,6 +111,10 @@ const Pantry: React.FC = () => {
 
   const pantryItems = userData?.me?.pantry || [];
 
+  const fridgeItems = pantryItems.filter((item: any) => item.storage === 'Fridge');
+  const freezerItems = pantryItems.filter((item: any) => item.storage === 'Freezer');
+  const closetItems = pantryItems.filter((item: any) => item.storage === 'Closet');
+
   return (
     <div className="pantry-page">
       <h2>Pantry Inventory</h2>
@@ -165,13 +169,29 @@ const Pantry: React.FC = () => {
       </form>
 
       <div className="pantry-list">
-        {pantryItems.map((item: any) => (
+        <h3>🧊 Fridge</h3>
+        {fridgeItems.length ? fridgeItems.map((item: any) => (
           <div key={item.id} className="pantry-item">
             <p><strong>{item.item}</strong></p>
             <p>Qty: {item.quantity} {item.unit}</p>
-            <p>Storage: {item.storage}</p>
           </div>
-        ))}
+        )) : <p>No items in fridge.</p>}
+
+        <h3>❄️ Freezer</h3>
+        {freezerItems.length ? freezerItems.map((item: any) => (
+          <div key={item.id} className="pantry-item">
+            <p><strong>{item.item}</strong></p>
+            <p>Qty: {item.quantity} {item.unit}</p>
+          </div>
+        )) : <p>No items in freezer.</p>}
+
+        <h3>🗄️ Closet</h3>
+        {closetItems.length ? closetItems.map((item: any) => (
+          <div key={item.id} className="pantry-item">
+            <p><strong>{item.item}</strong></p>
+            <p>Qty: {item.quantity} {item.unit}</p>
+          </div>
+        )) : <p>No items in closet.</p>}
       </div>
     </div>
   );

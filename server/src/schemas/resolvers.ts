@@ -83,7 +83,7 @@ const resolvers = {
           id: ingredient.id,
           item: ingredient.name,
           quantity: ingredient.amount,
-          unit: Array.isArray(ingredient.unit) ? ingredient.unit : [ingredient.unit],
+          unit: Array.isArray(ingredient.unit) ? ingredient.unit : ingredient.unit,
         })),
         instructions: recipeData.analyzedInstructions[0]?.steps.map((step: any) => ({
           number: step.number,
@@ -295,8 +295,8 @@ Key=0132fcb5cc6e4595a04e81af0e23c2a6`);
     const ingredient = {
       id: ingredientId,
       item: info.name,
+      unit: unit,
       quantity,
-      unit,
       storage,
     };
 
