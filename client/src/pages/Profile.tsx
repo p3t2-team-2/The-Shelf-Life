@@ -1,65 +1,108 @@
-import React from 'react';
-import { Navigate, useParams, Link } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
+import React, { useState, useEffect } from "react";
+import { Navigate, Link } from "react-router-dom";
+import { useQuery, gql, useMutation } from "@apollo/client";
 
-import { QUERY_SINGLE_PROFILE, QUERY_ME } from '../utils/queries';
-import Auth from '../utils/auth';
-import '../css/Profile.css';
+import "../css/Profile.css";
 
-import FilterModal from '../components/FilterModal';
-import CreateRecipeModal from '../components/CreateRecipeModal';
+import FilterModal from "../components/FilterModal";
+import CreateRecipeModal from "../components/CreateRecipeModal";
+
+const QUERY_ME = gql`
+  query Query {
+    me {
+      _id
+    }
+  }
+`;
+
+const QUERY_PROFILE = gql`
+  query Query($profileId: ID!) {
+    profile(profileId: $profileId) {
+      recipes {
+        id
+        name
+        description
+        ingredients {
+          id
+          item
+          quantity
+          unit
+        }
+        instructions {
+          number
+          step
+          time
+        }
+      }
+    }
+  }
+`;
+
+const REMOVE_RECIPE = gql`
+  mutation RemoveRecipe($id: Int!) {
+    removeRecipe(id: $id) {
+      _id
+      recipes {
+        id
+        name
+      }
+    }
+  }
+`;
 
 const Profile = () => {
-  const { profileId } = useParams();
+  const { loading: loadingMe, data: dataMe } = useQuery(QUERY_ME);
+  const profileId = dataMe?.me?._id;
 
-  const { loading, data } = useQuery(
-    profileId ? QUERY_SINGLE_PROFILE : QUERY_ME,
-    {
-      variables: { profileId },
-    }
-  );
-
-  const [shoppingList, setShoppingList] = React.useState<any[]>([]);
-
-
-  const profile = data?.me || data?.profile || {};
-
-  const [modalOpen, setModalOpen] = React.useState(false);
-  const [createModalOpen, setCreateModalOpen] = React.useState(false);
-
-  const [filters, setFilters] = React.useState({
-    sort: 'random',
-    expiringFirst: false,
-    maxPrice: 100,
-    maxCookTime: 180,
-    dietary: [],
-    mealType: '',
-    cuisine: '',
-    appliance: '',
-    maxValue: 100,
+  // Fetch profile recipes
+  const {
+    loading: loadingProfile,
+    data: dataProfile,
+    refetch,
+  } = useQuery(QUERY_PROFILE, {
+    variables: { profileId },
+    skip: !profileId,
   });
 
-  // Redirect if viewing own profile through /profile/:profileId
-  if (
-    Auth.loggedIn() &&
-    profileId &&
-    Auth.getProfile().data._id === profileId
-  ) {
-    return <Navigate to="/me" />;
-  }
+  const profile = dataProfile?.profile || {};
 
-  if (loading) return <div>Loading...</div>;
+  const [modalOpen, setModalOpen] = useState(false);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  // Add filters state
+  const [filters, setFilters] = useState<{ sort?: string }>({});
 
-  if (!profile?.name) {
+  type Recipe = {
+    id: string;
+    name: string;
+    description: string;
+    ingredients: { id: string; item: string; quantity: number; unit: string }[];
+    instructions: { number: number; step: string; time?: number }[];
+  };
+
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+
+  const [removeRecipe] = useMutation(REMOVE_RECIPE, {
+    refetchQueries: [{ query: QUERY_PROFILE, variables: { profileId } }],
+  });
+
+  // ⬇️ REFRESH DATA EVERY TIME PROFILE PAGE LOADS
+  useEffect(() => {
+    if (profileId) {
+      refetch(); // Ensure latest favorites are loaded
+    }
+  }, [profileId]); // Runs every time profileId changes
+
+  if (loadingMe) return <div>Loading user data...</div>;
+  if (!profileId) {
     return (
       <h4>
-        You need to be logged in to view your profile. Use the navigation
-        links above to sign up or log in!
+        You need to be logged in to view your profile. Use the navigation links
+        above to sign up or log in!
       </h4>
     );
   }
 
-  const favoriteRecipes = profile.favorites || [];
+  if (loadingProfile) return <div>Loading profile...</div>;
 
   return (
     <div className="profile-page">
@@ -74,22 +117,40 @@ const Profile = () => {
         {/* Sidebar Navigation */}
         <aside className="sidebar">
           <button className="btn">☰ Menu</button>
-          <Link to="/calendar" className="btn">Calendar</Link>
-          <Link to="/favorites" className="btn">Favorite Recipes</Link>
-          <Link to="/pantry" className="btn">Pantry</Link>
+          <Link to="/calendar" className="btn">
+            Calendar
+          </Link>
+          <Link to="/favorites" className="btn">
+            Favorite Recipes
+          </Link>
+          <Link to="/pantry" className="btn">
+            Pantry
+          </Link>
         </aside>
 
         {/* Favorite Recipes Section */}
         <section className="favorites">
-          <h2>{profile.name}'s Favorite Recipes</h2>
-          {favoriteRecipes.length > 0 ? (
-            favoriteRecipes.map((recipe: any) => (
-              <div className="favorite-card" key={recipe._id}>
-                <h3>{recipe.title}</h3>
-                <p>{recipe.hasAllIngredients ? '✅ Has all ingredients' : '❌ Missing ingredients'}</p>
+          <h2>Favorite Recipes</h2>
+          {profile.recipes.length > 0 ? (
+            profile.recipes.map((recipe: any) => (
+              <div
+                className="favorite-card"
+                key={recipe.id}
+                onClick={() => setSelectedRecipe(recipe)} // Open modal with recipe details
+              >
+                <h3>{recipe.name}</h3>
                 <div className="icons">
-                  <button className="btn">🗑 Remove</button>
-                  <button className="btn">👨‍🍳 Cook</button>
+                  <button
+                    className="btn"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent click from opening modal
+                      removeRecipe({
+                        variables: { id: parseInt(recipe.id, 10) },
+                      });
+                    }}
+                  >
+                    🗑 Remove
+                  </button>
                 </div>
               </div>
             ))
@@ -97,6 +158,39 @@ const Profile = () => {
             <p>No favorite recipes yet.</p>
           )}
         </section>
+
+        {/* Recipe Details Modal */}
+        {selectedRecipe && (
+          <div
+            className="modal-overlay"
+            onClick={() => setSelectedRecipe(null)}
+          >
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h2>{selectedRecipe.name}</h2>
+              <p>{selectedRecipe.description}</p>
+              <h3>Ingredients:</h3>
+              <ul>
+                {selectedRecipe.ingredients.map((ingredient: any) => (
+                  <li key={ingredient.id}>
+                    {ingredient.quantity} {ingredient.unit} {ingredient.item}
+                  </li>
+                ))}
+              </ul>
+              <h3>Instructions:</h3>
+              <ol>
+                {selectedRecipe.instructions.map((step: any) => (
+                  <li key={step.number}>
+                    <strong>Step {step.number}: </strong> {step.step}{" "}
+                    {step.time ? `(${step.time} mins)` : ""}
+                  </li>
+                ))}
+              </ol>
+              <button className="btn" onClick={() => setSelectedRecipe(null)}>
+                Close
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Custom Recipe Modal Launcher */}
         <section className="modals">
@@ -117,7 +211,7 @@ const Profile = () => {
           setFilters(newFilters);
           setModalOpen(false);
         }}
-        sortOption={filters.sort}
+        sortOption={filters.sort ?? ""}
       />
 
       {/* Create Recipe Modal */}
@@ -125,32 +219,10 @@ const Profile = () => {
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSave={(recipe) => {
-          console.log('Recipe created:', recipe);
+          console.log("Recipe created:", recipe);
           setCreateModalOpen(false);
-          // Optional: trigger refetch or update local state
         }}
       />
-
-      {/* Shopping List Section */}
-<section className="shopping-list">
-  <h2>🛒 Shopping List</h2>
-  {shoppingList.length > 0 ? (
-    <ul>
-      {shoppingList.map((item: any, index: number) => (
-        <li key={index}>
-          {item.item} - {item.quantity} {item.unit}
-        </li>
-      ))}
-    </ul>
-  ) : (
-    <p>No items in your shopping list.</p>
-  )}
-  {/* <button className="btn" 
-  onClick={handleAddToPantry}>
-    Add All to Pantry
-  </button> */}
-</section>
-
     </div>
   );
 };
