@@ -1,19 +1,20 @@
-import fetch from 'node-fetch';
+import fetch from "node-fetch";
 // import { time } from 'node:console';
-import { Profile } from '../models/index.js';
-import { IRecipe } from '../models/Recipe.js';
-import { SpoonIngredient } from '../models/index.js';
+import { Profile } from "../models/index.js";
+import { IRecipe } from "../models/Recipe.js";
+import { SpoonIngredient } from "../models/index.js";
 // import { ISpoonIngredient } from '../models/SpoonIngredient.js';
-import { signToken, AuthenticationError } from '../utils/auth.js';
-import { searchRecipes, searchRecipesByKeyword} from '../utils/spoonacularQueries.js';
-
-
+import { signToken, AuthenticationError } from "../utils/auth.js";
+import {
+  searchRecipes,
+  searchRecipesByKeyword,
+} from "../utils/spoonacularQueries.js";
 
 interface Profile {
   _id: string;
   name: string;
   email: string;
-  password: string; 
+  password: string;
 }
 
 interface ProfileArgs {
@@ -21,11 +22,11 @@ interface ProfileArgs {
 }
 
 interface AddProfileArgs {
-  input:{
+  input: {
     name: string;
     email: string;
     password: string;
-  }
+  };
 }
 
 interface ISpoonIngredient {
@@ -49,29 +50,47 @@ const resolvers = {
     profiles: async (): Promise<Profile[]> => {
       return await Profile.find();
     },
-    profile: async (_parent: any, { profileId }: ProfileArgs): Promise<Profile | null> => {
+    profile: async (
+      _parent: any,
+      { profileId }: ProfileArgs
+    ): Promise<Profile | null> => {
       return await Profile.findOne({ _id: profileId });
     },
-    me: async (_parent: any, _args: any, context: Context): Promise<Profile | null> => {
+    me: async (
+      _parent: any,
+      _args: any,
+      context: Context
+    ): Promise<Profile | null> => {
       if (context.user) {
         return await Profile.findOne({ _id: context.user._id });
       }
-      throw new AuthenticationError('invalid token');
+      throw new AuthenticationError("invalid token");
     },
-    ingredients: async (_parent: any, { keyword } : { keyword: string }): Promise<any[]> => {
-      return await SpoonIngredient.find({ item: { $regex: keyword, $options: 'i' } });
+    ingredients: async (
+      _parent: any,
+      { keyword }: { keyword: string }
+    ): Promise<any[]> => {
+      return await SpoonIngredient.find({
+        item: { $regex: keyword, $options: "i" },
+      });
     },
-    spoonacularRecipes: async (_parent: any): 
-    Promise<SpoonacularRecipe[]> => {     
+    spoonacularRecipes: async (_parent: any): Promise<SpoonacularRecipe[]> => {
       const recipes: any = await searchRecipes();
-      console.log('recipes:', recipes);
-      
+      console.log("recipes:", recipes);
+
       return recipes;
     },
-    recipeById: async (_parent: any, { id }: { id: number }): Promise<IRecipe | null> => {
-      const response = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`);
+    recipeById: async (
+      _parent: any,
+      { id }: { id: number }
+    ): Promise<IRecipe | null> => {
+      const response = await fetch(
+        `https://api.spoonacular.com/recipes/${id}/information?apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`
+      );
       if (!response.ok) {
-        throw new Error(`Error fetching recipe with ID ${id}: ${response.statusText}`);
+        throw new Error(
+          `Error fetching recipe with ID ${id}: ${response.statusText}`
+        );
       }
       const recipeData = await response.json();
       const recipe: IRecipe = {
@@ -83,135 +102,187 @@ const resolvers = {
           id: ingredient.id,
           item: ingredient.name,
           quantity: ingredient.amount,
-          unit: Array.isArray(ingredient.unit) ? ingredient.unit : ingredient.unit,
+          unit: Array.isArray(ingredient.unit)
+            ? ingredient.unit
+            : ingredient.unit,
         })),
-        instructions: recipeData.analyzedInstructions[0]?.steps.map((step: any) => ({
-          number: step.number,
-          step: step.step,
-          time: step.length ? step.length.number : null, // Assuming length is optional
-        })) || [],
+        instructions:
+          recipeData.analyzedInstructions[0]?.steps.map((step: any) => ({
+            number: step.number,
+            step: step.step,
+            time: step.length ? step.length.number : null, // Assuming length is optional
+          })) || [],
       };
       return recipe;
     },
-    ingredientById: async (_parent: any, { id }: { id: number }): Promise<ISpoonIngredient | null> => {
-  const response = await fetch(`https://api.spoonacular.com/food/ingredients/${id}/information?api
+    ingredientById: async (
+      _parent: any,
+      { id }: { id: number }
+    ): Promise<ISpoonIngredient | null> => {
+      const response =
+        await fetch(`https://api.spoonacular.com/food/ingredients/${id}/information?api
 Key=0132fcb5cc6e4595a04e81af0e23c2a6`);
-  
-  if (!response.ok) {
-    throw new Error(`Error fetching ingredient with ID ${id}: ${response.statusText}`);
-  }
 
-  const ingredientData = await response.json();
+      if (!response.ok) {
+        throw new Error(
+          `Error fetching ingredient with ID ${id}: ${response.statusText}`
+        );
+      }
 
-  const ingredient: ISpoonIngredient = {
-    id: ingredientData.id,
-    item: ingredientData.name,
-    unit: Array.isArray(ingredientData.possibleUnits) ? ingredientData.possibleUnits : [] // ✅ always an array
-  };
+      const ingredientData = await response.json();
 
-  return ingredient;
-},
-    searchRecipes: async (_parent: any, { keywords }: { keywords: string }): Promise<SpoonacularRecipe[]> => {
+      const ingredient: ISpoonIngredient = {
+        id: ingredientData.id,
+        item: ingredientData.name,
+        unit: Array.isArray(ingredientData.possibleUnits)
+          ? ingredientData.possibleUnits
+          : [], // ✅ always an array
+      };
+
+      return ingredient;
+    },
+    searchRecipes: async (
+      _parent: any,
+      { keywords }: { keywords: string }
+    ): Promise<SpoonacularRecipe[]> => {
       return await searchRecipesByKeyword(keywords);
     },
-    recommendedRecipes: async (_parent: any, _args: any, context: Context): Promise<SpoonacularRecipe[]> => {
+    recommendedRecipes: async (
+      _parent: any,
+      _args: any,
+      context: Context
+    ): Promise<SpoonacularRecipe[]> => {
       if (context.user) {
-        const query: string[] = []
-        const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
+        const query: string[] = [];
+        const userProfile = (await Profile.findOne({
+          _id: context.user._id,
+        })) as any;
         userProfile?.pantry.forEach((item: any) => {
           if (item.item) {
             query.push(item.item);
           }
         });
-        return await searchRecipesByKeyword(query) as Promise<SpoonacularRecipe[]>;
+        return (await searchRecipesByKeyword(query)) as Promise<
+          SpoonacularRecipe[]
+        >;
       }
-      throw new AuthenticationError('You need to be logged in to get recommended recipes');
+      throw new AuthenticationError(
+        "You need to be logged in to get recommended recipes"
+      );
     },
-
-  //   filteredRecipes: async (_parent: any, { diet, intolerances, maxReadyTime, equipment, cuisine, number }: {diet: string, intolerances:  string[], maxReadyTime: number, equipment: string[], cuisine: string[], number: number }): Promise<SpoonacularRecipe[]> => {
-  //     let query: string = '';
-  //     if (!diet){
-  //       query += ``;
-  //     }else {
-  //       diet.forEach((item: string, index) => {
-  //       if (index === 0) {
-  //         query += `${item},`;
-  //       }else if (index < keywords.length - 1) {
-  //         query += `+${keyword},`;
-  //       }else {
-  //         query += `+${keyword}`;
-  //       }
-  //     })
-        
-  //       query += `diet=${diet}`;
-  //     const recipes: SpoonacularRecipe[] =  ;
-      
-  //   }
-  // }
   },
   Mutation: {
-    addProfile: async (_parent: any, { input }: AddProfileArgs): Promise<{ token: string; profile: Profile }> => {
+    addProfile: async (
+      _parent: any,
+      { input }: AddProfileArgs
+    ): Promise<{ token: string; profile: Profile }> => {
       const profile = await Profile.create({ ...input });
       const token = signToken(profile.name, profile.email, profile._id);
       return { token, profile };
     },
-    addRecipe: async (_parent: any, { id }: any, context: Context): Promise<Profile | null> => {
-      if (context.user) {
-        const spoonRecipeRes = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`) as any;
-        const spoonRecipe = await spoonRecipeRes.json();
-        const recipe = {
-          id: spoonRecipe.id,
-          name: spoonRecipe.title,
-          description: spoonRecipe.summary,
-          image: spoonRecipe.image,
-          ingredients: spoonRecipe?.extendedIngredients?.map((ingredient: any) => ({
-            id: ingredient.id,
-            item: ingredient.name,
-            quantity: ingredient.amount,
-            unit: Array.isArray(ingredient.unit) ? ingredient.unit : [ingredient.unit],
-          })),
-          instructions: spoonRecipe?.analyzedInstructions[0]?.steps?.map((step: any) => ({
-            number: step.number,
-            step: step.step,
-            time: step.length ? step.length.number : null,
-          })),
-        };
-        console.log(spoonRecipe.title);
-        
-        return await Profile.findOneAndUpdate(
-          { _id: context.user._id },
-          { $addToSet: { recipes: recipe } },
-          { new: true }
+    addRecipe: async (
+      _parent: any,
+      { id }: any,
+      context: Context
+    ): Promise<Profile | null> => {
+      if (!context.user) throw new AuthenticationError("Invalid token");
+
+      // Fetch the user's profile
+      const userProfile = await Profile.findOne({ _id: context.user._id });
+
+      // Ensure recipes exist before checking for duplicates
+      const isAlreadyFavorite = Array.isArray(userProfile?.recipes)
+        ? userProfile.recipes.some((recipe) => recipe.id === id)
+        : false;
+
+      if (isAlreadyFavorite) {
+        throw new Error("Recipe already exists in favorites");
+      }
+
+      // Fetch recipe details
+      const spoonRecipeRes = await fetch(
+        `https://api.spoonacular.com/recipes/${id}/information?apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`
+      );
+      if (!spoonRecipeRes.ok) {
+        throw new Error(
+          `Failed to fetch recipe. Status: ${spoonRecipeRes.status}`
         );
       }
-      throw new AuthenticationError('invalid token 1');
+      const spoonRecipe = await spoonRecipeRes.json();
+
+      // Format recipe
+      const recipe = {
+        id: spoonRecipe.id,
+        name: spoonRecipe.title,
+        description: spoonRecipe.summary,
+        image: spoonRecipe.image,
+        ingredients: spoonRecipe.extendedIngredients.map((ingredient: any) => ({
+          id: ingredient.id,
+          item: ingredient.name,
+          quantity: ingredient.amount,
+          unit: Array.isArray(ingredient.unit)
+            ? ingredient.unit.join(", ")
+            : String(ingredient.unit),
+        })),
+        instructions: spoonRecipe.analyzedInstructions[0]?.steps?.map(
+          (step: any) => ({
+            number: step.number,
+            step: step.step,
+            time: step.length ? String(step.length.number) : "",
+          })
+        ),
+      };
+
+      // Add the recipe only if it doesn't exist
+      return await Profile.findOneAndUpdate(
+        { _id: context.user._id },
+        { $addToSet: { recipes: recipe } },
+        { new: true }
+      );
     },
-    removeRecipe: async (_parent: any, { id }: any , context: Context): Promise<Profile | null> => {
+
+    removeRecipe: async (
+      _parent: any,
+      { id }: any,
+      context: Context
+    ): Promise<Profile | null> => {
       if (context.user) {
         const profile = await Profile.findOneAndUpdate(
           { _id: context.user._id },
-          { $pull: { recipes: {id: id}} },
+          { $pull: { recipes: { id: id } } },
           { new: true }
         );
         return profile;
       }
-      throw new AuthenticationError('You need to be logged in to remove favorite recipes');
+      throw new AuthenticationError(
+        "You need to be logged in to remove favorite recipes"
+      );
     },
 
-    addtoPantry: async (_parent: any, { id, storage, unit, quantity }: any, context: Context): Promise<Profile | null> => {
-    if (context.user) {
-    const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
-    const existingItem = userProfile?.pantry.find((item: any) => item.id === id);
+    addtoPantry: async (
+      _parent: any,
+      { id, storage, unit, quantity }: any,
+      context: Context
+    ): Promise<Profile | null> => {
+      if (context.user) {
+        const userProfile = (await Profile.findOne({
+          _id: context.user._id,
+        })) as any;
+        const existingItem = userProfile?.pantry.find(
+          (item: any) => item.id === id
+        );
 
-     if (existingItem) {
-      const updatedProfile = await Profile.findOneAndUpdate(
-        { _id: context.user._id, 'pantry.id': id },
-        { $inc: { 'pantry.$.quantity': quantity } },
-        { new: true }
-      );
-      return updatedProfile;
-    }
-        const spoonIngredientRes = await fetch(`https://api.spoonacular.com/food/ingredients/${id}/information?apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`) as any;
+        if (existingItem) {
+          const updatedProfile = await Profile.findOneAndUpdate(
+            { _id: context.user._id, "pantry.id": id },
+            { $inc: { "pantry.$.quantity": quantity } },
+            { new: true }
+          );
+          return updatedProfile;
+        }
+        const spoonIngredientRes = (await fetch(
+          `https://api.spoonacular.com/food/ingredients/${id}/information?apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`
+        )) as any;
         const spoonIngredient = await spoonIngredientRes.json();
         console.log(spoonIngredient);
         const ingredient = {
@@ -219,7 +290,7 @@ Key=0132fcb5cc6e4595a04e81af0e23c2a6`);
           item: spoonIngredient.name,
           quantity: quantity,
           unit: unit,
-          storage: storage 
+          storage: storage,
         };
         console.log(ingredient);
         return await Profile.findOneAndUpdate(
@@ -228,121 +299,161 @@ Key=0132fcb5cc6e4595a04e81af0e23c2a6`);
           { new: true }
         );
       }
-      throw new AuthenticationError('invalid token 1')
+      throw new AuthenticationError("invalid token 1");
     },
 
-    
-
-    increasePantryItem: async (_parent: any, { id, quantity, unit}: any, context: Context): Promise<Profile | null> => { 
+    increasePantryItem: async (
+      _parent: any,
+      { id, quantity, unit }: any,
+      context: Context
+    ): Promise<Profile | null> => {
       if (context.user) {
-        const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
-        const pantryItem = userProfile?.pantry.find((item: any) => item.id === id);
-        const  storedUnit  =  pantryItem?.unit;
-        if (!userProfile?.pantry.some((item: any) => item.id === id)) {
-          throw new Error('Item does not exists in pantry');
-        }
-        if (storedUnit === unit) {
-          const profile = await Profile.findOneAndUpdate(
-            { _id: context.user._id, 'pantry.id': id },
-            { $inc: { 'pantry.$.quantity': quantity } },
-            { new: true }
-          );
-          return profile; 
-        } else { 
-          console.log("hi");
-          const conversionRes = await fetch(`https://api.spoonacular.com/recipes/convert?ingredientName=something&sourceUnit=${unit}&sourceAmount=${quantity}&targetUnit=grams&apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`) as any;
-          console.log('conversionRes:', conversionRes);
-          const conversionData = await conversionRes.json();
-          const profile = await Profile.findOneAndUpdate(
-            { _id: context.user._id, 'pantry.id': id },
-            { $inc: { 'pantry.$.quantity': conversionData.targetAmount } },
-            { new: true }
-          );
-          return profile;
-        }
-      }
-      throw new AuthenticationError('You need to be logged in to increase pantry items');
-    },
-
-    addtoPantryByName: async (_parent: any, { name, storage, unit, quantity }: any, context: Context): Promise<Profile | null> => {
-  if (context.user) {
-    const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
-
-    // Search Spoonacular for ingredient by name
-    const searchRes = await fetch(`https://api.spoonacular.com/food/ingredients/search?query=${encodeURIComponent(name)}&number=1&apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`);
-    const searchData = await searchRes.json();
-    const found = searchData.results?.[0];
-
-    if (!found) {
-      throw new Error('Ingredient not found');
-    }
-
-    const ingredientId = found.id;
-
-    const existingItem = userProfile?.pantry.find((item: any) => item.id === ingredientId);
-    if (existingItem) {
-      const updatedProfile = await Profile.findOneAndUpdate(
-        { _id: context.user._id, 'pantry.id': ingredientId },
-        { $inc: { 'pantry.$.quantity': quantity } },
-        { new: true }
-      );
-      return updatedProfile;
-    }
-
-    const infoRes = await fetch(`https://api.spoonacular.com/food/ingredients/${ingredientId}/information?apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`);
-    const info = await infoRes.json();
-
-    const ingredient = {
-      id: ingredientId,
-      item: info.name,
-      unit: unit,
-      quantity,
-      storage,
-    };
-
-    return await Profile.findOneAndUpdate(
-      { _id: context.user._id },
-      { $addToSet: { pantry: ingredient } },
-      { new: true }
-    );
-  }
-  throw new AuthenticationError('invalid token');
-},
-
-    decreasePantryItem: async (_parent: any, { id, quantity, unit }: any, context: Context): Promise<Profile | null> => {
-      if (context.user) {
-        const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
-        const pantryItem = userProfile?.pantry.find((item: any) => item.id === id);
+        const userProfile = (await Profile.findOne({
+          _id: context.user._id,
+        })) as any;
+        const pantryItem = userProfile?.pantry.find(
+          (item: any) => item.id === id
+        );
         const storedUnit = pantryItem?.unit;
-        if (!userProfile?.antry.some((item: any) => item.id === id)) {
-          throw new Error('Item does not exists in pantry');
-        } 
-        if (pantryItem?.quantity < quantity) {
-          throw new Error('Insufficient quantity in pantry');
+        if (!userProfile?.pantry.some((item: any) => item.id === id)) {
+          throw new Error("Item does not exists in pantry");
         }
         if (storedUnit === unit) {
           const profile = await Profile.findOneAndUpdate(
-            { _id: context.user._id, 'pantry.id': id },
-            { $inc: { 'pantry.$.quantity': -quantity } },
+            { _id: context.user._id, "pantry.id": id },
+            { $inc: { "pantry.$.quantity": quantity } },
             { new: true }
           );
           return profile;
         } else {
-          const conversionRes = await fetch(`https://api.spoonacular.com/recipes/convert?ingredientName=something&sourceUnit=${unit}&sourceAmount=${quantity}&targetUnit=grams&apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`) as any;
-          console.log('conversionRes:', conversionRes);
+          console.log("hi");
+          const conversionRes = (await fetch(
+            `https://api.spoonacular.com/recipes/convert?ingredientName=something&sourceUnit=${unit}&sourceAmount=${quantity}&targetUnit=grams&apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`
+          )) as any;
+          console.log("conversionRes:", conversionRes);
           const conversionData = await conversionRes.json();
           const profile = await Profile.findOneAndUpdate(
-            { _id: context.user._id, 'pantry.id': id },
-            { $inc: { 'pantry.$.quantity': -conversionData.targetAmount } },
+            { _id: context.user._id, "pantry.id": id },
+            { $inc: { "pantry.$.quantity": conversionData.targetAmount } },
             { new: true }
           );
           return profile;
         }
       }
-      throw new AuthenticationError('You need to be logged in to decrease pantry items');
+      throw new AuthenticationError(
+        "You need to be logged in to increase pantry items"
+      );
     },
-    
-    removeFromPantry: async (_parent: any, { id }: any, context: Context): Promise<Profile | null> => {
+
+    addtoPantryByName: async (
+      _parent: any,
+      { name, storage, unit, quantity }: any,
+      context: Context
+    ): Promise<Profile | null> => {
+      if (context.user) {
+        const userProfile = (await Profile.findOne({
+          _id: context.user._id,
+        })) as any;
+
+        // Search Spoonacular for ingredient by name
+        const searchRes = await fetch(
+          `https://api.spoonacular.com/food/ingredients/search?query=${encodeURIComponent(
+            name
+          )}&number=1&apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`
+        );
+        const searchData = await searchRes.json();
+        const found = searchData.results?.[0];
+
+        if (!found) {
+          throw new Error("Ingredient not found");
+        }
+
+        const ingredientId = found.id;
+
+        const existingItem = userProfile?.pantry.find(
+          (item: any) => item.id === ingredientId
+        );
+        if (existingItem) {
+          const updatedProfile = await Profile.findOneAndUpdate(
+            { _id: context.user._id, "pantry.id": ingredientId },
+            { $inc: { "pantry.$.quantity": quantity } },
+            { new: true }
+          );
+          return updatedProfile;
+        }
+
+        const infoRes = await fetch(
+          `https://api.spoonacular.com/food/ingredients/${ingredientId}/information?apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`
+        );
+        const info = await infoRes.json();
+
+        const ingredient = {
+          id: ingredientId,
+          item: info.name,
+          unit: unit,
+          quantity,
+          storage,
+        };
+
+        return await Profile.findOneAndUpdate(
+          { _id: context.user._id },
+          { $addToSet: { pantry: ingredient } },
+          { new: true }
+        );
+      }
+      throw new AuthenticationError("invalid token");
+    },
+
+    decreasePantryItem: async (
+      _parent: any,
+      { id, quantity, unit }: any,
+      context: Context
+    ): Promise<Profile | null> => {
+      if (context.user) {
+        const userProfile = (await Profile.findOne({
+          _id: context.user._id,
+        })) as any;
+        const pantryItem = userProfile?.pantry.find(
+          (item: any) => item.id === id
+        );
+        const storedUnit = pantryItem?.unit;
+        if (!userProfile?.antry.some((item: any) => item.id === id)) {
+          throw new Error("Item does not exists in pantry");
+        }
+        if (pantryItem?.quantity < quantity) {
+          throw new Error("Insufficient quantity in pantry");
+        }
+        if (storedUnit === unit) {
+          const profile = await Profile.findOneAndUpdate(
+            { _id: context.user._id, "pantry.id": id },
+            { $inc: { "pantry.$.quantity": -quantity } },
+            { new: true }
+          );
+          return profile;
+        } else {
+          const conversionRes = (await fetch(
+            `https://api.spoonacular.com/recipes/convert?ingredientName=something&sourceUnit=${unit}&sourceAmount=${quantity}&targetUnit=grams&apiKey=0132fcb5cc6e4595a04e81af0e23c2a6`
+          )) as any;
+          console.log("conversionRes:", conversionRes);
+          const conversionData = await conversionRes.json();
+          const profile = await Profile.findOneAndUpdate(
+            { _id: context.user._id, "pantry.id": id },
+            { $inc: { "pantry.$.quantity": -conversionData.targetAmount } },
+            { new: true }
+          );
+          return profile;
+        }
+      }
+      throw new AuthenticationError(
+        "You need to be logged in to decrease pantry items"
+      );
+    },
+
+    removeFromPantry: async (
+      _parent: any,
+      { id }: any,
+      context: Context
+    ): Promise<Profile | null> => {
       if (context.user) {
         const profile = await Profile.findOneAndUpdate(
           { _id: context.user._id },
@@ -351,22 +462,31 @@ Key=0132fcb5cc6e4595a04e81af0e23c2a6`);
         );
         return profile;
       }
-      throw new AuthenticationError('You need to be logged in to remove items from your pantry');
+      throw new AuthenticationError(
+        "You need to be logged in to remove items from your pantry"
+      );
     },
-    
-    login: async (_parent: any, { email, password }: { email: string; password: string }): Promise<{ token: string; profile: Profile }> => {
+
+    login: async (
+      _parent: any,
+      { email, password }: { email: string; password: string }
+    ): Promise<{ token: string; profile: Profile }> => {
       const profile = await Profile.findOne({ email });
       if (!profile) {
-        throw new AuthenticationError('invalid token 2');
+        throw new AuthenticationError("invalid token 2");
       }
       const correctPw = await profile.isCorrectPassword(password);
       if (!correctPw) {
-        throw new AuthenticationError('invalid token 3');
+        throw new AuthenticationError("invalid token 3");
       }
       const token = signToken(profile.name, profile.email, profile._id);
       return { token, profile };
     },
-    removeProfile: async (_parent: any, _args: any, context: Context): Promise<Profile | null> => {
+    removeProfile: async (
+      _parent: any,
+      _args: any,
+      context: Context
+    ): Promise<Profile | null> => {
       if (context.user) {
         return await Profile.findOneAndDelete({ _id: context.user._id });
       }
