@@ -639,8 +639,8 @@ const resolvers = {
         { _id: context.user._id },
         {
           $set: {
-            calenderMeals: {
-              ...(profile.calenderMeals || {}),
+            calendarMeals: {
+              ...(profile.calendarMeals || {}),
               ...generatedMeals,
             },
           },
