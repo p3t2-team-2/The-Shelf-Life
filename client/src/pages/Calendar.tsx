@@ -12,22 +12,46 @@ const SAVE_MEAL_TO_DATE = gql`
   }
 `;
 
+const GENERATE_MEALS = gql`
+  mutation GenerateMeals($year: Int!, $month: Int!) {
+    generateMeals(year: $year, month: $month) {
+      calendarMeals
+    }
+  }
+`;
+
 const Calendar = () => {
   const { data, loading, refetch } = useQuery(QUERY_ME);
   const [saveMealToDate] = useMutation(SAVE_MEAL_TO_DATE);
+  const [generateMeals] = useMutation(GENERATE_MEALS);
+
   const profile = data?.me || {};
+  let meals: { [date: string]: string[] } = {};
+  try {
+    meals = typeof profile.calendarMeals === "string"
+      ? JSON.parse(profile.calendarMeals)
+      : profile.calendarMeals || {};
+  } catch (err) {
+    console.error("❌ Error parsing calendarMeals:", err);
+  }
+
 
   const [goal, setGoal] = useState("");
   const [lifestyle, setLifestyle] = useState("Moderate");
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [weekOffset, setWeekOffset] = useState(0);
 
-  const year = currentDate.getFullYear();
-  const month = currentDate.getMonth();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDayIndex = new Date(year, month, 1).getDay();
-  const todayStr = new Date().toISOString().split("T")[0];
+  const today = new Date();
+  const todayStr = today.toISOString().split("T")[0];
 
-  const meals: { [date: string]: string[] } = profile.calendarMeals || {};
+  // Calculate the start of the week (Sunday) using offset
+  const startOfWeek = new Date(today);
+  startOfWeek.setDate(today.getDate() - today.getDay() + weekOffset * 7);
+
+  const weekDates = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    return d;
+  });
 
   const handleAddMeal = async (dateStr: string) => {
     const meal = prompt(`Add a meal for ${dateStr}`);
@@ -48,51 +72,18 @@ const Calendar = () => {
   };
 
   const handleGenerateMeals = async () => {
-    const breakfasts = [
-      "Oatmeal",
-      "Scrambled Eggs",
-      "Pancakes",
-      "Smoothie",
-      "Avocado Toast",
-    ];
-    const lunches = [
-      "Chicken Salad",
-      "Turkey Sandwich",
-      "Quinoa Bowl",
-      "Pasta",
-      "Burrito",
-    ];
-    const dinners = [
-      "Grilled Salmon",
-      "Steak and Veggies",
-      "Tofu Stir Fry",
-      "Pizza",
-      "Soup & Bread",
-    ];
-
     try {
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(
-          day
-        ).padStart(2, "0")}`;
-
-        const dailyMeals = [
-          breakfasts[Math.floor(Math.random() * breakfasts.length)],
-          lunches[Math.floor(Math.random() * lunches.length)],
-          dinners[Math.floor(Math.random() * dinners.length)],
-        ];
-
-        for (const meal of dailyMeals) {
-          await saveMealToDate({
-            variables: { date: dateStr, meal },
-          });
-        }
-      }
-
+      const today = new Date();
+      await generateMeals({
+        variables: {
+          year: today.getFullYear(),
+          month: today.getMonth() + 1,
+        },
+      });
       await refetch();
-      alert("✅ Meals generated for the month!");
+      alert("✅ Weekly meals generated!");
     } catch (error) {
-      console.error("Error generating meals:", error);
+      console.error("❌ Error generating meals:", error);
       alert("❌ Failed to generate meals.");
     }
   };
@@ -101,26 +92,13 @@ const Calendar = () => {
     alert("🛒 Shopping list logic coming soon...");
   };
 
-  const handlePrevMonth = () => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(currentDate.getMonth() - 1);
-    setCurrentDate(newDate);
+  const handlePrevWeek = () => {
+    setWeekOffset(weekOffset - 1);
   };
 
-  const handleNextMonth = () => {
-    const newDate = new Date(currentDate);
-    newDate.setMonth(currentDate.getMonth() + 1);
-    setCurrentDate(newDate);
+  const handleNextWeek = () => {
+    setWeekOffset(weekOffset + 1);
   };
-
-  const calendarDays = [
-    ...Array(firstDayIndex).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  ];
-
-  const formattedMonth = currentDate.toLocaleString("default", {
-    month: "long",
-  });
 
   if (loading) return <div>Loading calendar...</div>;
 
@@ -152,7 +130,7 @@ const Calendar = () => {
 
       <div className="calendar-controls">
         <button className="btn generate-btn" onClick={handleGenerateMeals}>
-          🍽 Generate Monthly Meals
+          🍽 Generate Weekly Meals
         </button>
         <button className="btn shopping-btn" onClick={handleShoppingList}>
           🛒 Generate Shopping List
@@ -160,30 +138,21 @@ const Calendar = () => {
       </div>
 
       <div className="calendar-header">
-        <button className="btn small-btn" onClick={handlePrevMonth}>
-          ← Prev
-        </button>
+        <button className="btn small-btn" onClick={handlePrevWeek}>← Prev</button>
         <h2>
-          {formattedMonth} {year}
+          Week of{" "}
+          {startOfWeek.toLocaleDateString(undefined, {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}
         </h2>
-        <button className="btn small-btn" onClick={handleNextMonth}>
-          Next →
-        </button>
+        <button className="btn small-btn" onClick={handleNextWeek}>Next →</button>
       </div>
 
-      <div className="calendar-grid month-view">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-          <div key={d} className="calendar-day header">
-            <strong>{d}</strong>
-          </div>
-        ))}
-
-        {calendarDays.map((day, index) => {
-          const dateStr = day
-            ? `${year}-${String(month + 1).padStart(2, "0")}-${String(
-                day
-              ).padStart(2, "0")}`
-            : "";
+      <div className="calendar-grid week-view">
+        {weekDates.map((date, index) => {
+          const dateStr = date.toISOString().split("T")[0];
           const isToday = dateStr === todayStr;
 
           return (
@@ -191,30 +160,38 @@ const Calendar = () => {
               className={`calendar-day ${isToday ? "today" : ""}`}
               key={index}
             >
-              {day && (
-                <>
-                  <h4>{day}</h4>
-                  <ul>
-                    {(meals[dateStr] || []).map((meal, i) => (
-                      <li key={i}>
-                        🍴 {meal}
-                        <button
-                          className="delete-btn"
-                          onClick={() => handleDeleteMeal(dateStr, i)}
-                        >
-                          ✖
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                  <button
-                    className="btn small-btn"
-                    onClick={() => handleAddMeal(dateStr)}
-                  >
-                    ➕ Add Meal
-                  </button>
-                </>
+              <h4>
+                {date.toLocaleDateString(undefined, {
+                  weekday: "short",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </h4>
+
+              {meals[dateStr] ? (
+                <ul>
+                  {meals[dateStr].map((meal, i) => (
+                    <li key={i}>
+                      🍴 {meal}
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDeleteMeal(dateStr, i)}
+                      >
+                        ✖
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="no-meals">No meals yet</p>
               )}
+
+              <button
+                className="btn small-btn"
+                onClick={() => handleAddMeal(dateStr)}
+              >
+                ➕ Add Meal
+              </button>
             </div>
           );
         })}

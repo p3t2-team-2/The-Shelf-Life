@@ -1,26 +1,22 @@
-import fetch from "node-fetch";
+import { IRecipe } from "../models/Recipe";
 
-export const getIngredientInfoByName = async (ingredientName: string) => {
-  const apiKey = process.env.SPOONACULAR_API_KEY;
-  if (!apiKey) {
-    throw new Error("Spoonacular API key is not set in environment variables.");
-  }
-  const searchResults = await fetch(
-    `https://api.spoonacular.com/food/ingredients/search?query=${encodeURIComponent(
-      ingredientName
-    )}&amount=1&apiKey=${apiKey}`
-  );
-  const searchData = await searchResults.json();
-  if (!searchData?.results?.length) return null;
-  const ingredientId = searchData.results[0].id;
-  const infoResults = await fetch(
-    `https://api.spoonacular.com/food/ingredients/${ingredientId}/information?amount=1apiKey=${apiKey}`
-  );
-  const infoData = await infoResults.json();
+export const transformRecipe = (apiRecipe: any): IRecipe => {
   return {
-    id: infoData.id,
-    name: infoData.name,
-    image: infoData.image,
-    unit: infoData.unit,
+    id: apiRecipe.id,
+    name: apiRecipe.title || "No name provided",
+    description: (apiRecipe.summary || "No description").replace(/<[^>]*>?/gm, ""),
+    image: apiRecipe.image || "",
+    ingredients: (apiRecipe.extendedIngredients || []).map((ing: any) => ({
+      id: ing.id || 0,
+      item: ing.name || "",
+      quantity: ing.amount || 0,
+      unit: ing.unit || "",
+      storage: "", // your model requires this even if it's empty
+    })),
+    instructions: (apiRecipe.analyzedInstructions?.[0]?.steps || []).map((step: any) => ({
+      number: step.number || 0,
+      step: step.step || "",
+      time: step.time || "" // Spoonacular doesn’t provide step time
+    })),
   };
 };
