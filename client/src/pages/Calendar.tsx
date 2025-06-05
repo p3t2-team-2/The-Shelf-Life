@@ -66,8 +66,8 @@ const Calendar = () => {
       }
     }
   };
-
-  const handleDeleteMeal = (dateStr: string, index: number) => {
+  // _ is for render below
+  const handleDeleteMeal = (_dateStr: string, _index: number) => {
     alert("Remove meal functionality not implemented yet.");
   };
 

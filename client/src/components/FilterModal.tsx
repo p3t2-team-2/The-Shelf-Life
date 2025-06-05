@@ -30,6 +30,8 @@ const FilterModal: React.FC<FilterModalProps> = ({
     setFilters({ ...filters, [e.target.name]: e.target.checked });
   };
 
+  handleCheckbox // For render
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFilters({ ...filters, [e.target.name]: e.target.value });
   };
