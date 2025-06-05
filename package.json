@@ -24,6 +24,7 @@
     "wait-on": "^7.2.0"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "graphql-type-json": "^0.3.2"
   }
 }
