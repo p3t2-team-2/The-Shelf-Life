@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { ingredientSchema } from './Ingredient.js';
 const stepSchema = new Schema({
     number: {
@@ -11,7 +11,7 @@ const stepSchema = new Schema({
     },
     time: {
         type: String,
-        required: true
+        required: false
     }
 });
 const recipeSchema = new Schema({
@@ -34,4 +34,5 @@ const recipeSchema = new Schema({
     ingredients: [ingredientSchema],
     instructions: [stepSchema],
 });
-export { recipeSchema };
+const Recipe = model('Recipe', recipeSchema);
+export { recipeSchema, Recipe };

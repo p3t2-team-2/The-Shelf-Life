@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 // import { time } from 'node:console';
 import { Profile } from "../models/index.js";
-import { IRecipe } from "../models/Recipe.js";
+import { IRecipe, Recipe } from "../models/Recipe.js";
 import { SpoonIngredient } from "../models/index.js";
 // import { ISpoonIngredient } from '../models/SpoonIngredient.js';
 import { signToken, AuthenticationError } from "../utils/auth.js";
@@ -11,6 +11,7 @@ import {
 } from "../utils/spoonacularQueries.js";
 // import { getIngredientInfoByName } from "../utils/spoonacularMutations.js";
 import { GraphQLJSON } from "graphql-type-json";
+import { transformRecipe } from "../utils/spoonacularMutations.js";
 
 interface Profile {
   _id: string;
@@ -51,6 +52,7 @@ interface Context {
 const resolvers = {
   JSON: GraphQLJSON,
 
+  
   Query: {
     profiles: async (): Promise<Profile[]> => {
       return await Profile.find();
@@ -658,45 +660,107 @@ const resolvers = {
       }
     },
 
-    generateMeals: async (
-      _parent: any,
-      { year, month }: { year: number; month: number },
-      context: Context
-    ): Promise<Profile | null> => {
-      if (!context.user) throw new AuthenticationError("Not logged in");
+generateMeals: async (
+  _parent: any,
+  { year, month }: { year: number; month: number },
+  context: Context
+): Promise<Profile | null> => {
+  if (!context.user) throw new AuthenticationError("Not logged in");
 
-      const profile = await Profile.findOne({ _id: context.user._id });
-      if (!profile) throw new Error("Profile not found");
+  const profile = await Profile.findOne({ _id: context.user._id });
+  if (!profile) throw new Error("Profile not found");
 
-      const daysInMonth = new Date(year, month, 0).getDate();
-      const generatedMeals: Record<string, string[]> = {};
+  const today = new Date(year, month - 1); // JS 0-indexed
+  const generatedMeals: Record<string, string[]> = {};
 
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(
-          day
-        ).padStart(2, "0")}`;
-        generatedMeals[dateStr] = [
-          `Breakfast for ${dateStr}`,
-          `Lunch for ${dateStr}`,
-          `Dinner for ${dateStr}`,
-        ];
-      }
+  const fetchRecipes = async (type: string | string[]) => {
+    const Types = type[Math.floor(Math.random() * type.length)];
+    const res = await fetch(
+      `https://api.spoonacular.com/recipes/complexSearch?type=${Types}&number=7&apiKey=${process.env.SPOONACULAR_API_KEY}`
+    );
+    console.log(`🌐 Fetching ${type} recipes from Spoonacular: ${res}`);
+    const data = await res.json();
 
-      const updated = await Profile.findOneAndUpdate(
-        { _id: context.user._id },
-        {
-          $set: {
-            calendarMeals: {
-              ...(profile.calendarMeals || {}),
-              ...generatedMeals,
-            },
-          },
-        },
-        { new: true }
-      );
+      if (!res.ok) {
+    console.error(`❌ Failed to fetch ${type}:`, res.status, data);
+  }
 
-      return updated;
-    },
+  if (!Array.isArray(data.results)) {
+    console.error(`❌ Unexpected response for ${type}:`, data);
+  }
+
+    return data.results || [];
+  };
+
+  const fetchFullRecipe = async (id: number) => {
+    const res = await fetch(
+      `https://api.spoonacular.com/recipes/${id}/information?includeNutrition=false&apiKey=${process.env.SPOONACULAR_API_KEY}`
+    );
+    return await res.json();
+  };
+
+  const [breakfasts, lunches, dinners] = await Promise.all([
+    fetchRecipes(["breakfast"]),
+    fetchRecipes(["side dish", "soup", "salad"]), // for lunch
+    fetchRecipes("main course"), // for dinner
+  ]);
+
+  if (!breakfasts.length || !lunches.length || !dinners.length) {
+  console.error("❌ Spoonacular returned no results:");
+  console.error("Breakfasts:", breakfasts);
+  console.error("Lunches:", lunches);
+  console.error("Dinners:", dinners);
+  throw new Error("Spoonacular returned empty results for at least one meal type.");
+}
+
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    const dateStr = date.toISOString().split("T")[0];
+
+    const breakfast = breakfasts[i % breakfasts.length];
+    const lunch = lunches[i % lunches.length];
+    const dinner = dinners[i % dinners.length];
+
+const mealRecipes = [breakfast, lunch, dinner];
+
+for (const recipe of mealRecipes) {
+  if (!recipe || !recipe.id) {
+    console.warn(`⚠️ Skipping undefined or invalid recipe:`, recipe);
+    continue;
+  }
+
+  const existing = await Recipe.findOne({ id: recipe.id });
+  if (!existing) {
+    const full = await fetchFullRecipe(recipe.id);
+
+    if (!full || !full.id || !full.title) {
+      console.warn(`⚠️ Invalid full recipe returned for id ${recipe.id}`, full);
+      continue;
+    }
+      const transformed = transformRecipe(full);
+      await Recipe.create(transformed);
+  }
+}
+
+    generatedMeals[dateStr] = mealRecipes.map((r) => r.title);
+  }
+
+  const updatedMeals = {
+    ...(profile.calendarMeals || {}),
+    ...generatedMeals,
+  };
+
+  const updated = await Profile.findOneAndUpdate(
+    { _id: context.user._id },
+    { $set: { calendarMeals: updatedMeals } },
+    { new: true }
+  );
+
+  console.log("✅ Weekly meals added:", generatedMeals);
+  return updated;
+},
+
 
     login: async (
       _parent: any,
