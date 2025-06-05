@@ -1,0 +1,76 @@
+.shopping-list-page {
+  padding: 2rem;
+  background-color: rgba(250, 5, 5, 0.05);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.shopping-list-page h1 {
+  color: #FFD580;
+  text-shadow: 0 0 5px #90EE90;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+  border-bottom: 2px solid #A0522D;
+  padding-bottom: 0.5rem;
+}
+
+/* Shopping Items List */
+.shopping-list-page ul {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.shopping-list-page li {
+  background-color: #FFD580;
+  color: #000;
+  margin-bottom: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(139, 47, 47, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Clear Button */
+.btn.clear {
+  font-weight: bold;
+  background: linear-gradient(145deg, #ffd900, #ffd900);
+  color: black;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(255, 99, 71, 0.3);
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.btn.clear:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px #ff4c4c;
+}
+
+/* No Items Text */
+.shopping-list-page p {
+  color: #555;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .shopping-list-page {
+    padding: 1rem;
+  }
+
+  .shopping-list-page h1 {
+    font-size: 1.5rem;
+  }
+
+  .shopping-list-page li {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
