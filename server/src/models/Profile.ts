@@ -15,6 +15,7 @@ interface IProfile extends Document {
   email: string;
   password: string;
   pantry?: IIngredient[];
+  shoppingList?: IIngredient[];
   recipes?: IRecipe[];
   calendarMeals?: Record<string, string[]>; // Assuming calendar meals are stored as a record of recipe arrays by date
   isCorrectPassword(password: string): Promise<boolean>;
@@ -47,6 +48,7 @@ const profileSchema = new Schema<IProfile>(
       required: true,
       minlength: 5,
     },
+    shoppingList: [ingredientSchema],
     pantry: [ingredientSchema],
     recipes: [recipeSchema],
     calendarMeals: [calendarSchema],
