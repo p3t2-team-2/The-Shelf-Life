@@ -1,5 +1,15 @@
 [
   {
+    "id": 1001,
+    "item": "butter",
+    "image": "butter.png"
+  },
+  {
+    "id": 99186,
+    "item": "ham",
+    "image": "ham.png"
+  }, 
+  {
     "id": 1011,
     "item": "colby jack",
     "image": "colby-jack.jpg"

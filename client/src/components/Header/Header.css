@@ -3,7 +3,7 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #000000;
+  background-color: rgba(250, 5, 5, 0.6); 
   padding: 1em 2em;
   border-bottom: 2px solid #A0522D;
   box-shadow: 0 4px 10px rgba(139, 47, 47, 0.3);
@@ -79,8 +79,8 @@ header img.logo {
 
 /* Logout Button */
 .logout-button {
-  background: linear-gradient(145deg, #ff4c4c, #ff7b7b);
-  color: white;
+  background: linear-gradient(145deg, #ffd900, #ffd900);
+  color: black;
   box-shadow: 0 3px 8px rgba(255, 99, 71, 0.3);
 }
 
@@ -91,7 +91,7 @@ header img.logo {
 
 /* Search Button */
 .search-button {
-  background: linear-gradient(145deg, #4CAF50, #90EE90);
+  background: linear-gradient(145deg, #1ceb23, #02be02);
   color: black;
   box-shadow: 0 3px 8px rgba(72, 239, 128, 0.3);
 }

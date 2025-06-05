@@ -1,5 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
-
+import { Schema, model, Document } from "mongoose";
 
 interface ISpoonIngredient extends Document {
   id: number;
@@ -12,7 +11,7 @@ const spoonIngredientSchema = new Schema<ISpoonIngredient>(
     id: {
       type: Number,
       required: true,
-      unique: true,
+      // unique: true,
     },
     item: {
       type: String,
@@ -31,6 +30,9 @@ const spoonIngredientSchema = new Schema<ISpoonIngredient>(
   }
 );
 
-const SpoonIngredient = model<ISpoonIngredient>('SpoonIngredient', spoonIngredientSchema);
+const SpoonIngredient = model<ISpoonIngredient>(
+  "SpoonIngredient",
+  spoonIngredientSchema
+);
 
-export  { SpoonIngredient, ISpoonIngredient }; ;
+export { SpoonIngredient, ISpoonIngredient };

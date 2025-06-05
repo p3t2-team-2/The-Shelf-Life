@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { gql, useQuery, useMutation } from "@apollo/client";
+import "../css/Favorites.css";
 
 const QUERY_ME = gql`
   query Query {
@@ -92,7 +93,7 @@ const Favorites: React.FC = () => {
 
   return (
     <div className="favorites-page">
-      <h1>❤️ My Favorite Recipes</h1>
+      <h1>My Cook Book</h1>
 
       {loadingFavorites && <p>Loading favorites...</p>}
       {error && <p>Error loading favorites: {error.message}</p>}

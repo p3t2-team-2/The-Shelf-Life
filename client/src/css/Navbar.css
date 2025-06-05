@@ -1,5 +1,5 @@
 .navbar-container {
-  background-color: #111;
+  background-color: rgba(250, 5, 5, 0.75); 
   color: #fff;
   padding: 1rem 2rem;
   display: flex;
@@ -18,7 +18,7 @@
 .navbar-container h1 {
   font-size: 1.8rem;
   color: #FFD580;
-  text-shadow: 0 0 5px #90EE90;
+  text-shadow: 0 0 5px black, 0 0 10px black;
   margin: 0;
 }
 
