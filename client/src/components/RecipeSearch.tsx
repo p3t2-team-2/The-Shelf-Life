@@ -15,22 +15,14 @@ const SEARCH_RECIPES = gql`
 `;
 
 const ADD_RECIPE = gql`
-  mutation Mutation($addRecipeId: Int!) {
+  mutation AddRecipe($addRecipeId: Int!) {
     addRecipe(id: $addRecipeId) {
-      id
-      name
-      image
-      description
-      ingredients {
+      pantry {
         id
         item
         quantity
+        storage
         unit
-      }
-      instructions {
-        number
-        step
-        time
       }
     }
   }
