@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { ingredientSchema, IIngredient } from './Ingredient.js';
 
 interface IStep {
@@ -27,7 +27,7 @@ const stepSchema = new Schema<IStep>({
   },
   time:{
     type: String,
-    required: true
+    required: false
   }
 })
 
@@ -52,7 +52,9 @@ const recipeSchema = new Schema<IRecipe>({
   instructions: [stepSchema],
 });
 
-export {recipeSchema, IRecipe}
+const Recipe = model<IRecipe>('Recipe', recipeSchema);
+
+export {recipeSchema, IRecipe, Recipe}
 
 
 

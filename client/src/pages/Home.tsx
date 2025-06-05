@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import "../css/Home.css";
 import FilterModal from "../components/FilterModal";
 import { QUERY_PROFILES } from "../utils/queries";
+import { useLazyQuery } from "@apollo/client";
 
 const GET_SPOONACULAR_RECIPES = gql`
   query {
@@ -37,6 +38,31 @@ const ADD_RECIPE = gql`
   }
 `;
 
+const GET_FILTERED_RECIPES = gql`
+  query FilteredRecipes(
+    $diet: String
+    $intolerances: [String!]
+    $maxReadyTime: String
+    $equipment: [String!]
+    $cuisine: [String!]
+    $number: String
+  ) {
+    filteredRecipes(
+      diet: $diet
+      intolerances: $intolerances
+      maxReadyTime: $maxReadyTime
+      equipment: $equipment
+      cuisine: $cuisine
+      number: $number
+    ) {
+      id
+      name
+      image
+    }
+  }
+`;
+
+
 interface Recipe {
   id: string;
   name: string;
@@ -58,6 +84,9 @@ const Home: React.FC = () => {
     data: recipeData,
     error,
   } = useQuery(GET_SPOONACULAR_RECIPES);
+
+  const [loadFilteredRecipes, { data: filteredRecipesData, loading: filteredLoading }] = useLazyQuery(GET_FILTERED_RECIPES)
+
   const recipes: Recipe[] = recipeData?.spoonacularRecipes || [];
 
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -108,7 +137,8 @@ const Home: React.FC = () => {
     }
   }
 
-  const filtered = filterRecipes(recipes);
+  const recipesToDisplay = filteredRecipesData?.filteredRecipes || recipes || [];
+  const filtered = filterRecipes(recipesToDisplay);
   const sorted = sortRecipes(filtered);
 
   return (
@@ -120,7 +150,7 @@ const Home: React.FC = () => {
       </div>
 
       <main className="content-grid">
-        {loadingRecipes ? (
+        {loadingRecipes || filteredLoading ? (
           <div className="box random-recipe">
             <h2>Recipes</h2>
             <p>Loading recipes...</p>
@@ -186,6 +216,28 @@ const Home: React.FC = () => {
         onApply={(newFilters) => {
           setFilters(newFilters);
           setModalOpen(false);
+
+                    const hasFilters =
+            newFilters.dietary.length > 0 ||
+            newFilters.mealType ||
+            newFilters.cuisine ||
+            newFilters.appliance ||
+            newFilters.maxCookTime < 180;
+
+          if (hasFilters) {
+            loadFilteredRecipes({
+              variables: {
+                diet: newFilters.dietary[0] || "",
+                intolerances: [], 
+                maxReadyTime: String(newFilters.maxCookTime),
+                equipment: newFilters.appliance
+                  ? [newFilters.appliance]
+                  : [],
+                cuisine: newFilters.cuisine ? [newFilters.cuisine] : [],
+                number: "40",
+              },
+            });
+          }
         }}
         sortOption={filters.sort}
       />

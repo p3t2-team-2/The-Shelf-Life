@@ -1,13 +1,14 @@
-import { Schema, model, Document } from "mongoose";
+import { model, Document } from "mongoose";
 import { ingredientSchema, IIngredient } from "./Ingredient.js";
 import { recipeSchema, IRecipe } from "./Recipe.js";
 import bcrypt from "bcrypt";
+import mongoose from "mongoose";
 
-interface ICalendarMeals {
-  type: Map<string, string[]>;
-  of: string[];
-  default: {};
-}
+// interface ICalendarMeals {
+//   type: Map<string, string[]>;
+//   of: string[];
+//   default: {};
+// }
 
 interface IProfile extends Document {
   _id: string;
@@ -20,15 +21,10 @@ interface IProfile extends Document {
   isCorrectPassword(password: string): Promise<boolean>;
 }
 
-const calendarSchema = new Schema<ICalendarMeals>({
-  type: Map,
-  of: [String],
-  default: {},
-});
 
 // Define the schema for the Profile document
 
-const profileSchema = new Schema<IProfile>(
+const profileSchema = new mongoose.Schema<IProfile>(
   {
     name: {
       type: String,
@@ -49,7 +45,11 @@ const profileSchema = new Schema<IProfile>(
     },
     pantry: [ingredientSchema],
     recipes: [recipeSchema],
-    calendarMeals: [calendarSchema],
+    calendarMeals: {
+      type: mongoose.Schema.Types.Mixed,
+      of: [String],
+      default: {},
+    },
   },
   {
     timestamps: true,
