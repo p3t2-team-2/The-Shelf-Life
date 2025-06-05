@@ -87,7 +87,7 @@ html, body {
 }
 
 .btn.modal {
-  background: #FF6347;
+  background: #02c3fd;
   color: white;
 }
 
@@ -106,8 +106,8 @@ html, body {
 }
 
 .top-bar .btn.modal {
-  background-color: #ff7043;
-  color: white;
+  background-color: #00eeff;
+  color: black;
   font-weight: bold;
   border: none;
   padding: 0.5rem 1rem;
@@ -117,7 +117,7 @@ html, body {
 }
 
 .top-bar .btn.modal:hover {
-  background-color: #ff5722;
+  background-color: #00eeff;
 }
 
 /* Footer */

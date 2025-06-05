@@ -1,10 +1,10 @@
-import { Schema } from 'mongoose';
+import { Schema } from "mongoose";
 
 interface IIngredient {
   id: number;
   item: string;
   quantity: number;
-  unit: string; 
+  unit: string;
   storage?: string;
 }
 
@@ -25,10 +25,10 @@ const ingredientSchema = new Schema<IIngredient>({
     type: String,
     repuired: true,
   },
-  storage:{
+  storage: {
     type: String,
-    required: true
-  }
+    required: false,
+  },
 });
 
-export {ingredientSchema, IIngredient}
+export { ingredientSchema, IIngredient };

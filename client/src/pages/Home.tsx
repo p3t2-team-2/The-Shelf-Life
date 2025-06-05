@@ -1,9 +1,9 @@
-import React from 'react';
-import { useQuery, gql, useMutation } from '@apollo/client';
-import { Link } from 'react-router-dom';
-import '../css/Home.css';
-import FilterModal from '../components/FilterModal';
-import { QUERY_PROFILES } from '../utils/queries';
+import React from "react";
+import { useQuery, gql, useMutation } from "@apollo/client";
+import { Link } from "react-router-dom";
+import "../css/Home.css";
+import FilterModal from "../components/FilterModal";
+import { QUERY_PROFILES } from "../utils/queries";
 
 const GET_SPOONACULAR_RECIPES = gql`
   query {
@@ -18,12 +18,20 @@ const GET_SPOONACULAR_RECIPES = gql`
 const ADD_RECIPE = gql`
   mutation Mutation($addRecipeId: Int!) {
     addRecipe(id: $addRecipeId) {
-      pantry {
+      id
+      name
+      image
+      description
+      ingredients {
         id
         item
         quantity
-        storage
         unit
+      }
+      instructions {
+        number
+        step
+        time
       }
     }
   }
@@ -36,28 +44,33 @@ interface Recipe {
 }
 
 const Home: React.FC = () => {
-  const { loading: loadingProfiles, data: profileData } = useQuery(QUERY_PROFILES);
+  const { loading: loadingProfiles, data: profileData } =
+    useQuery(QUERY_PROFILES);
   const profiles = profileData?.profiles || [];
 
   const [addToFavorites] = useMutation(ADD_RECIPE, {
-    onCompleted: (data) => console.log('Added to favorites:', data),
-    onError: (error) => console.error('Error adding to favorites:', error),
+    onCompleted: (data) => console.log("Added to favorites:", data),
+    onError: (error) => console.error("Error adding to favorites:", error),
   });
 
-  const { loading: loadingRecipes, data: recipeData, error } = useQuery(GET_SPOONACULAR_RECIPES);
+  const {
+    loading: loadingRecipes,
+    data: recipeData,
+    error,
+  } = useQuery(GET_SPOONACULAR_RECIPES);
   const recipes: Recipe[] = recipeData?.spoonacularRecipes || [];
 
   const [modalOpen, setModalOpen] = React.useState(false);
   const [filters, setFilters] = React.useState({
-    sort: 'random',
+    sort: "random",
     expiringFirst: false,
     maxPrice: 100,
     maxCookTime: 180,
     dietary: [],
-    mealType: '',
-    cuisine: '',
-    appliance: '',
-    maxValue: 100
+    mealType: "",
+    cuisine: "",
+    appliance: "",
+    maxValue: 100,
   });
 
   function getRandomItems<T>(arr: T[], count: number): T[] {
@@ -67,22 +80,31 @@ const Home: React.FC = () => {
 
   function filterRecipes(recipes: Recipe[]) {
     return recipes.filter((recipe) => {
-      if (filters.maxPrice < 50 && recipe.name.toLowerCase().includes('steak')) return false;
-      if (filters.mealType && !recipe.name.toLowerCase().includes(filters.mealType)) return false;
-      if (filters.cuisine && !recipe.name.toLowerCase().includes(filters.cuisine)) return false;
+      if (filters.maxPrice < 50 && recipe.name.toLowerCase().includes("steak"))
+        return false;
+      if (
+        filters.mealType &&
+        !recipe.name.toLowerCase().includes(filters.mealType)
+      )
+        return false;
+      if (
+        filters.cuisine &&
+        !recipe.name.toLowerCase().includes(filters.cuisine)
+      )
+        return false;
       return true;
     });
   }
 
   function sortRecipes(recipes: Recipe[]) {
     switch (filters.sort) {
-      case 'name':
+      case "name":
         return [...recipes].sort((a, b) => a.name.localeCompare(b.name));
-      case 'id':
+      case "id":
         return [...recipes].sort((a, b) => a.id.localeCompare(b.id));
-      case 'random':
+      case "random":
       default:
-        return getRandomItems(recipes, 5);
+        return getRandomItems(recipes, 40);
     }
   }
 
@@ -113,8 +135,11 @@ const Home: React.FC = () => {
             <div className="box random-recipe" key={recipe.id}>
               <h2>{recipe.name}</h2>
               <Link to={`/recipes/${recipe.id}`}>
-                
-                <img src={recipe.image} alt={recipe.name} className="recipe-img" />
+                <img
+                  src={recipe.image}
+                  alt={recipe.name}
+                  className="recipe-img"
+                />
               </Link>
               <p>✅ Has all ingredients</p>
               <div className="button-group">
@@ -122,7 +147,9 @@ const Home: React.FC = () => {
                 <button
                   className="btn favorite"
                   onClick={() =>
-                    addToFavorites({ variables: { addRecipeId: parseInt(recipe.id) } })
+                    addToFavorites({
+                      variables: { addRecipeId: parseInt(recipe.id) },
+                    })
                   }
                 >
                   Add to Favorites

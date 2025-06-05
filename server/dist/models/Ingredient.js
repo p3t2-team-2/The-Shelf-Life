@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { Schema } from "mongoose";
 const ingredientSchema = new Schema({
     id: {
         type: Number,
@@ -18,7 +18,7 @@ const ingredientSchema = new Schema({
     },
     storage: {
         type: String,
-        required: true
-    }
+        required: false,
+    },
 });
 export { ingredientSchema };
