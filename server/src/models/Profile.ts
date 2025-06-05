@@ -3,7 +3,7 @@ import { ingredientSchema, IIngredient } from "./Ingredient.js";
 import { recipeSchema, IRecipe } from "./Recipe.js";
 import bcrypt from "bcrypt";
 
-interface ICalenderMeals {
+interface ICalendarMeals {
   type: Map<string, string[]>;
   of: string[];
   default: {};
@@ -16,11 +16,11 @@ interface IProfile extends Document {
   password: string;
   pantry?: IIngredient[];
   recipes?: IRecipe[];
-  calenderMeals?: Record<string, string[]>; // Assuming calendar meals are stored as a record of recipe arrays by date
+  calendarMeals?: Record<string, string[]>; // Assuming calendar meals are stored as a record of recipe arrays by date
   isCorrectPassword(password: string): Promise<boolean>;
 }
 
-const calendarSchema = new Schema<ICalenderMeals>({
+const calendarSchema = new Schema<ICalendarMeals>({
   type: Map,
   of: [String],
   default: {},
@@ -49,7 +49,7 @@ const profileSchema = new Schema<IProfile>(
     },
     pantry: [ingredientSchema],
     recipes: [recipeSchema],
-    calenderMeals: [calendarSchema],
+    calendarMeals: [calendarSchema],
   },
   {
     timestamps: true,
