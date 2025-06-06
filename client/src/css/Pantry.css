@@ -1,5 +1,5 @@
 .pantry-page {
-  background-color: #fff5f59a;
+  /* background-color: #fff5f59a; */
   color: red;
   padding: 24px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -11,6 +11,16 @@
   margin-bottom: 24px;
   color: #ff4b4b;
   font-weight: bold;
+  background-color: #ffeaea;
+}
+
+.pantry-page h3 {
+  text-align: center;
+  margin-bottom: 16px;
+  color: #ff4b4b;
+  font-weight: bold;
+  background-color: #ffeaea;
+  width: fit-content;
 }
 
 .pantry-form {
@@ -45,20 +55,70 @@
   box-shadow: 0 0 12px #90ee90;
 }
 
+.pantry-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  background-color: #fff0f0;
+  width: fit-content;
+}
+
 .pantry-list h3 {
   color: #ff4b4b;
   margin-top: 32px;
   margin-bottom: 12px;
 }
 
+.pantry-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: flex-start;
+}
+
 .pantry-item {
+  flex: 0 1 calc(25% - 1rem); /* Four items per row */
   background-color: #fff0f0;
   color: #2a1a1a;
   border: 1px solid #ffdcdc;
-  border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  font-size: 0.85rem;
+  min-width: 160px;
+  max-width: 200px;
+}
+
+.pantry-item p {
+  margin: 0.2rem 0;
+  font-size: 0.85rem;
+}
+
+.pantry-item .btn {
+  margin-top: 4px;
+  margin-right: 0.25rem;
+  padding: 4px 6px;
+  font-size: 0.8rem;
+}
+
+/* Responsive layout */
+@media (max-width: 1024px) {
+  .pantry-item {
+    flex: 0 1 calc(33.333% - 1rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .pantry-item {
+    flex: 0 1 calc(50% - 1rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .pantry-item {
+    flex: 0 1 100%;
+  }
 }
 
 /* Autocomplete Styles */

@@ -8,24 +8,26 @@ interface FilterModalProps {
   sortOption: string;
 }
 
+const defaultFilterValues = {
+  sort: "random",
+  expiringFirst: false,
+  maxPrice: 100,
+  maxCookTime: 180,
+  dietary: [] as string[],
+  cuisine: '',
+  maxValue: 100,
+};
+
 const FilterModal: React.FC<FilterModalProps> = ({
   isOpen,
   onClose,
   onApply,
   sortOption,
 }) => {
-  const defaultFilters = {
-    sort: sortOption || "random",
-    expiringFirst: false,
-    maxPrice: 100,
-    maxCookTime: 180,
-    dietary: [] as string[],
-    cuisine: '',
-    appliance: '',
-    maxValue: 100,
-  };
-
-  const [filters, setFilters] = React.useState(defaultFilters);
+  const [filters, setFilters] = React.useState({
+    ...defaultFilterValues,
+    sort: sortOption || "random", // initialize with incoming prop
+  });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -42,9 +44,13 @@ const FilterModal: React.FC<FilterModalProps> = ({
   };
 
   const handleClear = () => {
-    setFilters(defaultFilters);
-    onApply(defaultFilters);
-    onClose();
+    const clearedFilters = {
+      ...defaultFilterValues,
+      sort: "random",
+    };
+    setFilters(clearedFilters);
+    onApply(clearedFilters); // Apply defaults in parent (Home)
+    onClose(); // Optionally close modal
   };
 
   if (!isOpen) return null;
@@ -87,8 +93,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
           <option value="wheat">Wheat</option>
         </select>
 
-        
-
         <label>Cuisine:</label>
         <select name="cuisine" onChange={handleChange} value={filters.cuisine}>
           <option value="">-- Select --</option>
@@ -104,13 +108,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
           <option value="korean">Korean</option>
         </select>
 
-        <label>Appliance:</label>
-        <select name="appliance" onChange={handleChange} value={filters.appliance}>
-          <option value="">-- Select --</option>
-          <option value="oven">Oven</option>
-          <option value="microwave">Microwave</option>
-          <option value="airfryer">Air Fryer</option>
-        </select>
+        
 
         <label>Slider – Max Value: {filters.maxValue}</label>
         <input
