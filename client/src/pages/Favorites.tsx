@@ -35,31 +35,17 @@ const QUERY_PROFILE = gql`
   }
 `;
 
-const REMOVE_RECIPE = gql`
-  mutation RemoveRecipe($id: Int!) {
-    removeRecipe(id: $id) {
-      _id
-      recipes {
-        id
-      }
+const REMOVE_FROM_PANTRY = gql`
+  mutation RemoveFromPantry($removeFromPantryId: Int!) {
+    removeFromPantry(id: $removeFromPantryId) {
+      id
     }
   }
 `;
 
-const COOK_RECIPE = gql`
-  mutation CookRecipe($id: Int!) {
-    cook(id: $id) {
-      _id
-      pantry {
-        id
-        item
-        quantity
-        storage
-        unit
-      }
-    }
-  }
-`;
+
+
+
 
 interface Recipe {
   id: string;
@@ -86,24 +72,16 @@ const Favorites: React.FC = () => {
     skip: !profileId,
   });
 
-  const [removeRecipe, { loading: removing }] = useMutation(REMOVE_RECIPE, {
+  const [removeRecipe, { loading: removing }] = useMutation(REMOVE_FROM_PANTRY, {
     refetchQueries: [{ query: QUERY_PROFILE, variables: { profileId } }],
   });
 
-  const [cookRecipe, { loading: cooking }] = useMutation(COOK_RECIPE, {
-    onCompleted: () => {
-      alert("Successfully cooked the recipe! Pantry updated.");
-      refetch();
-    },
-    onError: (error) => {
-      alert(`Error cooking recipe: ${error.message}`);
-    },
-  });
+
 
   const favorites: Recipe[] = data?.profile?.recipes || [];
 
   // Remove recipe from favorites
-  const handleRemove = async (id: number) => {
+  const removeFromPantry = async (id: number) => {
     try {
       await removeRecipe({ variables: { id } });
       refetch(); // Ensure UI updates after removal
@@ -112,21 +90,13 @@ const Favorites: React.FC = () => {
     }
   };
 
-  // Cook recipe
-  const handleCook = async (id: number) => {
-    try {
-      await cookRecipe({ variables: { id } });
-    } catch (err) {
-      console.error("Error cooking recipe:", err);
-    }
-  };
 
   if (loadingMe) return <p>Loading profile...</p>;
   if (!profileId) return <p>You need to be logged in to view favorites.</p>;
 
   return (
     <div className="favorites-page">
-      <h1>My Cook Book</h1>
+      <h1 className="btn">My Cook Book</h1>
 
       {loadingFavorites && <p>Loading favorites...</p>}
       {error && <p>Error loading favorites: {error.message}</p>}
@@ -144,26 +114,19 @@ const Favorites: React.FC = () => {
                 <h3>{recipe.name}</h3>
               </Link>
               <div className="icons">
-                <button
-                  className="btn remove"
-                  onClick={() => handleRemove(parseInt(recipe.id, 10))}
-                  disabled={removing}
-                >
-                  {removing ? "Removing..." : "Remove from Favorites"}
-                </button>
-                <button
-                  className="btn cook"
-                  onClick={() => handleCook(parseInt(recipe.id, 10))}
-                  disabled={cooking}
-                >
-                  {cooking ? "Cooking..." : "Cook"}
-                </button>
+  <button
+    className="btn "
+    onClick={() => removeFromPantry(Number(recipe.id))}
+  >
+    {removing ? "Removing..." : "Remove from Favorites"}
+  </button>
+                
               </div>
             </div>
           ))}
         </div>
       ) : (
-        !loadingFavorites && <p>You haven’t added any favorites yet!</p>
+        !loadingFavorites && <p className="btn">You haven’t added any favorites yet!</p>
       )}
     </div>
   );

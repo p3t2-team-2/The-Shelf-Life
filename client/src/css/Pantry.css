@@ -1,6 +1,6 @@
 .pantry-page {
-  background-color: rgba(250, 5, 5, 0.75); 
-  color: #fffbe6;
+  background-color: #fff5f59a;
+  color: red;
   padding: 24px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   min-height: 100vh;
@@ -9,7 +9,8 @@
 .pantry-page h2 {
   text-align: center;
   margin-bottom: 24px;
-  color: #00eeff;
+  color: #ff4b4b;
+  font-weight: bold;
 }
 
 .pantry-form {
@@ -25,15 +26,15 @@
 .pantry-form button {
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid white;
-  background-color: #3e2f1f;
-  color: #fffbe6;
+  border: 1px solid #ffdcdc;
+  background-color: #fff0f0;
+  color: #3a1a1a;
   font-size: 0.9rem;
 }
 
 .pantry-form button {
   background-color: #00eeff;
-  color: black;
+  color: #1a1a1a;
   border: none;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.3s;
@@ -41,23 +42,23 @@
 
 .pantry-form button:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 12px #90EE90;
+  box-shadow: 0 0 12px #90ee90;
 }
 
 .pantry-list h3 {
-  color: #00eeff;
+  color: #ff4b4b;
   margin-top: 32px;
   margin-bottom: 12px;
 }
 
 .pantry-item {
-  /* background-color: rgba(250, 5, 5, 0.75) */
-  color: black;
-  border: 1px solid #4f3b2d;
+  background-color: #fff0f0;
+  color: #2a1a1a;
+  border: 1px solid #ffdcdc;
   border-radius: 12px;
   padding: 12px;
   margin-bottom: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* Autocomplete Styles */
@@ -71,8 +72,8 @@
   top: 100%;
   left: 0;
   width: 100%;
-  background: #3e2f1f;
-  border: 1px solid #4f3b2d;
+  background: #fff0f0;
+  border: 1px solid #ffdcdc;
   border-radius: 8px;
   max-height: 200px;
   overflow-y: auto;
@@ -80,15 +81,16 @@
   padding: 0;
   margin-top: 4px;
   z-index: 10;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .suggestion-item {
   padding: 10px;
   cursor: pointer;
   transition: background 0.2s;
+  color: #2a1a1a;
 }
 
 .suggestion-item:hover {
-  background-color: #4c3828;
+  background-color: #ffeaea;
 }

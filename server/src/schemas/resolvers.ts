@@ -716,6 +716,34 @@ const resolvers = {
       }
     },
 
+    
+// removeMealFromDate: async (
+//   _parent: any,
+//   { date, index }: { date: string; index: number },
+//   context: Context
+// ): Promise<Profile | null> => {
+//   if (!context.user) {
+//     throw new AuthenticationError("You need to be logged in to remove a meal.");
+//   }
+
+//   const user = await Profile.findById(context.user._id);
+//   if (!user || !user.calendarMeals || !user.calendarMeals[date]) {
+//     throw new Error("No meals found for that date.");
+//   }
+
+//   const meals = [...user.calendarMeals[date]];
+//   meals.splice(index, 1);
+
+//   const updatedProfile = await Profile.findByIdAndUpdate(
+//     context.user._id,
+//     { $set: { [`calendarMeals.${date}`]: meals } },
+//     { new: true }
+//   );
+
+//   return updatedProfile;
+// },
+    
+
 generateMeals: async (
   _parent: any,
   { year, month }: { year: number; month: number },
@@ -824,11 +852,11 @@ for (const recipe of mealRecipes) {
     ): Promise<{ token: string; profile: Profile }> => {
       const profile = await Profile.findOne({ email });
       if (!profile) {
-        throw new AuthenticationError("invalid token 2");
+        throw new AuthenticationError("Incorrect email. Please try again.");
       }
       const correctPw = await profile.isCorrectPassword(password);
       if (!correctPw) {
-        throw new AuthenticationError("invalid token 3");
+        throw new AuthenticationError("Incorrect password. Please try again.");
       }
       const token = signToken(profile.name, profile.email, profile._id);
       return { token, profile };

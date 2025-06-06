@@ -16,9 +16,9 @@ const Header = () => {
       <div>
         <div>
           <img src={logo} alt="Logo" className="logo" />
-          <Link to="/">Home</Link>
           {Auth.loggedIn() ? (
             <>
+            <Link to="/home">Home</Link>
               <Link to="/favorites">Cook Book</Link>
               <Link to="/pantry">Pantry</Link>
               <Link to="/shoppinglist">Shopping List</Link>

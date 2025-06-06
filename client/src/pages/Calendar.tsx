@@ -12,9 +12,18 @@ const SAVE_MEAL_TO_DATE = gql`
   }
 `;
 
+const REMOVE_MEAL_FROM_DATE = gql`
+  mutation RemoveMealFromDate($date: String!, $index: Int!) {
+    removeMealFromDate(date: $date, index: $index) {
+      _id
+      calendarMeals
+    }
+  }
+`;
+
 const GENERATE_MEALS = gql`
-  mutation GenerateMeals($year: Int!, $month: Int!) {
-    generateMeals(year: $year, month: $month) {
+  mutation GenerateMeals($year: Int!, $month: Int!, $weekStart: Int!) {
+    generateMeals(year: $year, month: $month, weekStart: $weekStart) {
       calendarMeals
     }
   }
@@ -23,6 +32,7 @@ const GENERATE_MEALS = gql`
 const Calendar = () => {
   const { data, loading, refetch } = useQuery(QUERY_ME);
   const [saveMealToDate] = useMutation(SAVE_MEAL_TO_DATE);
+  const [removeMealFromDate] = useMutation(REMOVE_MEAL_FROM_DATE);
   const [generateMeals] = useMutation(GENERATE_MEALS);
 
   const profile = data?.me || {};
@@ -35,7 +45,6 @@ const Calendar = () => {
     console.error("❌ Error parsing calendarMeals:", err);
   }
 
-
   const [goal, setGoal] = useState("");
   const [lifestyle, setLifestyle] = useState("Moderate");
   const [weekOffset, setWeekOffset] = useState(0);
@@ -43,7 +52,6 @@ const Calendar = () => {
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
 
-  // Calculate the start of the week (Sunday) using offset
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - today.getDay() + weekOffset * 7);
 
@@ -66,18 +74,26 @@ const Calendar = () => {
       }
     }
   };
-  // _ is for render below
-  const handleDeleteMeal = (_dateStr: string, _index: number) => {
-    alert("Remove meal functionality not implemented yet.");
+
+  const handleDeleteMeal = async (dateStr: string, index: number) => {
+    try {
+      await removeMealFromDate({
+        variables: { date: dateStr, index },
+      });
+      await refetch();
+    } catch (err) {
+      console.error("Error removing meal:", err);
+    }
   };
 
   const handleGenerateMeals = async () => {
     try {
-      const today = new Date();
+      const weekStart = weekDates[0];
       await generateMeals({
         variables: {
-          year: today.getFullYear(),
-          month: today.getMonth() + 1,
+          year: weekStart.getFullYear(),
+          month: weekStart.getMonth() + 1,
+          weekStart: weekStart.getDate(),
         },
       });
       await refetch();
@@ -156,10 +172,7 @@ const Calendar = () => {
           const isToday = dateStr === todayStr;
 
           return (
-            <div
-              className={`calendar-day ${isToday ? "today" : ""}`}
-              key={index}
-            >
+            <div className={`calendar-day ${isToday ? "today" : ""}`} key={index}>
               <h4>
                 {date.toLocaleDateString(undefined, {
                   weekday: "short",
@@ -168,7 +181,7 @@ const Calendar = () => {
                 })}
               </h4>
 
-              {meals[dateStr] ? (
+              {meals[dateStr]?.length ? (
                 <ul>
                   {meals[dateStr].map((meal, i) => (
                     <li key={i}>
@@ -186,10 +199,7 @@ const Calendar = () => {
                 <p className="no-meals">No meals yet</p>
               )}
 
-              <button
-                className="btn small-btn"
-                onClick={() => handleAddMeal(dateStr)}
-              >
+              <button className="btn small-btn" onClick={() => handleAddMeal(dateStr)}>
                 ➕ Add Meal
               </button>
             </div>

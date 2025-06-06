@@ -7,18 +7,9 @@
   animation: fadeInUp 0.6s ease;
 }
 
-.favorites-page h1 {
-  text-align: center;
-  margin-bottom: 24px;
-  color: #23e5ff;
-}
 
-.favorites-page p {
-  text-align: center;
-  margin-bottom: 16px;
-  color: #90EE90;
-  background-color: #23e5ff;
-}
+
+
 
 
 .favorites-grid {
