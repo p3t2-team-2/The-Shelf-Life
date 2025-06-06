@@ -70,13 +70,26 @@ interface Ingredient {
   unit: string;
 }
 
+const Modal: React.FC<{ message: string; onClose: () => void }> = ({ message, onClose }) => (
+  <div className="modal-backdrop">
+    <div className="modal">
+      <p>{message}</p>
+      <button onClick={onClose}>OK</button>
+    </div>
+  </div>
+);
+
 const ShoppingList: React.FC = () => {
   const { data, loading, error, refetch } = useQuery(QUERY_ME);
   const [clearShoppingList] = useMutation(CLEAR_SHOPPING_LIST);
   const [removeFromShoppingList] = useMutation(REMOVE_FROM_SHOPPING_LIST);
-  const [shoppingListToPantry] = useMutation(SHOPPING_LIST_TO_PANTRY);
+  const [shoppingListToPantry] = useMutation(SHOPPING_LIST_TO_PANTRY, {
+    refetchQueries: [{ query: QUERY_ME }],
+    awaitRefetchQueries: true,
+  });
 
   const [checkedItems, setCheckedItems] = useState<number[]>([]);
+  const [modalMessage, setModalMessage] = useState<string | null>(null);
 
   const toggleCheck = (id: number) => {
     setCheckedItems((prev) =>
@@ -100,32 +113,32 @@ const ShoppingList: React.FC = () => {
     try {
       await clearShoppingList();
       await refetch();
-      alert("🧼 Shopping list cleared.");
+      setModalMessage("🧼 Shopping list cleared.");
     } catch (err) {
       console.error("❌ Failed to clear shopping list:", err);
+      setModalMessage("❌ Failed to clear shopping list.");
     }
   };
 
   const handleRemove = async (id: number) => {
     try {
-      await removeFromShoppingList({
-        variables: { id },
-      });
+      await removeFromShoppingList({ variables: { id } });
       await refetch();
     } catch (err) {
       console.error(`❌ Failed to remove item ${id}:`, err);
+      setModalMessage("❌ Failed to remove item from shopping list.");
     }
   };
 
   const handleAddAllToPantry = async () => {
-    if (items.length === 0) return alert("🛒 No items to move to pantry.");
+    if (items.length === 0) return setModalMessage("🛒 No items to move to pantry.");
     try {
       await shoppingListToPantry();
       await refetch();
-      alert("📥 All shopping list items moved to pantry!");
+      setModalMessage("📥 All shopping list items moved to pantry!");
     } catch (err) {
       console.error("❌ Failed to move items to pantry:", err);
-      alert("❌ Could not complete pantry transfer.");
+      setModalMessage("❌ Could not complete pantry transfer.");
     }
   };
 
@@ -134,7 +147,7 @@ const ShoppingList: React.FC = () => {
       <h1>🛒 Your Shopping List</h1>
 
       {items.length === 0 ? (
-        <p>No items in your list yet.</p>
+        <p className="shopping-items">No items in your list yet.</p>
       ) : (
         <ul className="shopping-items">
           {items.map((ing) => (
@@ -165,6 +178,8 @@ const ShoppingList: React.FC = () => {
           </button>
         </div>
       )}
+
+      {modalMessage && <Modal message={modalMessage} onClose={() => setModalMessage(null)} />}
     </div>
   );
 };

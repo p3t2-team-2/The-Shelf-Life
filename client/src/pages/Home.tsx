@@ -5,7 +5,27 @@ import "../css/Home.css";
 import FilterModal from "../components/FilterModal";
 import { QUERY_PROFILES } from "../utils/queries";
 
-// Added QUERY_ME to get current user's profileId
+const useInfiniteScroll = (callback: () => void) => {
+  const loaderRef = React.useRef<HTMLDivElement | null>(null);
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) callback();
+      },
+      { rootMargin: "100px" }
+    );
+
+    if (loaderRef.current) observer.observe(loaderRef.current);
+
+    return () => {
+      if (loaderRef.current) observer.unobserve(loaderRef.current);
+    };
+  }, [callback]);
+
+  return loaderRef;
+};
+
 const QUERY_ME = gql`
   query Query {
     me {
@@ -72,15 +92,10 @@ const Home: React.FC = () => {
   const { data: meData } = useQuery(QUERY_ME);
   const profileId = meData?.me?._id;
 
-  
-
-  // Updated mutation to refetch QUERY_PROFILE with profileId
   const [addToFavorites] = useMutation(ADD_RECIPE, {
     refetchQueries: profileId
       ? [
-          {
-            query: QUERY_PROFILES, // You can keep this if you want
-          },
+          { query: QUERY_PROFILES },
           {
             query: gql`
               query Query($profileId: ID!) {
@@ -120,9 +135,32 @@ const Home: React.FC = () => {
     error,
   } = useQuery(GET_SPOONACULAR_RECIPES);
 
-  const [loadFilteredRecipes, { data: filteredRecipesData, loading: filteredLoading }] = useLazyQuery(GET_FILTERED_RECIPES);
+  const [loadFilteredRecipes, { data: filteredRecipesData, loading: filteredLoading }] =
+    useLazyQuery(GET_FILTERED_RECIPES);
 
-  const recipes: Recipe[] = recipeData?.spoonacularRecipes || [];
+  const [itemsToLoad, setItemsToLoad] = React.useState(40);
+  const loadMore = () => {
+    setItemsToLoad((prev) => {
+      const next = prev + 20;
+
+      if (filteredRecipesData) {
+        loadFilteredRecipes({
+          variables: {
+            diet: filters.dietary[0] || "",
+            intolerances: filters.dietary,
+            maxReadyTime: String(filters.maxCookTime),
+            equipment: filters.appliance ? [filters.appliance] : [],
+            cuisine: filters.cuisine ? [filters.cuisine] : [],
+            number: String(next),
+          },
+        });
+      }
+
+      return next;
+    });
+  };
+
+  const loaderRef = useInfiniteScroll(loadMore);
 
   const [modalOpen, setModalOpen] = React.useState(false);
   const [filters, setFilters] = React.useState({
@@ -168,12 +206,12 @@ const Home: React.FC = () => {
         return [...recipes].sort((a, b) => a.id.localeCompare(b.id));
       case "random":
       default:
-        return getRandomItems(recipes, 40);
+        return getRandomItems(recipes, itemsToLoad);
     }
   }
 
-  const recipesToDisplay = filteredRecipesData?.filteredRecipes || recipes || [];
-  const filtered = filterRecipes(recipesToDisplay);
+  const allRecipes: Recipe[] = filteredRecipesData?.filteredRecipes || recipeData?.spoonacularRecipes || [];
+  const filtered = filterRecipes(allRecipes);
   const sorted = sortRecipes(filtered);
 
   return (
@@ -206,9 +244,8 @@ const Home: React.FC = () => {
                   className="recipe-img"
                 />
               </Link>
-              
+
               <div className="button-group">
-                
                 <button
                   className="btn favorite"
                   onClick={() =>
@@ -228,39 +265,45 @@ const Home: React.FC = () => {
             <p>No recipes found with selected filters.</p>
           </div>
         )}
-
-        
       </main>
 
+      <div
+        ref={loaderRef}
+        style={{ height: 40, textAlign: "center", margin: "2rem auto" }}
+      >
+        {(loadingRecipes || filteredLoading) && <p>Loading more recipes...</p>}
+      </div>
+
       <FilterModal
-  isOpen={modalOpen}
-  onClose={() => setModalOpen(false)}
-  onApply={(newFilters) => {
-    setFilters(newFilters);
-    setModalOpen(false);
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onApply={(newFilters) => {
+          setFilters(newFilters);
+          setModalOpen(false);
 
-    const hasFilters =
-      newFilters.dietary.length > 0 ||
-      newFilters.mealType ||
-      newFilters.cuisine ||
-      newFilters.appliance ||
-      newFilters.maxCookTime < 180;
+          const hasFilters =
+            newFilters.dietary.length === 0 &&
+            newFilters.mealType === "" &&
+            newFilters.cuisine === "" &&
+            newFilters.appliance === "" &&
+            newFilters.maxCookTime === 180 &&
+            newFilters.sort === "random";
 
-    if (hasFilters) {
-      loadFilteredRecipes({
-        variables: {
-          diet: newFilters.dietary[0] || "", // Spoonacular allows one diet
-          intolerances: newFilters.dietary, // Spoonacular allows many intolerances
-          maxReadyTime: String(newFilters.maxCookTime),
-          equipment: newFilters.appliance ? [newFilters.appliance] : [],
-          cuisine: newFilters.cuisine ? [newFilters.cuisine] : [],
-          number: "40",
-        },
-      });
-    }
-  }}
-  sortOption={filters.sort}
-/>
+          if (!hasFilters) {
+            loadFilteredRecipes({
+              variables: {
+                diet: newFilters.dietary[0] || "",
+                intolerances: newFilters.dietary,
+                maxReadyTime: String(newFilters.maxCookTime),
+                equipment: newFilters.appliance ? [newFilters.appliance] : [],
+                cuisine: newFilters.cuisine ? [newFilters.cuisine] : [],
+                number: String(itemsToLoad),
+              },
+            });
+          }
+        }}
+        sortOption={filters.sort}
+      />
     </div>
   );
 };

@@ -51,9 +51,9 @@ const ADD_TO_PANTRY = gql`
 `;
 
 const REMOVE_FROM_PANTRY = gql`
-mutation RemoveFromPantry($removeFromPantryId: Int!) {
+  mutation RemoveFromPantry($removeFromPantryId: Int!) {
   removeFromPantry(id: $removeFromPantryId) {
-    id
+    name
   }
 }
 `;
@@ -66,6 +66,8 @@ const GET_INGREDIENT_UNITS = gql`
     }
   }
 `;
+
+
 
 const Pantry: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -243,116 +245,110 @@ const Pantry: React.FC = () => {
         <button type="submit">➕ Add More</button>
       </form>
 
-      <div className="pantry-list">
-        <h3>❄️ Fridge</h3>
-        {fridgeItems.length ? (
-          fridgeItems.map((item: any) => (
-            <div key={item.id} className="pantry-item">
-              <p>
-                <strong>{item.item}</strong>
-              </p>
-              <p>
-                Qty: {item.quantity} {item.unit}
-              </p>
-              <button
-                className="btn"
-                onClick={() =>
-    removeFromPantry({ variables: { removeFromPantryId: item.id } })
-  }
-              >
-                Remove
-              </button>
-              <button
-                className="btn"
-                onClick={() => {
-                  setSelectedItemName(item.item);
-                  setSelectedItemId(item.id);
-                  setQuantity(item.quantity);
-                  setUnit(item.unit);
-                  setStorageType(item.storage || "Fridge");
-                }}
-              >
-                Add More
-              </button>
-            </div>
-          ))
-        ) : (
-          <p>No items in fridge.</p>
-        )}
+  <div className="pantry-list">
+  <h3>❄️ Fridge</h3>
+  <div className="pantry-section">
+    {fridgeItems.length ? (
+      fridgeItems.map((item: any) => (
+        <div key={item.id} className="pantry-item">
+          <p><strong>{item.item}</strong></p>
+          <p>Qty: {item.quantity} {item.unit}</p>
+          <button
+            className="btn"
+            onClick={() =>
+              removeFromPantry({ variables: { removeFromPantryId: item.id } })
+            }
+          >
+            Remove
+          </button>
+          <button
+            className="btn"
+            onClick={() => {
+              setSelectedItemName(item.item);
+              setSelectedItemId(item.id);
+              setQuantity(item.quantity);
+              setUnit(item.unit);
+              setStorageType(item.storage || "Fridge");
+            }}
+          >
+            Add More
+          </button>
+        </div>
+      ))
+    ) : (
+      <p>No items in fridge.</p>
+    )}
+  </div>
 
-        <h3>🧊 Freezer</h3>
-        {freezerItems.length ? (
-          freezerItems.map((item: any) => (
-            <div key={item.id} className="pantry-item">
-              <p>
-                <strong>{item.item}</strong>
-              </p>
-              <p>
-                Qty: {item.quantity} {item.unit}
-              </p>
-              <button
-                className="btn"
-                onClick={() =>
-                  removeFromPantry({ variables: { pantryItemId: item.id } })
-                }
-              >
-                Remove
-              </button>
-              <button
-                className="btn"
-                onClick={() => {
-                  setSelectedItemName(item.item);
-                  setSelectedItemId(item.id);
-                  setQuantity(item.quantity);
-                  setUnit(item.unit);
-                  setStorageType(item.storage || "Fridge");
-                }}
-              >
-                Add More
-              </button>
-            </div>
-          ))
-        ) : (
-          <p>No items in freezer.</p>
-        )}
+  <h3>🧊 Freezer</h3>
+  <div className="pantry-section">
+    {freezerItems.length ? (
+      freezerItems.map((item: any) => (
+        <div key={item.id} className="pantry-item">
+          <p><strong>{item.item}</strong></p>
+          <p>Qty: {item.quantity} {item.unit}</p>
+          <button
+            className="btn"
+            onClick={() =>
+              removeFromPantry({ variables: { removeFromPantryId: item.id } })
+            }
+          >
+            Remove
+          </button>
+          <button
+            className="btn"
+            onClick={() => {
+              setSelectedItemName(item.item);
+              setSelectedItemId(item.id);
+              setQuantity(item.quantity);
+              setUnit(item.unit);
+              setStorageType(item.storage || "Freezer");
+            }}
+          >
+            Add More
+          </button>
+        </div>
+      ))
+    ) : (
+      <p>No items in freezer.</p>
+    )}
+  </div>
 
-        <h3>🗄️ Closet</h3>
-        {closetItems.length ? (
-          closetItems.map((item: any) => (
-            <div key={item.id} className="pantry-item">
-              <p>
-                <strong>{item.item}</strong>
-              </p>
-              <p>
-                Qty: {item.quantity} {item.unit}
-              </p>
-              <button
-                className="btn"
-                onClick={() =>
-                  removeFromPantry({ variables: { pantryItemId: item.id } })
-                }
-              >
-                Remove
-              </button>
-              <button
-                className="btn"
-                onClick={() => {
-                  setSelectedItemName(item.item);
-                  setSelectedItemId(item.id);
-                  setQuantity(item.quantity);
-                  setUnit(item.unit);
-                  setStorageType(item.storage || "Fridge");
-                }}
-              >
-                Add More
-              </button>
-            </div>
-          ))
-        ) : (
-          <p>No items in closet.</p>
-        )}
-      </div>
-    </div>
+  <h3>🗄️ Closet</h3>
+  <div className="pantry-section">
+    {closetItems.length ? (
+      closetItems.map((item: any) => (
+        <div key={item.id} className="pantry-item">
+          <p><strong>{item.item}</strong></p>
+          <p>Qty: {item.quantity} {item.unit}</p>
+          <button
+            className="btn"
+            onClick={() =>
+              removeFromPantry({ variables: { removeFromPantryId: item.id } })
+            }
+          >
+            Remove
+          </button>
+          <button
+            className="btn"
+            onClick={() => {
+              setSelectedItemName(item.item);
+              setSelectedItemId(item.id);
+              setQuantity(item.quantity);
+              setUnit(item.unit);
+              setStorageType(item.storage || "Closet");
+            }}
+          >
+            Add More
+          </button>
+        </div>
+      ))
+    ) : (
+      <p>No items in closet.</p>
+    )}
+  </div>
+</div>
+</div>
   );
 };
 

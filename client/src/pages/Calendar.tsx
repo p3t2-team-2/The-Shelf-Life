@@ -29,11 +29,26 @@ const GENERATE_MEALS = gql`
   }
 `;
 
+// Reusable modal
+const Modal: React.FC<{ message: string; onClose: () => void }> = ({ message, onClose }) => (
+  <div className="modal-backdrop">
+    <div className="modal">
+      <p>{message}</p>
+      <button onClick={onClose}>OK</button>
+    </div>
+  </div>
+);
+
 const Calendar = () => {
   const { data, loading, refetch } = useQuery(QUERY_ME);
   const [saveMealToDate] = useMutation(SAVE_MEAL_TO_DATE);
   const [removeMealFromDate] = useMutation(REMOVE_MEAL_FROM_DATE);
   const [generateMeals] = useMutation(GENERATE_MEALS);
+
+  const [goal, setGoal] = useState("");
+  const [lifestyle, setLifestyle] = useState("Moderate");
+  const [weekOffset, setWeekOffset] = useState(0);
+  const [modalMessage, setModalMessage] = useState<string | null>(null);
 
   const profile = data?.me || {};
   let meals: { [date: string]: string[] } = {};
@@ -44,10 +59,6 @@ const Calendar = () => {
   } catch (err) {
     console.error("❌ Error parsing calendarMeals:", err);
   }
-
-  const [goal, setGoal] = useState("");
-  const [lifestyle, setLifestyle] = useState("Moderate");
-  const [weekOffset, setWeekOffset] = useState(0);
 
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
@@ -71,6 +82,7 @@ const Calendar = () => {
         });
       } catch (err) {
         console.error("Error saving meal:", err);
+        setModalMessage("❌ Could not save meal.");
       }
     }
   };
@@ -83,6 +95,7 @@ const Calendar = () => {
       await refetch();
     } catch (err) {
       console.error("Error removing meal:", err);
+      setModalMessage("❌ Could not delete meal.");
     }
   };
 
@@ -97,15 +110,15 @@ const Calendar = () => {
         },
       });
       await refetch();
-      alert("✅ Weekly meals generated!");
+      setModalMessage("✅ Weekly meals generated!");
     } catch (error) {
       console.error("❌ Error generating meals:", error);
-      alert("❌ Failed to generate meals.");
+      setModalMessage("❌ Failed to generate meals.");
     }
   };
 
   const handleShoppingList = () => {
-    alert("🛒 Shopping list logic coming soon...");
+    setModalMessage("🛒 Shopping list logic coming soon...");
   };
 
   const handlePrevWeek = () => {
@@ -206,6 +219,8 @@ const Calendar = () => {
           );
         })}
       </div>
+
+      {modalMessage && <Modal message={modalMessage} onClose={() => setModalMessage(null)} />}
     </div>
   );
 };
