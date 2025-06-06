@@ -1,10 +1,12 @@
 import React from "react";
 import { useQuery, useMutation, gql } from "@apollo/client";
+import "../css/ShoppingList.css"; 
 
 const QUERY_ME = gql`
   query Me {
     me {
       shoppingList {
+        id
         item
         quantity
         unit
@@ -18,6 +20,7 @@ const CLEAR_SHOPPING_LIST = gql`
     clearShoppingList {
       _id
       shoppingList {
+        id
         item
         quantity
         unit
@@ -26,6 +29,13 @@ const CLEAR_SHOPPING_LIST = gql`
   }
 `;
 
+interface Ingredient {
+  id: number;
+  item: string;
+  quantity: number;
+  unit: string;
+}
+
 const ShoppingList: React.FC = () => {
   const { data, loading, error, refetch } = useQuery(QUERY_ME);
   const [clearShoppingList] = useMutation(CLEAR_SHOPPING_LIST);
@@ -33,12 +43,13 @@ const ShoppingList: React.FC = () => {
   if (loading) return <p>Loading shopping list...</p>;
   if (error) return <p>Error loading shopping list.</p>;
 
-  const items = data?.me?.shoppingList || [];
+  const items: Ingredient[] = data?.me?.shoppingList || [];
 
   const handleClear = async () => {
     try {
       await clearShoppingList();
       await refetch();
+      alert("🧼 Shopping list cleared.");
     } catch (err) {
       console.error("❌ Failed to clear shopping list:", err);
     }
@@ -49,12 +60,12 @@ const ShoppingList: React.FC = () => {
       <h1>🛒 Your Shopping List</h1>
 
       {items.length === 0 ? (
-        <p>No items in your list.</p>
+        <p>No items in your list yet.</p>
       ) : (
-        <ul>
-          {items.map((ing: any, index: number) => (
-            <li key={index}>
-              ✅ {ing.item}
+        <ul className="shopping-items">
+          {items.map((ing) => (
+            <li key={ing.id}>
+              ✅ <strong>{ing.item}</strong>
               {ing.quantity && ` — ${ing.quantity}`}
               {ing.unit && ` ${ing.unit}`}
             </li>
@@ -64,7 +75,7 @@ const ShoppingList: React.FC = () => {
 
       {items.length > 0 && (
         <button onClick={handleClear} className="btn clear">
-          Clear Shopping List
+          🧺 Clear Shopping List
         </button>
       )}
     </div>

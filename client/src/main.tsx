@@ -3,7 +3,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import App from "./App.jsx";
 import Home from "./pages/Home";
-import Profile from "./pages/Profile";
+// import Profile from "./pages/Profile";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Error from "./pages/Error";
@@ -16,6 +16,7 @@ import Favorites from "./pages/Favorites";
 // import SearchResults from './pages/SearchResults';
 import RecipeDetails from "./pages/fullRecipes";
 import RecipeSearch from "./components/RecipeSearch.js";
+import ShoppingList from "./pages/ShoppingList.js";
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
       {
         path: "/pantry",
         element: <Pantry />,
+      },
+      {
+        path: "/shoppinglist",
+        element: <ShoppingList />,
       },
       {
         path: "/bio",

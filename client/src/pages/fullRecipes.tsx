@@ -1,4 +1,3 @@
-import React from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 import { QUERY_RECIPE } from '../utils/queries';
@@ -28,8 +27,36 @@ interface Recipe {
 }
 
 const ADD_RECIPE = gql`
-  mutation Mutation($addRecipeId: Int!) {
+  mutation AddRecipe($addRecipeId: Int!) {
     addRecipe(id: $addRecipeId) {
+      pantry {
+        id
+        item
+        quantity
+        storage
+        unit
+      }
+    }
+  }
+`;
+
+const ADD_TO_SHOPPING_LIST = gql`
+  mutation AddToShoppingList($id: Int!) {
+    addToShoppingList(id: $id) {
+      shoppingList {
+        id
+        item
+        quantity
+        unit
+      }
+    }
+  }
+`;
+
+const COOK_RECIPE = gql`
+  mutation CookRecipe($id: Int!) {
+    cook(id: $id) {
+      _id
       pantry {
         id
         item
@@ -44,7 +71,7 @@ const ADD_RECIPE = gql`
 const RecipeDetails = () => {
   const { recipeId } = useParams<{ recipeId: string }>();
 
-  const { loading, error, data } = useQuery(QUERY_RECIPE, {
+  const { loading, error, data, refetch } = useQuery(QUERY_RECIPE, {
     variables: { recipeByIdId: parseInt(recipeId as string) },
     skip: !recipeId,
   });
@@ -59,6 +86,29 @@ const RecipeDetails = () => {
     },
   });
 
+  const [addToShoppingList] = useMutation(ADD_TO_SHOPPING_LIST, {
+    variables: { id: parseInt(recipeId as string) },
+    onCompleted: () => {
+      alert('✅ Ingredients added to your shopping list!');
+    },
+    onError: (error) => {
+      console.error('❌ Error adding to shopping list:', error);
+      alert('Failed to add ingredients.');
+    },
+  });
+
+  const [cookRecipe, { loading: cooking }] = useMutation(COOK_RECIPE, {
+    variables: { id: parseInt(recipeId as string) },
+    onCompleted: () => {
+      alert("✅ Successfully cooked! Your pantry has been updated.");
+      refetch();
+    },
+    onError: (error) => {
+      console.error("❌ Error cooking recipe:", error);
+      alert(`Error: ${error.message}`);
+    },
+  });
+
   if (loading) return <p>Loading recipe...</p>;
   if (error) return <p>Error loading recipe: {error.message}</p>;
 
@@ -68,11 +118,20 @@ const RecipeDetails = () => {
     addToRecipes();
   };
 
+  const handleAddToShoppingList = () => {
+    addToShoppingList();
+  };
+
+  const handleCook = () => {
+    cookRecipe();
+  };
+
   return (
     <div className="recipe-details">
       <h2>{recipe.name}</h2>
       <img src={recipe.image} alt={recipe.name} />
       <p dangerouslySetInnerHTML={{ __html: recipe.description }} />
+
       <h3>Ingredients</h3>
       <ul>
         {recipe.ingredients.map((ing) => (
@@ -81,6 +140,7 @@ const RecipeDetails = () => {
           </li>
         ))}
       </ul>
+
       <h3>Instructions</h3>
       <ol>
         {recipe.instructions.map((step) => (
@@ -90,9 +150,22 @@ const RecipeDetails = () => {
           </li>
         ))}
       </ol>
-      <button className="add-recipe-button" onClick={handleAddToRecipes}>
-        Add to Recipes
-      </button>
+
+      <div className="button-group">
+        <button className="add-recipe-button" onClick={handleAddToRecipes}>
+          Add to Recipes
+        </button>
+        <button className="add-recipe-button" onClick={handleAddToShoppingList}>
+          🛒 Add Ingredients to Shopping List
+        </button>
+        <button
+          className="add-recipe-button"
+          onClick={handleCook}
+          disabled={cooking}
+        >
+          {cooking ? "Cooking..." : "🍳 Cook"}
+        </button>
+      </div>
     </div>
   );
 };

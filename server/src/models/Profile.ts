@@ -1,7 +1,7 @@
 import { model, Document } from "mongoose";
 import { ingredientSchema, IIngredient } from "./Ingredient.js";
 import { recipeSchema, IRecipe } from "./Recipe.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 
 // interface ICalendarMeals {

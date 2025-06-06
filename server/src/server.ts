@@ -1,4 +1,5 @@
 import express from 'express';
+import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import type { Request, Response } from 'express';
 import db from './config/connection.js'
@@ -8,6 +9,13 @@ import { typeDefs, resolvers } from './schemas/index.js';
 import { authenticateToken } from './utils/auth.js';
 
 console.log('api key', process.env.SPOONACULAR_API_KEY);
+
+let __dirname: string | undefined = (globalThis as any).__dirname;
+if (process.env.NODE_ENV === 'production' && !__dirname) {
+  const __filename = fileURLToPath(import.meta.url);
+  __dirname = path.dirname(__filename);
+  (globalThis as any).__dirname = __dirname;
+}
 
 
 const server = new ApolloServer({
@@ -32,10 +40,10 @@ const startApolloServer = async () => {
   ));
 
   if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../client/dist')));
+    app.use(express.static(path.join(__dirname!, '../../client/dist')));
 
     app.get('*', (_req: Request, res: Response) => {
-      res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+      res.sendFile(path.join(__dirname!, '../../client/dist/index.html'));
     });
   }
 

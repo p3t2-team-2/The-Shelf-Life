@@ -1,10 +1,18 @@
 import React from "react";
-import { useQuery, gql, useMutation } from "@apollo/client";
+import { useQuery, gql, useMutation, useLazyQuery } from "@apollo/client";
 import { Link } from "react-router-dom";
 import "../css/Home.css";
 import FilterModal from "../components/FilterModal";
 import { QUERY_PROFILES } from "../utils/queries";
-import { useLazyQuery } from "@apollo/client";
+
+// Added QUERY_ME to get current user's profileId
+const QUERY_ME = gql`
+  query Query {
+    me {
+      _id
+    }
+  }
+`;
 
 const GET_SPOONACULAR_RECIPES = gql`
   query {
@@ -17,22 +25,14 @@ const GET_SPOONACULAR_RECIPES = gql`
 `;
 
 const ADD_RECIPE = gql`
-  mutation Mutation($addRecipeId: Int!) {
+  mutation AddRecipe($addRecipeId: Int!) {
     addRecipe(id: $addRecipeId) {
-      id
-      name
-      image
-      description
-      ingredients {
+      pantry {
         id
         item
         quantity
+        storage
         unit
-      }
-      instructions {
-        number
-        step
-        time
       }
     }
   }
@@ -62,7 +62,6 @@ const GET_FILTERED_RECIPES = gql`
   }
 `;
 
-
 interface Recipe {
   id: string;
   name: string;
@@ -70,11 +69,47 @@ interface Recipe {
 }
 
 const Home: React.FC = () => {
-  const { loading: loadingProfiles, data: profileData } =
-    useQuery(QUERY_PROFILES);
-  const profiles = profileData?.profiles || [];
+  const { data: meData } = useQuery(QUERY_ME);
+  const profileId = meData?.me?._id;
 
+  
+
+  // Updated mutation to refetch QUERY_PROFILE with profileId
   const [addToFavorites] = useMutation(ADD_RECIPE, {
+    refetchQueries: profileId
+      ? [
+          {
+            query: QUERY_PROFILES, // You can keep this if you want
+          },
+          {
+            query: gql`
+              query Query($profileId: ID!) {
+                profile(profileId: $profileId) {
+                  recipes {
+                    id
+                    name
+                    image
+                    description
+                    ingredients {
+                      id
+                      item
+                      quantity
+                      unit
+                    }
+                    instructions {
+                      number
+                      step
+                      time
+                    }
+                  }
+                }
+              }
+            `,
+            variables: { profileId },
+          },
+        ]
+      : [],
+    awaitRefetchQueries: true,
     onCompleted: (data) => console.log("Added to favorites:", data),
     onError: (error) => console.error("Error adding to favorites:", error),
   });
@@ -85,7 +120,7 @@ const Home: React.FC = () => {
     error,
   } = useQuery(GET_SPOONACULAR_RECIPES);
 
-  const [loadFilteredRecipes, { data: filteredRecipesData, loading: filteredLoading }] = useLazyQuery(GET_FILTERED_RECIPES)
+  const [loadFilteredRecipes, { data: filteredRecipesData, loading: filteredLoading }] = useLazyQuery(GET_FILTERED_RECIPES);
 
   const recipes: Recipe[] = recipeData?.spoonacularRecipes || [];
 
@@ -95,7 +130,7 @@ const Home: React.FC = () => {
     expiringFirst: false,
     maxPrice: 100,
     maxCookTime: 180,
-    dietary: [],
+    dietary: [] as string[],
     mealType: "",
     cuisine: "",
     appliance: "",
@@ -171,9 +206,9 @@ const Home: React.FC = () => {
                   className="recipe-img"
                 />
               </Link>
-              <p>✅ Has all ingredients</p>
+              
               <div className="button-group">
-                <button className="btn cook">Cook</button>
+                
                 <button
                   className="btn favorite"
                   onClick={() =>
@@ -194,53 +229,38 @@ const Home: React.FC = () => {
           </div>
         )}
 
-        <div className="box featured-recipe">
-          <h2>⭐ Featured (User Favorite) Recipe</h2>
-          <ul>
-            <li>✅ Has all ingredients</li>
-            <li>
-              💬 <a href="/comments">View Comments</a>
-            </li>
-          </ul>
-          {loadingProfiles ? (
-            <div>Loading user profiles...</div>
-          ) : (
-            <p>There are {profiles.length} users.</p>
-          )}
-        </div>
+        
       </main>
 
       <FilterModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onApply={(newFilters) => {
-          setFilters(newFilters);
-          setModalOpen(false);
+  isOpen={modalOpen}
+  onClose={() => setModalOpen(false)}
+  onApply={(newFilters) => {
+    setFilters(newFilters);
+    setModalOpen(false);
 
-                    const hasFilters =
-            newFilters.dietary.length > 0 ||
-            newFilters.mealType ||
-            newFilters.cuisine ||
-            newFilters.appliance ||
-            newFilters.maxCookTime < 180;
+    const hasFilters =
+      newFilters.dietary.length > 0 ||
+      newFilters.mealType ||
+      newFilters.cuisine ||
+      newFilters.appliance ||
+      newFilters.maxCookTime < 180;
 
-          if (hasFilters) {
-            loadFilteredRecipes({
-              variables: {
-                diet: newFilters.dietary[0] || "",
-                intolerances: [], 
-                maxReadyTime: String(newFilters.maxCookTime),
-                equipment: newFilters.appliance
-                  ? [newFilters.appliance]
-                  : [],
-                cuisine: newFilters.cuisine ? [newFilters.cuisine] : [],
-                number: "40",
-              },
-            });
-          }
-        }}
-        sortOption={filters.sort}
-      />
+    if (hasFilters) {
+      loadFilteredRecipes({
+        variables: {
+          diet: newFilters.dietary[0] || "", // Spoonacular allows one diet
+          intolerances: newFilters.dietary, // Spoonacular allows many intolerances
+          maxReadyTime: String(newFilters.maxCookTime),
+          equipment: newFilters.appliance ? [newFilters.appliance] : [],
+          cuisine: newFilters.cuisine ? [newFilters.cuisine] : [],
+          number: "40",
+        },
+      });
+    }
+  }}
+  sortOption={filters.sort}
+/>
     </div>
   );
 };

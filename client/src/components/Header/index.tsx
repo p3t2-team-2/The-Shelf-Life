@@ -20,9 +20,10 @@ const Header = () => {
           {Auth.loggedIn() ? (
             <>
               <Link to="/favorites">Cook Book</Link>
-              <Link to="/bio">Bio</Link>
               <Link to="/pantry">Pantry</Link>
+              <Link to="/shoppinglist">Shopping List</Link>
               <Link to="/calendar">Meal Planner</Link>
+              <Link to="/bio">Bio</Link>
               <button onClick={logout} className="logout-button">
                 Logout
               </button>
@@ -33,7 +34,7 @@ const Header = () => {
               <Link to="/login">Login</Link>
               <Link to="/signup">Signup</Link>
               <Link to="/Bio">Bio</Link>
-              <Link to="/recipes">Recipes</Link>
+              {/* <Link to="/recipes">Recipes</Link> */}
             </>
           )}
         </div>

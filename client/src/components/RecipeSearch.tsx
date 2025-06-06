@@ -4,6 +4,14 @@ import { Link, useSearchParams } from "react-router-dom";
 import "../css/Home.css";
 import FilterModal from "../components/FilterModal";
 
+const QUERY_ME = gql`
+  query Query {
+    me {
+      _id
+    }
+  }
+`;
+
 const SEARCH_RECIPES = gql`
   query SearchRecipes($keywords: String!) {
     searchRecipes(keywords: $keywords) {
@@ -15,22 +23,52 @@ const SEARCH_RECIPES = gql`
 `;
 
 const ADD_RECIPE = gql`
-  mutation Mutation($addRecipeId: Int!) {
+  mutation AddRecipe($addRecipeId: Int!) {
     addRecipe(id: $addRecipeId) {
-      id
-      name
-      image
-      description
-      ingredients {
+      pantry {
         id
         item
         quantity
+        storage
         unit
       }
-      instructions {
-        number
-        step
-        time
+    }
+  }
+`;
+
+const QUERY_PROFILES = gql`
+  query Profiles {
+    profiles {
+      _id
+      username
+      recipes {
+        id
+        name
+        image
+      }
+    }
+  }
+`;
+
+const QUERY_PROFILE = gql`
+  query Profile($profileId: ID!) {
+    profile(profileId: $profileId) {
+      recipes {
+        id
+        name
+        image
+        description
+        ingredients {
+          id
+          item
+          quantity
+          unit
+        }
+        instructions {
+          number
+          step
+          time
+        }
       }
     }
   }
@@ -46,12 +84,21 @@ const RecipeSearch: React.FC = () => {
   const [searchParams] = useSearchParams();
   const queryParam = searchParams.get("query") || "";
 
+  const { data: meData } = useQuery(QUERY_ME);
+  const profileId = meData?.me?._id;
+
   const [addToFavorites] = useMutation(ADD_RECIPE, {
+    refetchQueries: profileId
+      ? [
+          { query: QUERY_PROFILES },
+          { query: QUERY_PROFILE, variables: { profileId } },
+        ]
+      : [],
+    awaitRefetchQueries: true,
     onCompleted: (data) => console.log("Added to favorites:", data),
     onError: (error) => console.error("Error adding to favorites:", error),
   });
 
-  // Use useQuery, skip if no queryParam
   const {
     loading: loadingRecipes,
     data: recipeData,

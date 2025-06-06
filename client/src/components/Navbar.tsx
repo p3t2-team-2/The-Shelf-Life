@@ -30,6 +30,7 @@ const Navbar = () => {
   const [menuActive, setMenuActive] = useState(false);
   const navigate = useNavigate();
 
+  loginCheck; // For render
   useEffect(() => {
     if (auth.loggedIn()) setLoginCheck(true);
   }, []);
@@ -74,6 +75,9 @@ const Navbar = () => {
             </Link>
             <Link to="/pantry" className="btn">
               Pantry
+            </Link>
+            <Link to="/shoppinglist" className="btn">
+              Shopping List
             </Link>
             <Link to="/calendar" className="btn">
               Meal Planner

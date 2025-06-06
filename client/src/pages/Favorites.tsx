@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { gql, useQuery, useMutation } from "@apollo/client";
+import { Link } from "react-router-dom";
 import "../css/Favorites.css";
 
 const QUERY_ME = gql`
@@ -45,6 +46,21 @@ const REMOVE_RECIPE = gql`
   }
 `;
 
+const COOK_RECIPE = gql`
+  mutation CookRecipe($id: Int!) {
+    cook(id: $id) {
+      _id
+      pantry {
+        id
+        item
+        quantity
+        storage
+        unit
+      }
+    }
+  }
+`;
+
 interface Recipe {
   id: string;
   name: string;
@@ -74,7 +90,15 @@ const Favorites: React.FC = () => {
     refetchQueries: [{ query: QUERY_PROFILE, variables: { profileId } }],
   });
 
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [cookRecipe, { loading: cooking }] = useMutation(COOK_RECIPE, {
+    onCompleted: () => {
+      alert("Successfully cooked the recipe! Pantry updated.");
+      refetch();
+    },
+    onError: (error) => {
+      alert(`Error cooking recipe: ${error.message}`);
+    },
+  });
 
   const favorites: Recipe[] = data?.profile?.recipes || [];
 
@@ -85,6 +109,15 @@ const Favorites: React.FC = () => {
       refetch(); // Ensure UI updates after removal
     } catch (err) {
       console.error("Error removing recipe:", err);
+    }
+  };
+
+  // Cook recipe
+  const handleCook = async (id: number) => {
+    try {
+      await cookRecipe({ variables: { id } });
+    } catch (err) {
+      console.error("Error cooking recipe:", err);
     }
   };
 
@@ -101,27 +134,29 @@ const Favorites: React.FC = () => {
       {favorites.length > 0 ? (
         <div className="favorites-grid">
           {favorites.map((recipe) => (
-            <div
-              className="favorite-card"
-              key={recipe.id}
-              onClick={() => setSelectedRecipe(recipe)} // Open modal with recipe details
-            >
-              <img
-                src={recipe.image}
-                alt={recipe.name}
-                className="recipe-img"
-              />
-              <h3>{recipe.name}</h3>
+            <div className="favorite-card" key={recipe.id}>
+              <Link to={`/recipes/${recipe.id}`}>
+                <img
+                  src={recipe.image}
+                  alt={recipe.name}
+                  className="recipe-img"
+                />
+                <h3>{recipe.name}</h3>
+              </Link>
               <div className="icons">
                 <button
                   className="btn remove"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent modal from opening when clicking "Remove"
-                    handleRemove(parseInt(recipe.id, 10));
-                  }}
+                  onClick={() => handleRemove(parseInt(recipe.id, 10))}
                   disabled={removing}
                 >
                   {removing ? "Removing..." : "Remove from Favorites"}
+                </button>
+                <button
+                  className="btn cook"
+                  onClick={() => handleCook(parseInt(recipe.id, 10))}
+                  disabled={cooking}
+                >
+                  {cooking ? "Cooking..." : "Cook"}
                 </button>
               </div>
             </div>
@@ -129,41 +164,6 @@ const Favorites: React.FC = () => {
         </div>
       ) : (
         !loadingFavorites && <p>You haven’t added any favorites yet!</p>
-      )}
-
-      {/* Recipe Details Modal */}
-      {selectedRecipe && (
-        <div className="modal-overlay" onClick={() => setSelectedRecipe(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>{selectedRecipe.name}</h2>
-            <img
-              src={selectedRecipe.image}
-              alt={selectedRecipe.name}
-              className="modal-img"
-            />
-            <p>{selectedRecipe.description}</p>
-            <h3>Ingredients:</h3>
-            <ul>
-              {selectedRecipe.ingredients.map((ingredient) => (
-                <li key={ingredient.id}>
-                  {ingredient.quantity} {ingredient.unit} {ingredient.item}
-                </li>
-              ))}
-            </ul>
-            <h3>Instructions:</h3>
-            <ol>
-              {selectedRecipe.instructions.map((step) => (
-                <li key={step.number}>
-                  <strong>Step {step.number}: </strong> {step.step}{" "}
-                  {step.time ? `(${step.time} mins)` : ""}
-                </li>
-              ))}
-            </ol>
-            <button className="btn" onClick={() => setSelectedRecipe(null)}>
-              Close
-            </button>
-          </div>
-        </div>
       )}
     </div>
   );
