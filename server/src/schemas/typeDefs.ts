@@ -83,7 +83,7 @@ scalar JSON
     cook(id: Int!): Profile
     addNewIngredientsToPantry(item: String!, storage: String!, unit: [String!], quantity: Int!): Profile
     saveMealToDate(date: String!, meal: String!): Profile
-    generateMeals(year: Int!, month: Int!): Profile
+    generateMeals(year: Int!, month: Int!, weekStart: Int!): Profile
     removeMealFromDate(date: String!, index: Int!): Profile
     addtoShoppingList(id: Int!): Profile
     shoppingListToPantry: Profile

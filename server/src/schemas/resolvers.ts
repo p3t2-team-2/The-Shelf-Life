@@ -11,6 +11,7 @@ import {
 } from "../utils/spoonacularQueries.js";
 // import { getIngredientInfoByName } from "../utils/spoonacularMutations.js";
 import { GraphQLJSON } from "graphql-type-json";
+// import { get } from "mongoose";
 // import { transformRecipe } from "../utils/spoonacularMutations.js";
 
 interface Profile {
@@ -853,48 +854,29 @@ const resolvers = {
   }
 
   // Parse or initialize calendarMeals
-  let calendar: Record<string, string[]> = {};
-  try {
-    calendar =
-      typeof userProfile.calendarMeals === "string"
-        ? JSON.parse(userProfile.calendarMeals)
-        : userProfile.calendarMeals || {};
-  } catch (err) {
-    console.error("❌ Error parsing calendarMeals:", err);
-    calendar = {};
-  }
+  let calendar: Record<string, Record<string ,string[]>> = {
+    breakfast: {},
+    lunch: {},
+    dinner: {}
+  };
+  // try {
+  //   calendar =
+  //     typeof userProfile.calendarMeals === "string"
+  //       ? JSON.parse(userProfile.calendarMeals)
+  //       : userProfile.calendarMeals || {};
+  // } catch (err) {
+  //   console.error("❌ Error parsing calendarMeals:", err);
+  //   calendar = {};
+  // }
 
   const baseDate = new Date(year, month - 1, weekStart);
 
   // Fetch recipes from Spoonacular
-  const url = `https://api.spoonacular.com/recipes/complexSearch?number=7&type=main%20course&apiKey=${process.env.SPOONACULAR_API_KEY}`;
-  console.log("🌐 Fetching recipes from:", url);
+  await genMeals(baseDate, "breakfast", calendar);
+  await genMeals(baseDate, "lunch", calendar);
+  await genMeals(baseDate, "dinner", calendar);
 
-  const res = await fetch(url);
-
-  if (!res.ok) {
-    const errBody = await res.text();
-    console.error(`❌ Spoonacular API error: ${res.status}`, errBody);
-    throw new Error(`Failed to fetch recipes: ${res.status}`);
-  }
-
-  const data = await res.json();
-  const recipes = data?.results?.map((r: any) => r.title) || [];
-
-  if (recipes.length === 0) {
-    console.warn("⚠️ No recipes found from Spoonacular");
-    throw new Error("No recipes returned from Spoonacular");
-  }
-
-  console.log("🍽 Recipes returned:", recipes);
-
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(baseDate);
-    d.setDate(baseDate.getDate() + i);
-    const dateStr = d.toISOString().split("T")[0];
-    calendar[dateStr] = [recipes[i] || `Meal ${i + 1}`];
-  }
-
+  
   // Save back to MongoDB
   await Profile.findByIdAndUpdate(
     context.user._id,
@@ -934,5 +916,29 @@ const resolvers = {
     },
   },
 };
+
+
+const genMeals = async (baseDate: Date,category: string, calendar: Record<string,Record<string ,string[]>>) => {
+  const url = `https://api.spoonacular.com/recipes/random?type=${category}&number=7&sort=random&apiKey=${process.env.SPOONACULAR_API_KEY}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error(`Spoonacular API error: ${res.status}`, errBody);
+    throw new Error(`Failed to fetch recipes: ${res.status}`);
+  }
+  const data = await res.json();
+  const recipes = data?.recipes?.map((r: any) => ({title: r.title, id: r.id})) || [];
+  if (recipes.length === 0) {
+    console.warn("No recipes found from Spoonacular");
+    throw new Error("No recipes returned from Spoonacular");
+  }
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(baseDate);
+    d.setDate(baseDate.getDate() + i);
+    const dateStr = d.toISOString().split("T")[0];
+    calendar[category][dateStr] = [recipes[i] || `Meal ${i + 1}`];
+  }
+  console.log(calendar);
+}; 
 
 export default resolvers;
