@@ -6,6 +6,7 @@ scalar JSON
     name: String
     email: String
     password: String
+    shoppingList: [Ingredient]
     pantry: [Ingredient]
     recipes: [Recipe]
     calendarMeals: JSON
@@ -84,6 +85,8 @@ scalar JSON
     saveMealToDate(date: String!, meal: String!): Profile
     generateMeals(year: Int!, month: Int!): Profile
     removeMealFromDate(date: String!, index: Int!): Profile
+    addtoShoppingList(id: Int!): Profile
+    shoppingListToPantry: Profile
   }
 `;
 

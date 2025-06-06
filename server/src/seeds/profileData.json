@@ -53,35 +53,5 @@
     "name": "name",
     "email": "e@mail.com",
     "password": "password",
-    "pantry": [
-        {
-          "id": 18334,
-          "item": "pie crust",
-          "quantity": 1000,
-          "unit": "g",
-          "storage": "Fridge"
-        },
-        {
-          "id": 6999,
-          "item": "campbell's chicken gravy",
-          "quantity": 1000,
-          "unit": "g",
-          "storage": "Closet"
-        },
-        {
-          "id": 11583,
-          "item": "cut-up vegetables",
-          "quantity": 1000,
-          "unit": "g",
-          "storage": "Fridge"
-        },
-        {
-          "id": 5062,
-          "item": "cans swanson premium chicken breast in water",
-          "quantity": 1000,
-          "unit": "",
-          "storage": "Closet"
-        }
-    ]
   }
 ]

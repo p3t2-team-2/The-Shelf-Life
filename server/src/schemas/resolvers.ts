@@ -589,52 +589,108 @@ const resolvers = {
       );
     },
 
-    // addtoShoppingList: async ( _parent: any, { id }: any, context: Context): Promise<Profile | null> => {
-    //   if (context.user) {
-    //     const userProfile = await Profile.findOne({_id: context.user._id,}) as any;
-    //     const rescipeRes = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=${process.env.SPOONACULAR_API_KEY}`);
-    //     const recipe = await rescipeRes.json();
-    //     recipe.extendedIngredients.forEach((ingredient: any) => {
-    //       if (userProfile?.shoppingList.some((item: any) => item.id === ingredient.id)){
-    //         let userIngredient = userProfile.shoppingList.find((item: any) => item.id === ingredient.id);
-    //         if (ingredient.unit !== userIngredient.unit) {
-    //           let conversionRes = fetch(`https://api.spoonacular.com/recipes/convert?ingredientName=something&sourceUnit=${ingredient.unit}&sourceAmount=${ingredient.amount}&targetUnit=${userIngredient.unit}&apiKey=${process.env.SPOONACULAR_API_KEY}`);
-    //           conversionRes.then((res: any) => res.json()).then((data: any) => {
-    //             ingredient.amount = data.targetAmount;
-    //           });
-    //         }
-    //         Profile.findOneAndUpdate(
-    //             { _id: context.user?._id, "pantry.id": ingredient.id },
-    //             { $inc: { "pantry.$.quantity": ingredient.amount } },
-    //             { new: true }
-    //         )
-    //       } else {
-    //         const newIngredient = {
-    //           id: ingredient.id,
-    //           item: ingredient.name,
-    //           quantity: ingredient.amount,
-    //           unit: ingredient.unit,
-    //         };
-    //         Profile.findOneAndUpdate(
-    //           { _id: context.user?._id },
-    //           { $addToSet: { shoppingList: newIngredient } },
-    //           { new: true }
-    //         );
-    //       }
-    //     })
-    //   }
-    //   throw new AuthenticationError("Unauthenticated");
-    // },
+    addtoShoppingList: async ( _parent: any, { id }: any, context: Context): Promise<Profile | null> => {
+      if (context.user) {
+        const userProfile = await Profile.findOne({_id: context.user._id,}) as any;
+        const rescipeRes = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=${process.env.SPOONACULAR_API_KEY}`);
+        const recipe = await rescipeRes.json();
+        // console.log("recipe:", recipe);
+        // console.log(userProfile?.shoppingList); 
+        for (const ingredient of recipe?.extendedIngredients) {
+          if (userProfile?.shoppingList?.some((item: any) => item.id === ingredient.id)){
+            
+            let userIngredient = userProfile.shoppingList.find((item: any) => item.id === ingredient.id);
+            if(ingredient.unit !== userIngredient.unit){
+              let conversionRes = await fetch(`https://api.spoonacular.com/recipes/convert?ingredientName=something&sourceUnit=${ingredient.unit}&sourceAmount=${ingredient.amount}&targetUnit=${userIngredient.unit}&apiKey=${process.env.SPOONACULAR_API_KEY}`);
+              let conversionData = await conversionRes.json();
+              ingredient.amount = conversionData.targetAmount;
+            }
+            // console.log("ingredient:", ingredient);
+            await Profile.findOneAndUpdate(
+                { _id: context.user._id, "shoppingList.id": ingredient.id },
+                { $inc: { "shoppingList.$.quantity": ingredient.amount } },
+                { new: true }
+            )
+          } else {
+            // console.log("ingredient:", ingredient);
+             const spoonIngredient =  await SpoonIngredient.findOne({ id: ingredient.id });
+              if (!spoonIngredient) {
+                // console.log("Creating new SpoonIngredient:")
+                await SpoonIngredient.create({
+                  id: ingredient.id,
+                  item: ingredient.name,
+                  unit: ingredient.unit,
+                });
+              }
+            const newIngredient = {
+              id: ingredient.id,
+              item: ingredient.name,
+              quantity: ingredient.amount,
+              unit: ingredient.unit,
+            };
+            // console.log(context.user?._id);
+            // console.log("newIngredient:", newIngredient);
 
-    // shoppingListToPantry: async (_parent: any, _args: any, context: Context): Promise<Profile | null> => {
-    //   if (context.user) {
-    //     const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
-    //     userProfile?.shoppingList.forEach(async (item: any) => {
-          
-    //     }
-    //   }
-    //   throw new AuthenticationError("You need to be logged in to move items from shopping list to pantry");
-    // },
+
+            await Profile.findOneAndUpdate(
+              { _id: context.user._id },
+              { $addToSet: { shoppingList: newIngredient } },
+              { new: true }
+            )
+          }
+        }
+        return await Profile.findOne(
+          { _id: context.user?._id },
+          { new: true }
+        );
+      }
+      throw new AuthenticationError("Unauthenticated");
+    },
+
+    shoppingListToPantry: async (_parent: any, _args: any, context: Context): Promise<Profile | null> => {
+      if (context.user) {
+        const userProfile = await Profile.findOne({ _id: context.user._id }) as any;
+        for (const item of userProfile.shoppingList) {
+          if (userProfile.pantry.some((pantryItem: any) => pantryItem.id === item.id)) {
+            let pantryItem = userProfile.pantry.find((pantryItem: any) => pantryItem.id === item.id);
+            if (pantryItem.unit !== item.unit) {
+              let conversionRes = await fetch(`https://api.spoonacular.com/recipes/convert?ingredientName=something&sourceUnit=${item.unit}&sourceAmount=${item.quantity}&targetUnit=${pantryItem.unit}&apiKey=${process.env.SPOONACULAR_API_KEY}`);
+              let conversionData = await conversionRes.json();
+              item.quantity = conversionData.targetAmount;
+            }
+            // console.log("item:", item);
+            const update = await Profile.findOneAndUpdate(
+                { _id: context.user?._id, "pantry.id": item.id },
+                { $inc: { "pantry.$.quantity": item.quantity } },
+                { new: true }
+            )
+            console.log("update:", update);
+          }else {
+            const newIngredient = {
+              id: item.id,
+              item: item.item,
+              quantity: item.quantity,
+              unit: item.unit,
+            };
+            await Profile.findOneAndUpdate(
+              { _id: context.user?._id },
+              { $addToSet: { pantry: newIngredient } },
+              { new: true }
+            );
+          }
+          await Profile.findOneAndUpdate(
+              { _id: context.user?._id },
+              { $pull: { shoppingList: { id: item.id } } },
+              { new: true }
+            );
+        }
+        return await Profile.findOne(
+          { _id: context.user._id },
+          { new: true }
+        );
+      }
+      throw new AuthenticationError("You need to be logged in to move items from shopping list to pantry");
+    },
 
     saveMealToDate: async (
       _parent: any,
