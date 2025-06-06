@@ -87,6 +87,8 @@ scalar JSON
     removeMealFromDate(date: String!, index: Int!): Profile
     addtoShoppingList(id: Int!): Profile
     shoppingListToPantry: Profile
+    removeFromShoppingList(id: Int!): Profile
+    clearShoppingList: Profile
   }
 `;
 

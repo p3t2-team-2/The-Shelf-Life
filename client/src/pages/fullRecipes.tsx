@@ -43,7 +43,7 @@ const ADD_RECIPE = gql`
 
 const ADD_TO_SHOPPING_LIST = gql`
   mutation AddToShoppingList($id: Int!) {
-    addToShoppingList(id: $id) {
+    addtoShoppingList(id: $id) {
       shoppingList {
         id
         item
@@ -96,7 +96,7 @@ const RecipeDetails = () => {
     },
   });
 
-  const [addToShoppingList] = useMutation(ADD_TO_SHOPPING_LIST, {
+  const [addtoShoppingList] = useMutation(ADD_TO_SHOPPING_LIST, {
     variables: { id: parseInt(recipeId as string) },
     onCompleted: () => {
       showModal('✅ Ingredients added to your shopping list!');
@@ -127,8 +127,8 @@ const RecipeDetails = () => {
     addToRecipes();
   };
 
-  const handleAddToShoppingList = () => {
-    addToShoppingList();
+  const handleaddtoShoppingList = () => {
+    addtoShoppingList();
   };
 
   const handleCook = () => {
@@ -164,7 +164,7 @@ const RecipeDetails = () => {
         <button className="add-recipe-button" onClick={handleAddToRecipes}>
           Add to Recipes
         </button>
-        <button className="add-recipe-button" onClick={handleAddToShoppingList}>
+        <button className="add-recipe-button" onClick={handleaddtoShoppingList}>
           🛒 Add Ingredients to Shopping List
         </button>
         <button
