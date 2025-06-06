@@ -14,29 +14,43 @@ const FilterModal: React.FC<FilterModalProps> = ({
   onApply,
   sortOption,
 }) => {
-  const [filters, setFilters] = React.useState({
-    sort: sortOption,
+  const defaultFilters = {
+    sort: sortOption || "random",
     expiringFirst: false,
-    maxPrice: 20,
-    maxCookTime: 60,
+    maxPrice: 100,
+    maxCookTime: 180,
     dietary: [] as string[],
     mealType: '',
     cuisine: '',
     appliance: '',
     maxValue: 100,
-  });
-
-  const handleCheckbox = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters({ ...filters, [e.target.name]: e.target.checked });
   };
 
-  handleCheckbox // For render
+  const [filters, setFilters] = React.useState(defaultFilters);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFilters({ ...filters, [e.target.name]: e.target.value });
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value, type } = e.target;
+    if (type === 'select-multiple') {
+      const selected = Array.from(
+        (e.target as HTMLSelectElement).selectedOptions
+      ).map((opt) => opt.value);
+      setFilters({ ...filters, [name]: selected });
+    } else {
+      setFilters({ ...filters, [name]: value });
+    }
   };
 
-  return !isOpen ? null : (
+  const handleClear = () => {
+    setFilters(defaultFilters);
+    onApply(defaultFilters);
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
     <div className="modal-overlay">
       <div className="modal-content">
         <h2>Filter & Sort Recipes</h2>
@@ -48,63 +62,61 @@ const FilterModal: React.FC<FilterModalProps> = ({
           <option value="id">ID (Ascending)</option>
         </select>
 
-        <label>
-  Max Cook Time: {filters.maxCookTime} minutes
-</label>
-<input
-  type="range"
-  name="maxCookTime"
-  min="10"
-  max="180"
-  value={filters.maxCookTime}
-  onChange={handleChange}
-/>
+        <label>Max Cook Time: {filters.maxCookTime} minutes</label>
+        <input
+          type="range"
+          name="maxCookTime"
+          min="10"
+          max="180"
+          value={filters.maxCookTime}
+          onChange={handleChange}
+        />
 
         <label>Dietary Restrictions:</label>
-<select name="dietary" onChange={handleChange} multiple>
-  <option value="dairy">Dairy</option>
-  <option value="egg">Egg</option>
-  <option value="gluten">Gluten</option>
-  <option value="grain">Grain</option>
-  <option value="peanut">Peanut</option>
-  <option value="seafood">Seafood</option>
-  <option value="sesame">Sesame</option>
-  <option value="shellfish">Shellfish</option>
-  <option value="soy">Soy</option>
-  <option value="sulfite">Sulfite</option>
-  <option value="tree-nut">Tree Nut</option>
-  <option value="wheat">Wheat</option>
-</select>
+        <select name="dietary" onChange={handleChange} multiple>
+          <option value="dairy">Dairy</option>
+          <option value="egg">Egg</option>
+          <option value="gluten">Gluten</option>
+          <option value="grain">Grain</option>
+          <option value="peanut">Peanut</option>
+          <option value="seafood">Seafood</option>
+          <option value="sesame">Sesame</option>
+          <option value="shellfish">Shellfish</option>
+          <option value="soy">Soy</option>
+          <option value="sulfite">Sulfite</option>
+          <option value="tree-nut">Tree Nut</option>
+          <option value="wheat">Wheat</option>
+        </select>
 
         <label>Meal Type:</label>
-        <select name="mealType" onChange={handleChange}>
+        <select name="mealType" onChange={handleChange} value={filters.mealType}>
           <option value="">-- Select --</option>
           <option value="breakfast">Breakfast</option>
           <option value="lunch">Lunch</option>
           <option value="dinner">Dinner</option>
-            <option value="snack">Snack</option>
-            <option value="dessert">Dessert</option>
+          <option value="snack">Snack</option>
+          <option value="dessert">Dessert</option>
         </select>
 
         <label>Cuisine:</label>
-        <select name="cuisine" onChange={handleChange}>
+        <select name="cuisine" onChange={handleChange} value={filters.cuisine}>
           <option value="">-- Select --</option>
           <option value="italian">Italian</option>
           <option value="mexican">Mexican</option>
           <option value="indian">Indian</option>
-            <option value="chinese">Chinese</option>
-            <option value="japanese">Japanese</option>
-            <option value="american">American</option>
-            <option value="french">French</option>
-            <option value="thai">Thai</option>
-            <option value="spanish">Spanish</option>
-            <option value="greek">Greek</option>
-            <option value="korean">Korean</option>
-            <option value="mediterranean">Mediterranean</option>
+          <option value="chinese">Chinese</option>
+          <option value="japanese">Japanese</option>
+          <option value="american">American</option>
+          <option value="french">French</option>
+          <option value="thai">Thai</option>
+          <option value="spanish">Spanish</option>
+          <option value="greek">Greek</option>
+          <option value="korean">Korean</option>
+          <option value="mediterranean">Mediterranean</option>
         </select>
 
         <label>Appliance:</label>
-        <select name="appliance" onChange={handleChange}>
+        <select name="appliance" onChange={handleChange} value={filters.appliance}>
           <option value="">-- Select --</option>
           <option value="oven">Oven</option>
           <option value="microwave">Microwave</option>
@@ -112,10 +124,18 @@ const FilterModal: React.FC<FilterModalProps> = ({
         </select>
 
         <label>Slider – Max Value: {filters.maxValue}</label>
-        <input type="range" name="maxValue" min="0" max="100" value={filters.maxValue} onChange={handleChange} />
+        <input
+          type="range"
+          name="maxValue"
+          min="0"
+          max="100"
+          value={filters.maxValue}
+          onChange={handleChange}
+        />
 
         <div className="modal-actions">
           <button onClick={() => onApply(filters)}>Apply Filters</button>
+          <button onClick={handleClear}>Clear Filters</button>
           <button onClick={onClose}>Close</button>
         </div>
       </div>
