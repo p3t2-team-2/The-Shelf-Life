@@ -38,6 +38,7 @@ const ADD_TO_PANTRY = gql`
       unit: $unit
       quantity: $quantity
     ) {
+      _id
       pantry {
         id
         item
@@ -50,12 +51,21 @@ const ADD_TO_PANTRY = gql`
 `;
 
 const REMOVE_FROM_PANTRY = gql`
-  mutation RemoveFromPantry($pantryItemId: Int!) {
-    removeFromPantry(id: $pantryItemId) {
-      id
+  mutation RemoveFromPantry($removeFromPantryId: Int!) {
+    removeFromPantry(id: $removeFromPantryId) {
+      _id
+      pantry {
+        id
+        item
+        quantity
+        storage
+        unit
+      }
+      
     }
   }
 `;
+
 
 const GET_INGREDIENT_UNITS = gql`
   query GetIngredientUnits($ingredientByIdId: Int!) {
@@ -123,6 +133,8 @@ const Pantry: React.FC = () => {
   };
 
   const pantryItems = userData?.me?.pantry || [];
+  console.log(pantryItems, "pantryItems");
+  console.log(userData, "userData");
 
   const fridgeItems = pantryItems.filter(
     (item: any) => item.storage === "Fridge"
@@ -253,8 +265,8 @@ const Pantry: React.FC = () => {
               <button
                 className="btn"
                 onClick={() =>
-                  removeFromPantry({ variables: { pantryItemId: item.id } })
-                }
+    removeFromPantry({ variables: { removeFromPantryId: item.id } })
+  }
               >
                 Remove
               </button>
