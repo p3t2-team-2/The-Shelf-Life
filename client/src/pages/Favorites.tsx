@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { Link } from "react-router-dom";
 import "../css/Favorites.css";
