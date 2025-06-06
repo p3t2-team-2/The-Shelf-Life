@@ -35,22 +35,77 @@
   align-items: center;
 }
 
+.shopping-items li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+}
+
+.shopping-item.checked span {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.clickable-item {
+  cursor: pointer;
+  flex-grow: 1;
+}
+
+.btn.remove {
+  background-color: #ff5555;
+  color: white;
+  border: none;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
 /* Clear Button */
 .btn.clear {
   font-weight: bold;
   background: linear-gradient(145deg, #ffd900, #ffd900);
   color: black;
   border: none;
-  padding: 0.6rem 1.2rem;
+  padding: 10px 15px;
   border-radius: 10px;
   cursor: pointer;
   box-shadow: 0 3px 8px rgba(255, 99, 71, 0.3);
   transition: transform 0.2s, box-shadow 0.3s;
+  font-size: 1rem;
 }
 
 .btn.clear:hover {
   transform: scale(1.05);
   box-shadow: 0 0 12px #ff4c4c;
+}
+
+/* Add to Pantry Button */
+.btn.pantry {
+  font-weight: bold;
+  background: linear-gradient(145deg, #66bb6a, #4caf50);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(72, 185, 120, 0.4);
+  transition: transform 0.2s, box-shadow 0.3s;
+  font-size: 1rem;
+}
+
+.btn.pantry:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px #66bb6a;
+}
+
+/* Button Container */
+.bottom-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 20px;
 }
 
 /* No Items Text */
@@ -73,20 +128,13 @@
     flex-direction: column;
     align-items: flex-start;
   }
-}
 
-.shopping-items li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem;
-}
+  .bottom-buttons {
+    flex-direction: column;
+  }
 
-.btn.remove {
-  background: #ff4444;
-  color: white;
-  border: none;
-  padding: 0.3rem 0.6rem;
-  border-radius: 5px;
-  cursor: pointer;
+  .btn.clear,
+  .btn.pantry {
+    width: 100%;
+  }
 }

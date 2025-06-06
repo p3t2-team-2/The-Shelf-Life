@@ -51,19 +51,12 @@ const ADD_TO_PANTRY = gql`
 `;
 
 const REMOVE_FROM_PANTRY = gql`
-  mutation RemoveFromPantry($removeFromPantryId: Int!) {
-    removeFromPantry(id: $removeFromPantryId) {
-      _id
-      pantry {
-        id
-        item
-        quantity
-        storage
-        unit
-      }
-      
-    }
+mutation RemoveFromPantry($removeFromPantryId: Int!) {
+  removeFromPantry(id: $removeFromPantryId) {
+    id
   }
+}
+
 `;
 
 
