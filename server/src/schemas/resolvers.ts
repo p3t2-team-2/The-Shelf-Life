@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 // import { time } from 'node:console';
 import { Profile } from "../models/index.js";
-import { IRecipe, Recipe } from "../models/Recipe.js";
+import { IRecipe } from "../models/Recipe.js";
 import { SpoonIngredient } from "../models/index.js";
 // import { ISpoonIngredient } from '../models/SpoonIngredient.js';
 import { signToken, AuthenticationError } from "../utils/auth.js";
@@ -11,7 +11,7 @@ import {
 } from "../utils/spoonacularQueries.js";
 // import { getIngredientInfoByName } from "../utils/spoonacularMutations.js";
 import { GraphQLJSON } from "graphql-type-json";
-import { transformRecipe } from "../utils/spoonacularMutations.js";
+// import { transformRecipe } from "../utils/spoonacularMutations.js";
 
 interface Profile {
   _id: string;
