@@ -3,7 +3,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import App from "./App.jsx";
 import Home from "./pages/Home";
-// import Profile from "./pages/Profile";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Error from "./pages/Error";
@@ -12,11 +11,10 @@ import Bio from "./pages/Bio";
 import Recipes from "./pages/Recipes";
 import Calendar from "./pages/Calendar";
 import Favorites from "./pages/Favorites";
-// import SearchResults from './pages/SearchResults';
-// import SearchResults from './pages/SearchResults';
 import RecipeDetails from "./pages/fullRecipes";
 import RecipeSearch from "./components/RecipeSearch.js";
 import ShoppingList from "./pages/ShoppingList.js";
+import ProtectedRedirect from "./components/ProtectedRedirect";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +24,10 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
+        element: <ProtectedRedirect />, // <-- handles redirect logic
+      },
+      {
+        path: "/home",
         element: <Home />,
       },
       {
@@ -36,10 +38,6 @@ const router = createBrowserRouter([
         path: "/signup",
         element: <Signup />,
       },
-      // {
-      //   path: '/profile',
-      //   element: <Profile />
-      // },
       {
         path: "/pantry",
         element: <Pantry />,
@@ -67,10 +65,6 @@ const router = createBrowserRouter([
       {
         path: "/search",
         element: <RecipeSearch />,
-      },
-      {
-        path: "/recipes",
-        element: <Recipes />,
       },
       {
         path: "/recipes/:recipeId",

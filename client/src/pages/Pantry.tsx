@@ -181,6 +181,13 @@ const Pantry: React.FC = () => {
 
         <input
           type="number"
+  maxLength={4} 
+  onInput={(e) => {
+    const value = e.currentTarget.value;
+    if (value.length > 4) {
+      e.currentTarget.value = value.slice(0, 4);
+    }
+  }}
           placeholder="Quantity"
           value={quantity}
           onChange={(e) => setQuantity(parseInt(e.target.value))}
@@ -229,11 +236,11 @@ const Pantry: React.FC = () => {
           <option value="Closet">Closet</option>
         </select>
 
-        <button type="submit">➕ Add to Pantry</button>
+        <button type="submit">➕ Add More</button>
       </form>
 
       <div className="pantry-list">
-        <h3>🧊 Fridge</h3>
+        <h3>❄️ Fridge</h3>
         {fridgeItems.length ? (
           fridgeItems.map((item: any) => (
             <div key={item.id} className="pantry-item">
@@ -244,12 +251,24 @@ const Pantry: React.FC = () => {
                 Qty: {item.quantity} {item.unit}
               </p>
               <button
-                className="btn remove"
+                className="btn"
                 onClick={() =>
                   removeFromPantry({ variables: { pantryItemId: item.id } })
                 }
               >
                 Remove
+              </button>
+              <button
+                className="btn"
+                onClick={() => {
+                  setSelectedItemName(item.item);
+                  setSelectedItemId(item.id);
+                  setQuantity(item.quantity);
+                  setUnit(item.unit);
+                  setStorageType(item.storage || "Fridge");
+                }}
+              >
+                Add More
               </button>
             </div>
           ))
@@ -257,7 +276,7 @@ const Pantry: React.FC = () => {
           <p>No items in fridge.</p>
         )}
 
-        <h3>❄️ Freezer</h3>
+        <h3>🧊 Freezer</h3>
         {freezerItems.length ? (
           freezerItems.map((item: any) => (
             <div key={item.id} className="pantry-item">
@@ -268,12 +287,24 @@ const Pantry: React.FC = () => {
                 Qty: {item.quantity} {item.unit}
               </p>
               <button
-                className="btn remove"
+                className="btn"
                 onClick={() =>
                   removeFromPantry({ variables: { pantryItemId: item.id } })
                 }
               >
                 Remove
+              </button>
+              <button
+                className="btn"
+                onClick={() => {
+                  setSelectedItemName(item.item);
+                  setSelectedItemId(item.id);
+                  setQuantity(item.quantity);
+                  setUnit(item.unit);
+                  setStorageType(item.storage || "Fridge");
+                }}
+              >
+                Add More
               </button>
             </div>
           ))
@@ -292,7 +323,7 @@ const Pantry: React.FC = () => {
                 Qty: {item.quantity} {item.unit}
               </p>
               <button
-                className="btn remove"
+                className="btn"
                 onClick={() =>
                   removeFromPantry({ variables: { pantryItemId: item.id } })
                 }
@@ -300,7 +331,7 @@ const Pantry: React.FC = () => {
                 Remove
               </button>
               <button
-                className="btn edit"
+                className="btn"
                 onClick={() => {
                   setSelectedItemName(item.item);
                   setSelectedItemId(item.id);
@@ -309,7 +340,7 @@ const Pantry: React.FC = () => {
                   setStorageType(item.storage || "Fridge");
                 }}
               >
-                Edit
+                Add More
               </button>
             </div>
           ))

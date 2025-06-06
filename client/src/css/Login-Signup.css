@@ -1,7 +1,7 @@
 .login-page {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #000000;
-  color: #90EE90;
+  color: #fffbe6;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -10,59 +10,64 @@
 }
 
 .login-container {
-  background: rgba(255, 213, 128, 0.08); /* light sandwich yellow tint */
+  background: #3e2f1f; /* earthy brown */
   padding: 2.5rem 3rem;
   border-radius: 16px;
-  box-shadow: 0 12px 30px rgba(139, 47, 47, 0.25); /* dark red shadow */
-  border: 1px solid #A0522D; /* warm brown */
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid #4f3b2d;
   width: 100%;
   max-width: 400px;
 }
 
 .login-container h4 {
-  color: #FFD580; /* light yellow */
+  color: #00eeff;
   margin-bottom: 1.5rem;
-  text-shadow: 0 0 5px #90EE90; /* text green glow */
+  text-shadow: 0 0 6px #00eeff;
   text-align: center;
+  font-size: 1.5rem;
 }
 
 .login-container input {
-  background: #111;
-  border: 1px solid #2f2f2f;
+  background: #4c3828;
+  border: 1px solid #6d5240;
   padding: 0.75rem 1rem;
   border-radius: 10px;
-  color: #FFD580;
+  color: #fffbe6;
   width: 100%;
   margin-bottom: 1.25rem;
+  font-size: 1rem;
   transition: 0.3s;
 }
 
 .login-container input:focus {
   outline: none;
-  border-color: #228B22; /* lettuce green */
-  box-shadow: 0 0 10px #228B22;
+  border-color: #00eeff;
+  box-shadow: 0 0 10px #00eeff;
 }
 
 .login-container button {
-  background: linear-gradient(145deg, #FFA500, #FFD580); /* cheese orange to sandwich yellow */
-  color: black;
+  background: linear-gradient(145deg, #00eeff, #00ccff);
+  color: #1a1a1a;
+  font-weight: bold;
   border: none;
   padding: 0.75rem 1rem;
-  font-weight: bold;
   border-radius: 12px;
   cursor: pointer;
   width: 100%;
-  box-shadow: 0 4px 12px rgba(255, 99, 71, 0.3); /* tomato red glow */
-  transition: transform 0.2s, box-shadow 0.3s;
+  box-shadow: 0 4px 15px rgba(0, 255, 234, 0.2),
+              inset 0 0 6px rgba(0, 255, 234, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 .login-container button:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 12px #FF6347; /* tomato red */
+  box-shadow: 0 0 15px #00eeff,
+              inset 0 0 8px rgba(0, 255, 234, 0.3);
 }
 
 .login-container .error {
-  color: #FF6347;
+  color: #ff6363;
   margin-top: 1rem;
   text-align: center;
+  font-weight: bold;
 }

@@ -20,7 +20,6 @@ const FilterModal: React.FC<FilterModalProps> = ({
     maxPrice: 100,
     maxCookTime: 180,
     dietary: [] as string[],
-    mealType: '',
     cuisine: '',
     appliance: '',
     maxValue: 100,
@@ -88,15 +87,7 @@ const FilterModal: React.FC<FilterModalProps> = ({
           <option value="wheat">Wheat</option>
         </select>
 
-        <label>Meal Type:</label>
-        <select name="mealType" onChange={handleChange} value={filters.mealType}>
-          <option value="">-- Select --</option>
-          <option value="breakfast">Breakfast</option>
-          <option value="lunch">Lunch</option>
-          <option value="dinner">Dinner</option>
-          <option value="snack">Snack</option>
-          <option value="dessert">Dessert</option>
-        </select>
+        
 
         <label>Cuisine:</label>
         <select name="cuisine" onChange={handleChange} value={filters.cuisine}>
@@ -106,13 +97,11 @@ const FilterModal: React.FC<FilterModalProps> = ({
           <option value="indian">Indian</option>
           <option value="chinese">Chinese</option>
           <option value="japanese">Japanese</option>
-          <option value="american">American</option>
           <option value="french">French</option>
           <option value="thai">Thai</option>
           <option value="spanish">Spanish</option>
           <option value="greek">Greek</option>
           <option value="korean">Korean</option>
-          <option value="mediterranean">Mediterranean</option>
         </select>
 
         <label>Appliance:</label>

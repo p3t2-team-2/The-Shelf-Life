@@ -1,5 +1,6 @@
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { useParams } from 'react-router-dom';
+import { useState } from 'react';
 import { QUERY_RECIPE } from '../utils/queries';
 import '../css/fullRecipes.css';
 
@@ -54,15 +55,10 @@ const ADD_TO_SHOPPING_LIST = gql`
 `;
 
 const COOK_RECIPE = gql`
-  mutation CookRecipe($id: Int!) {
-    cook(id: $id) {
-      _id
-      pantry {
+  mutation CookRecipe($cookId: Int!) {
+    cook(id: $cookId) {
+      recipes {
         id
-        item
-        quantity
-        storage
-        unit
       }
     }
   }
@@ -70,10 +66,23 @@ const COOK_RECIPE = gql`
 
 const RecipeDetails = () => {
   const { recipeId } = useParams<{ recipeId: string }>();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
-  const { loading, error, data, refetch } = useQuery(QUERY_RECIPE, {
+  const showModal = (message: string) => {
+    setModalMessage(message);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setModalMessage('');
+  };
+
+  const { loading, error, data } = useQuery(QUERY_RECIPE, {
     variables: { recipeByIdId: parseInt(recipeId as string) },
     skip: !recipeId,
+    fetchPolicy: 'no-cache',
   });
 
   const [addToRecipes] = useMutation(ADD_RECIPE, {
@@ -83,29 +92,29 @@ const RecipeDetails = () => {
     },
     onError: (error) => {
       console.error('Error adding recipe:', error);
+      showModal('❌ Failed to add recipe.');
     },
   });
 
   const [addToShoppingList] = useMutation(ADD_TO_SHOPPING_LIST, {
     variables: { id: parseInt(recipeId as string) },
     onCompleted: () => {
-      alert('✅ Ingredients added to your shopping list!');
+      showModal('✅ Ingredients added to your shopping list!');
     },
     onError: (error) => {
       console.error('❌ Error adding to shopping list:', error);
-      alert('Failed to add ingredients.');
+      showModal('❌ Failed to add ingredients.');
     },
   });
 
   const [cookRecipe, { loading: cooking }] = useMutation(COOK_RECIPE, {
-    variables: { id: parseInt(recipeId as string) },
+    variables: { cookId: parseInt(recipeId as string) },
     onCompleted: () => {
-      alert("✅ Successfully cooked! Your pantry has been updated.");
-      refetch();
+      showModal('✅ Successfully cooked! Your pantry has been updated.');
     },
     onError: (error) => {
-      console.error("❌ Error cooking recipe:", error);
-      alert(`Error: ${error.message}`);
+      console.error('❌ Error cooking recipe:', error);
+      showModal(`❌ Error: ${error.message}`);
     },
   });
 
@@ -163,9 +172,19 @@ const RecipeDetails = () => {
           onClick={handleCook}
           disabled={cooking}
         >
-          {cooking ? "Cooking..." : "🍳 Cook"}
+          {cooking ? 'Cooking...' : '🍳 Cook'}
         </button>
       </div>
+
+      {/* Modal */}
+      {modalVisible && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <p className='modal-message'>{modalMessage}</p>
+            <button onClick={closeModal}>OK</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
