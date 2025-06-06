@@ -56,7 +56,6 @@ mutation RemoveFromPantry($removeFromPantryId: Int!) {
     id
   }
 }
-
 `;
 
 

@@ -11,6 +11,12 @@ const QUERY_ME = gql`
         quantity
         unit
       }
+      pantry {
+        id
+        item
+        quantity
+        unit
+      }
     }
   }
 `;
