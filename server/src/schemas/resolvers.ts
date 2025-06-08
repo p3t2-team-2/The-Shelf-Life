@@ -454,7 +454,15 @@ const resolvers = {
                 { $inc: { "pantry.$.quantity": -ingredient.amount } },
                 { new: true }
               );
-            } else {
+              if (pantryItem.quantity - ingredient.amount <= 0) {
+                // Remove the item from pantry if quantity is zero or less
+                await Profile.findOneAndUpdate(
+                  { _id: context.user._id },
+                  { $pull: { pantry: { id: ingredient.id } } },
+                  { new: true }
+                );
+              }
+            }else {
               throw new Error(
                 `Insufficient quantity of ${ingredient.name} in pantry`
               );
