@@ -19,7 +19,7 @@
   margin-bottom: 16px;
   color: #ff4b4b;
   font-weight: bold;
-  background-color: #ffeaea;
+  background-color: #ffeaea98;
   width: fit-content;
 }
 
@@ -59,8 +59,9 @@
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  background-color: #fff0f0;
+  background-color: #fff0f08c;
   width: fit-content;
+  border-radius: 12px;
 }
 
 .pantry-list h3 {

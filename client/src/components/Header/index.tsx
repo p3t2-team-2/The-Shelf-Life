@@ -17,19 +17,23 @@ const Header = () => {
         <div>
           <img src={logo} alt="Logo" className="logo" />
           {Auth.loggedIn() ? (
-            <>
+            <div className="nav-container">
+              <div className="nav-links">
             <Link to="/home">Home</Link>
               <Link to="/favorites">Cook Book</Link>
               <Link to="/pantry">Pantry</Link>
               <Link to="/shoppinglist">Shopping List</Link>
               <Link to="/calendar">Meal Planner</Link>
-              <Link to="/bio">Bio</Link>
               <Link to="/recommended">Recommended</Link>
+              <Link to="/bio">Bio</Link>
               <button onClick={logout} className="logout-button">
                 Logout
               </button>
+                </div>
+                <div className="nav-search">
               <SearchBar />
-            </>
+              </div>
+            </div>
           ) : (
             <>
               <Link to="/login">Login</Link>

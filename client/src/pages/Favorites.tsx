@@ -36,11 +36,16 @@ const QUERY_PROFILE = gql`
 `;
 
 const REMOVE_FROM_PANTRY = gql`
-  mutation RemoveFromPantry($removeFromPantryId: Int!) {
-    removeFromPantry(id: $removeFromPantryId) {
+  mutation Mutation($removeRecipeId: Int!) {
+  removeRecipe(id: $removeRecipeId) {
+    recipes {
+      description
+      image
       id
+      name
     }
   }
+}
 `;
 
 
@@ -83,7 +88,7 @@ const Favorites: React.FC = () => {
   // Remove recipe from favorites
   const removeFromPantry = async (id: number) => {
     try {
-      await removeRecipe({ variables: { id } });
+      await removeRecipe({ variables: { removeRecipeId: id } });
       refetch(); // Ensure UI updates after removal
     } catch (err) {
       console.error("Error removing recipe:", err);
@@ -106,12 +111,12 @@ const Favorites: React.FC = () => {
           {favorites.map((recipe) => (
             <div className="favorite-card" key={recipe.id}>
               <Link to={`/recipes/${recipe.id}`}>
+              <h3>{recipe.name}</h3>
                 <img
                   src={recipe.image}
                   alt={recipe.name}
                   className="recipe-img"
                 />
-                <h3>{recipe.name}</h3>
               </Link>
               <div className="icons">
   <button

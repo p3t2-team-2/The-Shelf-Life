@@ -982,7 +982,7 @@ addMealToDate: async (_parent: any, { date, id, category }: { date: string; id: 
 
 
 const genMeals = async (baseDate: Date, category: string, calendar: Record<string,Record<string ,string[]>>) => {
-  const url = `https://api.spoonacular.com/recipes/random?type=${category}&number=7&sort=random&apiKey=f12dc1affc3440a9b25c116c573d18a8`;
+  const url = `https://api.spoonacular.com/recipes/random?type=${category}&number=7&sort=random&apiKey=${process.env.SPOONACULAR_API_KEY}`;
   const res = await fetch(url);
   if (!res.ok) {
     const errBody = await res.text();

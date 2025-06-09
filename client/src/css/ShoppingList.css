@@ -1,14 +1,14 @@
 .shopping-list-page {
   padding: 2rem;
-  background-color: rgba(250, 5, 5, 0.05);
+  /* background-color: rgba(250, 5, 5, 0.534); */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #333;
+  color: black;
   max-width: 800px;
   margin: 0 auto;
 }
 
 .shopping-list-page h1 {
-  color: #FFD580;
+  color: black;
   text-shadow: 0 0 5px #90EE90;
   margin-bottom: 1rem;
   font-size: 2rem;
@@ -24,7 +24,7 @@
 }
 
 .shopping-list-page li {
-  background-color: #FFD580;
+  background-color: #fff5f5b7;
   color: #000;
   margin-bottom: 0.5rem;
   padding: 0.75rem 1rem;
@@ -60,6 +60,7 @@
   border-radius: 4px;
   cursor: pointer;
   margin-left: 10px;
+  width: 23%;
 }
 
 /* Clear Button */
@@ -110,7 +111,7 @@
 
 /* No Items Text */
 .shopping-list-page p {
-  color: #555;
+  color: #f0eeee;
   font-style: italic;
 }
 

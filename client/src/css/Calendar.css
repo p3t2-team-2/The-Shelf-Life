@@ -9,7 +9,7 @@
   color: #c40000;
   font-size: 2.5rem;
   margin-bottom: 1.5rem;
-  background-color: #ffffff;
+  background-color: #ffffffb9;
 } 
 
 .calendar-header {
@@ -43,7 +43,7 @@
 }
 
 .calendar-day {
-  background-color: #fff5f5;
+  background-color: #fff5f59d;
   border: 2px solid #ffdcdc;
   border-radius: 12px;
   padding: 1rem;
@@ -75,7 +75,7 @@
 }
 
 .calendar-day li {
-  background: #ffeaea;
+  background: #ffeaeabb;
   color: #333;
   padding: 0.4rem 0.6rem;
   margin-bottom: 0.4rem;
@@ -96,7 +96,7 @@
 .btn.small-btn,
 .calendar-header button {
   background-color: #c40000;
-  color: white;
+  color: rgba(255, 255, 255, 0.658);
   border: none;
   padding: 0.5rem 1rem;
   font-weight: bold;
@@ -188,4 +188,116 @@
   .calendar-day {
     min-height: 160px;
   }
+}
+
+.recipe-link {
+  color: #c40000;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.2s ease;
+}
+
+.recipe-link:hover {
+  color: #a80000;
+  text-decoration: underline dotted;
+}
+
+@keyframes fadeInModal {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Modal Backdrop */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal Window */
+.modal {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+  position: relative;
+  animation: fadeInModal 0.3s ease-out;
+  text-align: left;
+}
+
+.modal p {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-weight: bold;
+}
+
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.modal label {
+  font-weight: bold;
+  color: #c40000;
+}
+
+.modal select {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  font-size: 1rem;
+}
+
+/* Close (X) Button */
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+  color: #c40000;
+}
+
+/* Modal Action Button */
+.modal button {
+  background-color: #c40000;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+}
+
+.modal button:hover {
+  background-color: #a80000;
 }
