@@ -993,7 +993,7 @@ const genMeals = async (
   };
 
   const type = typeMap[category];
-  const url = `https://api.spoonacular.com/recipes/complexSearch?type=${type}&number=7&addRecipeInformation=true&apiKey=${process.env.SPOONACULAR_API_KEY}`;
+  const url = `https://api.spoonacular.com/recipes/complexSearch?type=${type}&number=7&sort=random&addRecipeInformation=true&apiKey=${process.env.SPOONACULAR_API_KEY}`;
   
   const res = await fetch(url);
   if (!res.ok) {
