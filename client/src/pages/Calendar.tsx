@@ -4,14 +4,14 @@ import { Link } from "react-router-dom";
 import { QUERY_ME } from "../utils/queries";
 import "../css/Calendar.css";
 
-const SAVE_MEAL_TO_DATE = gql`
-  mutation SaveMealToDate($date: String!, $meal: String!) {
-    saveMealToDate(date: $date, meal: $meal) {
-      _id
-      calendarMeals
-    }
-  }
-`;
+// const SAVE_MEAL_TO_DATE = gql`
+//   mutation SaveMealToDate($date: String!, $meal: String!) {
+//     saveMealToDate(date: $date, meal: $meal) {
+//       _id
+//       calendarMeals
+//     }
+//   }
+// `;
 
 const REMOVE_MEAL_FROM_DATE = gql`
   mutation RemoveMealFromDate($date: String!, $index: Int!, $category: String!) {
@@ -96,7 +96,7 @@ const Modal: React.FC<{
 
 const Calendar = () => {
   const { data, loading, refetch } = useQuery(QUERY_ME);
-  const [saveMealToDate] = useMutation(SAVE_MEAL_TO_DATE);
+  // const [saveMealToDate] = useMutation(SAVE_MEAL_TO_DATE);
   const [removeMealFromDate] = useMutation(REMOVE_MEAL_FROM_DATE);
   const [generateMeals] = useMutation(GENERATE_MEALS);
   const [addToDate] = useMutation(ADD_TO_DATE, {
