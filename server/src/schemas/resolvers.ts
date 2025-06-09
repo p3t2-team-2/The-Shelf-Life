@@ -8,6 +8,7 @@ import { signToken, AuthenticationError } from "../utils/auth.js";
 import {
   searchRecipes,
   searchRecipesByKeyword,
+  searchRecipesByIngredients
 } from "../utils/spoonacularQueries.js";
 // import { getIngredientInfoByName } from "../utils/spoonacularMutations.js";
 import { GraphQLJSON } from "graphql-type-json";
@@ -169,7 +170,7 @@ const resolvers = {
             query.push(item.item);
           }
         });
-        return (await searchRecipesByKeyword(query)) as Promise<
+        return (await searchRecipesByIngredients(query)) as Promise<
           SpoonacularRecipe[]
         >;
       }
