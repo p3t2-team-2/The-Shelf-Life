@@ -96,7 +96,7 @@ const Favorites: React.FC = () => {
 
   return (
     <div className="favorites-page">
-      <h1 className="btn">My Cook Book</h1>
+      <h1>My Cook Book</h1>
 
       {loadingFavorites && <p>Loading favorites...</p>}
       {error && <p>Error loading favorites: {error.message}</p>}
@@ -126,7 +126,7 @@ const Favorites: React.FC = () => {
           ))}
         </div>
       ) : (
-        !loadingFavorites && <p className="btn">You haven’t added any favorites yet!</p>
+        !loadingFavorites && <p>You haven’t added any favorites yet!</p>
       )}
     </div>
   );

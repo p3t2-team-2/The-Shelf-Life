@@ -15,6 +15,7 @@ import RecipeDetails from "./pages/fullRecipes";
 import RecipeSearch from "./components/RecipeSearch.js";
 import ShoppingList from "./pages/ShoppingList.js";
 import ProtectedRedirect from "./components/ProtectedRedirect";
+import RecommendedRecipesPage from "./pages/recommeded.js";
 
 const router = createBrowserRouter([
   {
@@ -70,6 +71,10 @@ const router = createBrowserRouter([
         path: "/recipes/:recipeId",
         element: <RecipeDetails />,
       },
+      {
+        path: "/recommended",
+        element: <RecommendedRecipesPage />,
+      }
     ],
   },
 ]);
