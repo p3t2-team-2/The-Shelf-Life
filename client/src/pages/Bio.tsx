@@ -1,4 +1,4 @@
-import '../css/Home.css';
+import '../css/Bio.css';
 import chrisHeadshot from '../assets/chrisheadshot.jpg';
 import Doyle from '../assets/Doyle.png';
 
