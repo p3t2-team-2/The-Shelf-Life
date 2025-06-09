@@ -10,7 +10,7 @@ import { Outlet } from 'react-router-dom';
 import './css/main.css';
 import Navbar from './components/Navbar';
 
-import Header from './components/Header';
+// import Header from './components/Header';
 // import Footer from './components/Footer';
 
 const httpLink = createHttpLink({
