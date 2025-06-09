@@ -11,12 +11,12 @@ export const transformRecipe = (apiRecipe: any): IRecipe => {
       item: ing.name || "",
       quantity: ing.amount || 0,
       unit: ing.unit || "",
-      storage: "", // your model requires this even if it's empty
+      storage: "", 
     })),
     instructions: (apiRecipe.analyzedInstructions?.[0]?.steps || []).map((step: any) => ({
       number: step.number || 0,
       step: step.step || "",
-      time: step.time || "" // Spoonacular doesn’t provide step time
+      time: step.time || "" 
     })),
   };
 };

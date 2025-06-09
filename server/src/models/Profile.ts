@@ -4,11 +4,7 @@ import { recipeSchema, IRecipe } from "./Recipe.js";
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 
-// interface ICalendarMeals {
-//   type: Map<string, string[]>;
-//   of: string[];
-//   default: {};
-// }
+
 
 interface IProfile extends Document {
   _id: string;
@@ -18,7 +14,7 @@ interface IProfile extends Document {
   pantry?: IIngredient[];
   shoppingList?: IIngredient[];
   recipes?: IRecipe[];
-  calendarMeals?: Record<string, string[]>; // Assuming calendar meals are stored as a record of recipe arrays by date
+  calendarMeals?: Record<string, Record<string ,string[]>>; 
   isCorrectPassword(password: string): Promise<boolean>;
 }
 

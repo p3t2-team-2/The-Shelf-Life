@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, gql } from "@apollo/client";
+import { Link } from "react-router-dom";
 import { QUERY_ME } from "../utils/queries";
 import "../css/Calendar.css";
 
@@ -13,8 +14,8 @@ const SAVE_MEAL_TO_DATE = gql`
 `;
 
 const REMOVE_MEAL_FROM_DATE = gql`
-  mutation RemoveMealFromDate($date: String!, $index: Int!) {
-    removeMealFromDate(date: $date, index: $index) {
+  mutation RemoveMealFromDate($date: String!, $index: Int!, $category: String!) {
+    removeMealFromDate(date: $date, index: $index, category: $category) {
       _id
       calendarMeals
     }
@@ -29,7 +30,6 @@ const GENERATE_MEALS = gql`
   }
 `;
 
-// Reusable modal
 const Modal: React.FC<{ message: string; onClose: () => void }> = ({ message, onClose }) => (
   <div className="modal-backdrop">
     <div className="modal">
@@ -44,27 +44,22 @@ const Calendar = () => {
   const [saveMealToDate] = useMutation(SAVE_MEAL_TO_DATE);
   const [removeMealFromDate] = useMutation(REMOVE_MEAL_FROM_DATE);
   const [generateMeals] = useMutation(GENERATE_MEALS);
-
-  const [goal, setGoal] = useState("");
-  const [lifestyle, setLifestyle] = useState("Moderate");
   const [weekOffset, setWeekOffset] = useState(0);
   const [modalMessage, setModalMessage] = useState<string | null>(null);
 
   const profile = data?.me || {};
-  let meals: { [date: string]: string[] } = {};
-  try {
-    meals = typeof profile.calendarMeals === "string"
+  const calendarMeals =
+    typeof profile.calendarMeals === "string"
       ? JSON.parse(profile.calendarMeals)
       : profile.calendarMeals || {};
-  } catch (err) {
-    console.error("❌ Error parsing calendarMeals:", err);
-  }
 
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
 
-  const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - today.getDay() + weekOffset * 7);
+  const baseSunday = new Date(today);
+  baseSunday.setDate(baseSunday.getDate() - baseSunday.getDay()); // Sunday of current week
+  baseSunday.setDate(baseSunday.getDate() + weekOffset * 7);
+  const startOfWeek = baseSunday;
 
   const weekDates = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(startOfWeek);
@@ -87,21 +82,21 @@ const Calendar = () => {
     }
   };
 
-  const handleDeleteMeal = async (dateStr: string, index: number) => {
+  const handleDeleteMeal = async (dateStr: string, index: number, category: string) => {
     try {
       await removeMealFromDate({
-        variables: { date: dateStr, index },
+        variables: { date: dateStr, index, category },
       });
       await refetch();
     } catch (err) {
-      console.error("Error removing meal:", err);
+      console.error("❌ Error removing meal:", err);
       setModalMessage("❌ Could not delete meal.");
     }
   };
 
   const handleGenerateMeals = async () => {
     try {
-      const weekStart = weekDates[0];
+      const weekStart = weekDates[1];
       await generateMeals({
         variables: {
           year: weekStart.getFullYear(),
@@ -117,52 +112,18 @@ const Calendar = () => {
     }
   };
 
-  const handleShoppingList = () => {
-    setModalMessage("🛒 Shopping list logic coming soon...");
-  };
-
-  const handlePrevWeek = () => {
-    setWeekOffset(weekOffset - 1);
-  };
-
-  const handleNextWeek = () => {
-    setWeekOffset(weekOffset + 1);
-  };
+  const handlePrevWeek = () => setWeekOffset(weekOffset - 1);
+  const handleNextWeek = () => setWeekOffset(weekOffset + 1);
 
   if (loading) return <div>Loading calendar...</div>;
 
   return (
     <div className="calendar-page">
-      <div className="goals-box">
-        <h3>Set Goal</h3>
-        <label>
-          Desired Calorie Target:
-          <input
-            type="number"
-            placeholder="e.g. 1800"
-            value={goal}
-            onChange={(e) => setGoal(e.target.value)}
-          />
-        </label>
-        <label>
-          Lifestyle:
-          <select
-            value={lifestyle}
-            onChange={(e) => setLifestyle(e.target.value)}
-          >
-            <option value="Active">Active</option>
-            <option value="Moderate">Moderate</option>
-            <option value="Slug">Slug</option>
-          </select>
-        </label>
-      </div>
+      <h1>Weekly Meal Planner</h1>
 
       <div className="calendar-controls">
         <button className="btn generate-btn" onClick={handleGenerateMeals}>
           🍽 Generate Weekly Meals
-        </button>
-        <button className="btn shopping-btn" onClick={handleShoppingList}>
-          🛒 Generate Shopping List
         </button>
       </div>
 
@@ -184,6 +145,10 @@ const Calendar = () => {
           const dateStr = date.toISOString().split("T")[0];
           const isToday = dateStr === todayStr;
 
+          const breakfast = calendarMeals?.breakfast?.[dateStr] || [];
+          const lunch = calendarMeals?.lunch?.[dateStr] || [];
+          const dinner = calendarMeals?.dinner?.[dateStr] || [];
+
           return (
             <div className={`calendar-day ${isToday ? "today" : ""}`} key={index}>
               <h4>
@@ -194,23 +159,47 @@ const Calendar = () => {
                 })}
               </h4>
 
-              {meals[dateStr]?.length ? (
-                <ul>
-                  {meals[dateStr].map((meal, i) => (
-                    <li key={i}>
-                      🍴 {meal}
-                      <button
-                        className="delete-btn"
-                        onClick={() => handleDeleteMeal(dateStr, i)}
-                      >
-                        ✖
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="no-meals">No meals yet</p>
-              )}
+              {[{ label: "Breakfast", list: breakfast },
+                { label: "Lunch", list: lunch },
+                { label: "Dinner", list: dinner },
+              ].map(({ label, list }) => (
+                <div key={label}>
+                  <h5 className="meal-category">{label}</h5>
+                  {list.length ? (
+                    <ul>
+                      {list.map((meal: any, i: number) => {
+                        const display = typeof meal === "object"
+                          ? meal.title || "Untitled Meal"
+                          : meal;
+
+                        const link = typeof meal === "object" && meal.id
+                          ? `/recipes/${meal.id}`
+                          : "#";
+
+                        return (
+                          <li key={i}>
+                            {link !== "#" ? (
+                              <Link to={link} className="recipe-link">
+                                🍴 {display}
+                              </Link>
+                            ) : (
+                              <>🍴 {display}</>
+                            )}
+                            <button
+                              className="delete-btn"
+                              onClick={() => handleDeleteMeal(dateStr, i, label.toLowerCase())}
+                            >
+                              ✖
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="no-meals">No {label.toLowerCase()} yet</p>
+                  )}
+                </div>
+              ))}
 
               <button className="btn small-btn" onClick={() => handleAddMeal(dateStr)}>
                 ➕ Add Meal

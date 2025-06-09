@@ -84,23 +84,14 @@ scalar JSON
     addNewIngredientsToPantry(item: String!, storage: String!, unit: [String!], quantity: Int!): Profile
     saveMealToDate(date: String!, meal: String!): Profile
     generateMeals(year: Int!, month: Int!, weekStart: Int!): Profile
-    removeMealFromDate(date: String!, index: Int!): Profile
+    removeMealFromDate(date: String!, index: Int!, category: String! ): Profile
     addtoShoppingList(id: Int!): Profile
     shoppingListToPantry: Profile
     removeFromShoppingList(id: Int!): Profile
     clearShoppingList: Profile
+    addMealToDate(date: String!, id: Int!, category: String!): Profile
   }
 `;
 
-// Get favorite recipes for the logged-in user?
-// favoriteRecipes: [Recipe]!
 
-// Get all items currently in pantry?
-// allPantryItems: [PantryItem]!
-// Get refrigerated items in pantry?
-// allRefrigeratedItems: [PantryItem]!
-// Get frozen items in pantry?
-// allFrozenItems: [PantryItem]!
-// Get dry goods in pantry?
-// allDryGoods: [PantryItem]!
 export default typeDefs;
