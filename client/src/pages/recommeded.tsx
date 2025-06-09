@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client';
 import React from "react";
 import { useQuery } from "@apollo/client";
+import { Link } from "react-router-dom";
 import '../css/Recommended.css'; // Your provided CSS file
 
 const GET_RECOMMENDED_RECIPES = gql`
@@ -29,11 +30,13 @@ const RecommendedRecipesPage: React.FC = () => {
       <div className="favorites-grid">
         {recipes.map((recipe: any) => (
           <div key={recipe.id} className="favorite-card">
-            <img
-              src={recipe.image}
-              alt={recipe.name}
-              className="recipe-img"
-            />
+            <Link to={`/recipes/${recipe.id}`}>
+                            <img
+                              src={recipe.image}
+                              alt={recipe.name}
+                              className="recipe-img"
+                            />
+            </Link>
             <h3>{recipe.name}</h3>
           </div>
         ))}

@@ -138,7 +138,7 @@ const RecipeDetails = () => {
   return (
     <div className="recipe-details">
       <h2>{recipe.name}</h2>
-      <img src={recipe.image} alt={recipe.name} />
+      <img src={recipe.image} alt={recipe.name} className='recipe-image-container' />
       <p dangerouslySetInnerHTML={{ __html: recipe.description }} />
 
       <h3>Ingredients</h3>

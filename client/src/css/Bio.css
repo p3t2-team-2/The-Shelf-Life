@@ -5,6 +5,7 @@
   box-sizing: border-box;
 }
 
+
 html, body {
   width: 100%;
   height: 100%;
@@ -19,9 +20,10 @@ html, body {
   min-height: 100vh; /* Ensures full-page height */
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   overflow-y: auto; /* Allows scrolling */
-  padding-bottom: 80px; /* Leaves space for the footer */
+  /* padding-bottom: 80px;  */
+ background-color: rgba(255, 255, 255, 0.8);
 }
 
 /* Headings */
@@ -38,7 +40,7 @@ h1 {
 h2 {
   font-size: 2rem;
   margin: 18px 0;
-  text-align: left;
+  text-align: center;
   color: #a80000;
   background: rgba(255, 255, 255, 0.8);
   padding: 8px;
@@ -56,13 +58,16 @@ h3 {
 
 /* Content Grid - Each Member Gets a Full Row */
 .content-grid {
-  display: grid;
-  grid-template-columns: 1fr; /* Ensures full-width rows */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
   gap: 24px;
   margin-top: 24px;
   padding: 0 16px;
   width: 100%;
   flex-grow: 1; /* Expands to fill available space */
+  overflow: visible;
 }
 
 /* Individual Bio Cards */
@@ -75,16 +80,41 @@ h3 {
   color: #2a1a1a;
   line-height: 1.6;
   transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  height: auto;
   animation: fadeInUp 0.6s ease;
-  max-height: 350px; /* Limits card height */
-  overflow-y: auto; /* Allows scrolling within cards */
+   /* Keeps a fixed height */
+  overflow-y: visible; /* Enables scrolling */
+
+  
 }
+
+.box::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+.box::-webkit-scrollbar-thumb {
+  background-color: #a80000; /* Color of the scrollbar thumb */
+  border-radius: 10px; /* Rounded corners for the scrollbar thumb */
+}
+.box::-webkit-scrollbar-track {
+  background: #ffdcdc; /* Color of the scrollbar track */
+  border-radius: 10px; /* Rounded corners for the scrollbar track */
+}
+
 
 .box:hover {
   transform: scale(1.02);
   background: #ffeaea;
   box-shadow: 0 8px 26px rgba(0, 0, 0, 0.2);
 }
+
+
+
+
+
 
 /* Creator Images */
 .creator-img {

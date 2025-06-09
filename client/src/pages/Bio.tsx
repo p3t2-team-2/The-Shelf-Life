@@ -1,12 +1,14 @@
 import '../css/Bio.css';
 import chrisHeadshot from '../assets/chrisheadshot.jpg';
 import Doyle from '../assets/Doyle.png';
+import daniel from '../assets/danielheadshot.jpg';
+import andrew from '../assets/andrew.jpg';
 
 const creators = [
   { 
     name: "Andrew Cerna", 
     description: "Andrew is currently an aspiring web developer that has a history within the tech and engineering fields. He started his journey studying mechanical engineering at Syracuse University where he broadened his mind when it came to critical thinking and problem solving.  After graduating in late 2019, he decided to shift gears toward his original passion in technology. Post graduation he participated in bootcamps that allowed him get serval certification such as the CompTIA A+, AWS cloud practitioners, and AWS Solutions Architect. Today Andrew works Endeavor Streaming as an L2 support engineer but is looking to take the next step in his journey.  Currently he is looking to transition to a new role that will be more hands in development. One that allows him to work with and build the intricate information systems that allows websites to function", 
-    image: "placeholder-andrew.jpg" 
+    image: andrew
   },
   { 
     name: "Christopher Del Grosso", 
@@ -16,7 +18,7 @@ const creators = [
   { 
     name: "Daniel Sisson", 
     description: "Recent full stack bootcamp graduate with a passion for building clean, responsive web applications from front to back. Experienced in developing React-based interfaces, managing GraphQL and RESTful APIs, and integrating modern state management practices. Strong focus on user experience, accessibility, and writing maintainable, scalable code.", 
-    image: "placeholder-daniel.jpg" 
+    image: daniel
   },
   { 
     name: "Doyle Martin", 
@@ -29,8 +31,8 @@ const Bio = () => {
   return (
     <div className="bio-page">
       <h1>Meet the Creators</h1>
-      <p>This site was created by a team of passionate developers who love cooking and technology.</p>
-      <p>We believe in making cooking accessible and enjoyable for everyone.</p>
+      <h3>This site was created by a team of passionate developers who love cooking and technology.</h3>
+      <h3>We believe in making cooking accessible and enjoyable for everyone.</h3>
 
       <div className="content-grid">
         {creators.map((creator, index) => (
@@ -42,7 +44,7 @@ const Bio = () => {
         ))}
       </div>
 
-      <p className="footer">We hope you enjoy using our site as much as we enjoyed creating it!</p>
+      <h3>We hope you enjoy using our site as much as we enjoyed creating it!</h3>
     </div>
   );
 };

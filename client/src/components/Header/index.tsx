@@ -11,6 +11,9 @@ const Header = () => {
     event.preventDefault();
     Auth.logout();
   };
+
+  //  const toggleMenu = () => setMenuOpen(!menuOpen);
+
   return (
     <header>
       <div>
