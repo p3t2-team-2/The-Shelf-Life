@@ -38,7 +38,7 @@ export const searchRecipesByKeyword = async (keywords: string | string[]) => {
     } else {
       query = keywords;
     }
-    query = query.replace("_", " "); // Replace spaces with plus signs for URL encoding
+    query = query.replace("_", " "); 
     console.log("Spoonacular search query:", query);
     const response = await fetch(
       `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=10&apiKey=${apikey}`

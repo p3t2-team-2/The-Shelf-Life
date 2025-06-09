@@ -19,7 +19,7 @@ interface Profile {
   name: string;
   email: string;
   password: string;
-  calendarMeals?: Record<string, string[]>;
+  calendarMeals?: Record<string, Record<string ,string[]>>;
 }
 
 interface ProfileArgs {
@@ -454,7 +454,15 @@ const resolvers = {
                 { $inc: { "pantry.$.quantity": -ingredient.amount } },
                 { new: true }
               );
-            } else {
+              if (pantryItem.quantity - ingredient.amount <= 0) {
+                // Remove the item from pantry if quantity is zero or less
+                await Profile.findOneAndUpdate(
+                  { _id: context.user._id },
+                  { $pull: { pantry: { id: ingredient.id } } },
+                  { new: true }
+                );
+              }
+            }else {
               throw new Error(
                 `Insufficient quantity of ${ingredient.name} in pantry`
               );
@@ -775,18 +783,18 @@ const resolvers = {
       }
     },
 
-   removeMealFromDate: async (
-  _parent: any,
-  { date, index }: { date: string; index: number },
-  context: Context
-): Promise<Profile | null> => {
+   removeMealFromDate: async (_parent: any,{ date, index, category }: { date: string; index: number; category: string },context: Context): Promise<Profile | null> => {
   if (!context.user) throw new AuthenticationError("Unauthenticated");
 
   const userProfile = await Profile.findOne({ _id: context.user._id });
   if (!userProfile) throw new Error("User not found");
 
   // Safely parse calendarMeals
-  let calendar: Record<string, string[]> = {};
+  let calendar: Record<string, Record<string ,string[]>> = {
+    breakfast: {},
+    lunch: {},
+    dinner: {}
+  };;
   try {
     if (typeof userProfile.calendarMeals === "string") {
       calendar = JSON.parse(userProfile.calendarMeals);
@@ -799,11 +807,11 @@ const resolvers = {
   }
 
   // Ensure the key exists and index is in bounds
-  if (Array.isArray(calendar[date]) && calendar[date][index] !== undefined) {
-    calendar[date].splice(index, 1);
-    if (calendar[date].length === 0) delete calendar[date];
+  if (Array.isArray(calendar[category][date]) && calendar[category][date][index] !== undefined) {
+    calendar[category][date].splice(index, 1);
+    if (calendar[category][date].length === 0) delete calendar[category][date];
   } else {
-    console.warn(`⚠️ Attempted to remove meal from invalid date/index: ${date}, ${index}`);
+  console.warn(`⚠️ Attempted to remove meal from invalid category/date/index: ${category}, ${date}, ${index}`);
   }
 
   await Profile.findByIdAndUpdate(
@@ -814,6 +822,50 @@ const resolvers = {
 
   return await Profile.findOne({ _id: context.user._id });
 },
+
+addMealToDate: async (_parent: any, { date, id, category }: { date: string; id: number; category: string }, context: Context) => {
+  if (!context.user) {
+    throw new AuthenticationError("You need to be logged in to add a meal.");
+  }
+
+  const userProfile = await Profile.findOne({ _id: context.user._id });
+  if (!userProfile) {
+    throw new Error("User not found");
+  }
+
+  // Initialize default calendar structure if needed
+  let mealcalendar: Record<string, Record<string, any[]>> = userProfile.calendarMeals || {
+    breakfast: {},
+    lunch: {},
+    dinner: {},
+  };
+
+  // Initialize category if it doesn't exist
+  if (!mealcalendar[category]) {
+    mealcalendar[category] = {};
+  }
+
+  // Initialize date if it doesn't exist for the category
+  if (mealcalendar[category][date] === undefined) {
+    const recipe = await fetch(`https://api.spoonacular.com/recipes/${id}/information?apiKey=${process.env.SPOONACULAR_API_KEY}`);
+    const recipeData = await recipe.json();
+    mealcalendar[category][date] = [{ title: recipeData.title, id: recipeData.id }];
+  } else {
+    // Optional: Add to existing list (if you want multiple meals per day per category)
+    // const recipe = await fetch(...);
+    // mealcalendar[category][date].push({ ... });
+  }
+  console.log("mealcalendar:", mealcalendar[category]);
+
+  await Profile.findByIdAndUpdate(
+    context.user._id,
+    { $set: { calendarMeals: mealcalendar } },
+    { new: true }
+  );
+
+  return userProfile;
+},
+
 
 
     // removeMealFromDate: async (
@@ -844,7 +896,7 @@ const resolvers = {
 
   generateMeals: async (_parent: any, { year, month, weekStart }: { year: number; month: number; weekStart: number }, context: Context ): Promise<Profile | null> => {
   if (!context.user) throw new AuthenticationError("Unauthenticated");
-
+  console.log("context.user:", process.env.SPOONACULAR_API_KEY);
   console.log("📅 Generating meals for week:", { year, month, weekStart });
 
   const userProfile = await Profile.findOne({ _id: context.user._id });
@@ -852,13 +904,14 @@ const resolvers = {
     console.error("❌ User not found");
     throw new Error("User not found");
   }
+  const calendarMeals = userProfile.calendarMeals || {};
 
   // Parse or initialize calendarMeals
-  let calendar: Record<string, Record<string ,string[]>> = {
-    breakfast: {},
-    lunch: {},
-    dinner: {}
-  };
+  // let calendar: Record<string, Record<string ,string[]>> = {
+  //   breakfast: {},
+  //   lunch: {},
+  //   dinner: {}
+  // };
   // try {
   //   calendar =
   //     typeof userProfile.calendarMeals === "string"
@@ -872,15 +925,18 @@ const resolvers = {
   const baseDate = new Date(year, month - 1, weekStart);
 
   // Fetch recipes from Spoonacular
-  await genMeals(baseDate, "breakfast", calendar);
-  await genMeals(baseDate, "lunch", calendar);
-  await genMeals(baseDate, "dinner", calendar);
+  console.log("breakfast");
+  await genMeals(baseDate, "breakfast", calendarMeals);
+  console.log("lunch");
+  await genMeals(baseDate, "lunch", calendarMeals);
+  console.log("dinner");
+  await genMeals(baseDate, "dinner", calendarMeals);
 
   
   // Save back to MongoDB
   await Profile.findByIdAndUpdate(
     context.user._id,
-    { $set: { calendarMeals: calendar } },
+    { $set: { calendarMeals: calendarMeals } },
     { new: true }
   );
 
@@ -918,8 +974,8 @@ const resolvers = {
 };
 
 
-const genMeals = async (baseDate: Date,category: string, calendar: Record<string,Record<string ,string[]>>) => {
-  const url = `https://api.spoonacular.com/recipes/random?type=${category}&number=7&sort=random&apiKey=${process.env.SPOONACULAR_API_KEY}`;
+const genMeals = async (baseDate: Date, category: string, calendar: Record<string,Record<string ,string[]>>) => {
+  const url = `https://api.spoonacular.com/recipes/random?type=${category}&number=7&sort=random&apiKey=f12dc1affc3440a9b25c116c573d18a8`;
   const res = await fetch(url);
   if (!res.ok) {
     const errBody = await res.text();
@@ -932,13 +988,17 @@ const genMeals = async (baseDate: Date,category: string, calendar: Record<string
     console.warn("No recipes found from Spoonacular");
     throw new Error("No recipes returned from Spoonacular");
   }
+  console.log("recipes:", recipes);
   for (let i = 0; i < 7; i++) {
     const d = new Date(baseDate);
     d.setDate(baseDate.getDate() + i);
     const dateStr = d.toISOString().split("T")[0];
-    calendar[category][dateStr] = [recipes[i] || `Meal ${i + 1}`];
+    if (calendar[category][dateStr] === undefined) {
+      calendar[category][dateStr] = [recipes[i] || `Meal ${i + 1}`];
+      console.log(calendar[category][dateStr]);
+    }
+    console.log(typeof calendar[category][dateStr]);
   }
-  console.log(calendar);
 }; 
 
 export default resolvers;

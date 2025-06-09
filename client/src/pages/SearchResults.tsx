@@ -42,7 +42,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ results }) => {
   };
 
   const handleViewDetails = (id: number) => {
-    navigate(`/recipe/${id}`);
+    navigate(`/recipes/${id}`);
   };
 
   return (

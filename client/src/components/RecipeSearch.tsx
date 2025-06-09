@@ -190,7 +190,6 @@ const RecipeSearch: React.FC = () => {
                   className="recipe-img"
                 />
               </Link>
-              <p>✅ Has all ingredients</p>
               <div className="button-group">
                 <button
                   className="btn favorite"
