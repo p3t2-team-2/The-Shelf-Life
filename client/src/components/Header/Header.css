@@ -101,6 +101,13 @@ header img.logo {
   box-shadow: 0 0 12px #90EE90;
 }
 
+
+/* .nav-search {
+  border-radius: 8px;
+  padding: 8px 12px;
+  border: 2px solid #A0522D;
+} */
+
 /* Responsive Styling */
 @media (max-width: 768px) {
   header {

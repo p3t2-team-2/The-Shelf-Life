@@ -10,7 +10,7 @@ const creators = [
   },
   { 
     name: "Christopher Del Grosso", 
-    description: "Christopher Del Grosso is a Full Stack Web Developer and recent graduate of Columbia Engineering's Software Development Bootcamp. With a strong foundation in modern web technologies—including React, Node.js, GraphQL, TypeScript, and MongoDB—he specializes in building sleek, responsive, and intuitive user experiences. Passionate about turning complex problems into clean, functional solutions, Christopher brings creativity, attention to detail, and a commitment to continuous learning to every project he takes on.", 
+    description: "Christopher Del Grosso is a Full Stack Web Developer and soon to be graduate of Columbia Engineering's Software Development Bootcamp. With a strong foundation in modern web technologies—including React, Node.js, GraphQL, TypeScript, and MongoDB—he specializes in building sleek, responsive, and intuitive user experiences. Passionate about turning complex problems into clean, functional solutions, Christopher brings creativity, attention to detail, and a commitment to continuous learning to every project he takes on.", 
     image: chrisHeadshot 
   },
   { 

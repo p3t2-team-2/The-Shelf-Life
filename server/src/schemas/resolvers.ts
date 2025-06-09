@@ -981,31 +981,42 @@ addMealToDate: async (_parent: any, { date, id, category }: { date: string; id: 
 };
 
 
-const genMeals = async (baseDate: Date, category: string, calendar: Record<string,Record<string ,string[]>>) => {
-  const url = `https://api.spoonacular.com/recipes/random?type=${category}&number=7&sort=random&apiKey=f12dc1affc3440a9b25c116c573d18a8`;
+const genMeals = async (
+  baseDate: Date,
+  category: "breakfast" | "lunch" | "dinner",
+  calendar: Record<string, Record<string, any[]>>
+) => {
+  const typeMap: Record<string, string> = {
+    breakfast: "breakfast",
+    lunch: "main course",
+    dinner: "main course"
+  };
+
+  const type = typeMap[category];
+  const url = `https://api.spoonacular.com/recipes/complexSearch?type=${type}&number=7&addRecipeInformation=true&apiKey=${process.env.SPOONACULAR_API_KEY}`;
+  
   const res = await fetch(url);
   if (!res.ok) {
     const errBody = await res.text();
     console.error(`Spoonacular API error: ${res.status}`, errBody);
     throw new Error(`Failed to fetch recipes: ${res.status}`);
   }
+
   const data = await res.json();
-  const recipes = data?.recipes?.map((r: any) => ({title: r.title, id: r.id})) || [];
-  if (recipes.length === 0) {
-    console.warn("No recipes found from Spoonacular");
-    throw new Error("No recipes returned from Spoonacular");
-  }
-  console.log("recipes:", recipes);
+  const recipes = data?.results?.map((r: any) => ({
+    title: r.title,
+    id: r.id,
+    image: r.image,
+  })) || [];
+
+  if (!calendar[category]) calendar[category] = {};
+
   for (let i = 0; i < 7; i++) {
     const d = new Date(baseDate);
     d.setDate(baseDate.getDate() + i);
     const dateStr = d.toISOString().split("T")[0];
-    if (calendar[category][dateStr] === undefined) {
-      calendar[category][dateStr] = [recipes[i] || `Meal ${i + 1}`];
-      console.log(calendar[category][dateStr]);
-    }
-    console.log(typeof calendar[category][dateStr]);
+    calendar[category][dateStr] = [recipes[i] || { title: `Meal ${i + 1}` }];
   }
-}; 
+};
 
 export default resolvers;

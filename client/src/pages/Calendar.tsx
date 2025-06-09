@@ -30,11 +30,66 @@ const GENERATE_MEALS = gql`
   }
 `;
 
-const Modal: React.FC<{ message: string; onClose: () => void }> = ({ message, onClose }) => (
+const ADD_TO_DATE = gql`
+  mutation Mutation($date: String!, $addMealToDateId: Int!, $category: String!) {
+    addMealToDate(date: $date, id: $addMealToDateId, category: $category) {
+      calendarMeals
+    }
+  }
+`;
+
+const Modal: React.FC<{
+  recipes: any;
+  message: string;
+  onClose: () => void;
+  onSubmit: () => void;
+  selectedRecipeId: number | null;
+  setSelectedRecipeId: (id: number) => void;
+  selectedCategory: string;
+  setSelectedCategory: (category: string) => void;
+}> = ({
+  recipes,
+  message,
+  onClose,
+  onSubmit,
+  selectedRecipeId,
+  setSelectedRecipeId,
+  selectedCategory,
+  setSelectedCategory,
+}) => (
   <div className="modal-backdrop">
     <div className="modal">
       <p>{message}</p>
-      <button onClick={onClose}>OK</button>
+
+      <label htmlFor="recipeSearch">Select a recipe:</label>
+      <select
+        id="recipeSearch"
+        value={selectedRecipeId ?? ""}
+        onChange={(e) => setSelectedRecipeId(Number(e.target.value))}
+      >
+        <option value="" disabled>Select a recipe</option>
+        {recipes.map((recipe: any) => (
+          <option key={recipe.id} value={recipe.id}>
+            {recipe.name}
+          </option>
+        ))}
+      </select>
+
+      <label htmlFor="mealCategory">Category:</label>
+      <select
+        id="mealCategory"
+        value={selectedCategory}
+        onChange={(e) => setSelectedCategory(e.target.value)}
+      >
+        <option value="breakfast">Breakfast</option>
+        <option value="lunch">Lunch</option>
+        <option value="dinner">Dinner</option>
+      </select>
+
+      <div className="button-group" style={{ marginTop: "1rem" }}>
+        <button className="btn modal" onClick={onSubmit}>Add Meal</button>
+        <button className="btn" onClick={onClose}>Cancel</button>
+      </div>
     </div>
   </div>
 );
@@ -44,20 +99,27 @@ const Calendar = () => {
   const [saveMealToDate] = useMutation(SAVE_MEAL_TO_DATE);
   const [removeMealFromDate] = useMutation(REMOVE_MEAL_FROM_DATE);
   const [generateMeals] = useMutation(GENERATE_MEALS);
+  const [addToDate] = useMutation(ADD_TO_DATE, {
+    refetchQueries: [{ query: QUERY_ME }],
+  });
+
   const [weekOffset, setWeekOffset] = useState(0);
-  const [modalMessage, setModalMessage] = useState<string | null>(null);
+  const [modalMessage, setModalMessage] = useState<string | null>("Select a recipe to add to your meal plan.");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedRecipeId, setSelectedRecipeId] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("breakfast");
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const profile = data?.me || {};
-  const calendarMeals =
-    typeof profile.calendarMeals === "string"
-      ? JSON.parse(profile.calendarMeals)
-      : profile.calendarMeals || {};
+  const calendarMeals = typeof profile.calendarMeals === "string"
+    ? JSON.parse(profile.calendarMeals)
+    : profile.calendarMeals || {};
 
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
 
   const baseSunday = new Date(today);
-  baseSunday.setDate(baseSunday.getDate() - baseSunday.getDay()); // Sunday of current week
+  baseSunday.setDate(baseSunday.getDate() - baseSunday.getDay());
   baseSunday.setDate(baseSunday.getDate() + weekOffset * 7);
   const startOfWeek = baseSunday;
 
@@ -67,18 +129,29 @@ const Calendar = () => {
     return d;
   });
 
-  const handleAddMeal = async (dateStr: string) => {
-    const meal = prompt(`Add a meal for ${dateStr}`);
-    if (meal) {
-      try {
-        await saveMealToDate({
-          variables: { date: dateStr, meal },
-          refetchQueries: [{ query: QUERY_ME }],
-        });
-      } catch (err) {
-        console.error("Error saving meal:", err);
-        setModalMessage("❌ Could not save meal.");
-      }
+  const handleAddMeal = (dateStr: string) => {
+    setSelectedDate(dateStr);
+    setShowModal(true);
+  };
+
+  const onSubmitMeal = async () => {
+    if (!selectedDate || selectedRecipeId === null || !selectedCategory) return;
+
+    try {
+      await addToDate({
+        variables: {
+          date: selectedDate,
+          addMealToDateId: selectedRecipeId,
+          category: selectedCategory,
+        },
+      });
+      setShowModal(false);
+      setSelectedDate(null);
+      setModalMessage("✅ Meal added successfully!");
+      await refetch();
+    } catch (err) {
+      console.error("❌ Error saving meal:", err);
+      setModalMessage("❌ Could not save meal.");
     }
   };
 
@@ -209,7 +282,18 @@ const Calendar = () => {
         })}
       </div>
 
-      {modalMessage && <Modal message={modalMessage} onClose={() => setModalMessage(null)} />}
+      {showModal && (
+        <Modal
+          recipes={data.me.recipes}
+          message={modalMessage || ""}
+          onClose={() => setShowModal(false)}
+          onSubmit={onSubmitMeal}
+          selectedRecipeId={selectedRecipeId}
+          setSelectedRecipeId={setSelectedRecipeId}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+        />
+      )}
     </div>
   );
 };

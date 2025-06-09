@@ -1,17 +1,16 @@
 import { gql } from '@apollo/client';
 import React from "react";
 import { useQuery } from "@apollo/client";
-import '../css/Recommended.css'
-
+import '../css/Recommended.css'; // Your provided CSS file
 
 const GET_RECOMMENDED_RECIPES = gql`
-    query RecommendedRecipes {
+  query RecommendedRecipes {
     recommendedRecipes {
-        id
-        name
-        image
+      id
+      name
+      image
     }
-    }
+  }
 `;
 
 const RecommendedRecipesPage: React.FC = () => {
@@ -25,22 +24,17 @@ const RecommendedRecipesPage: React.FC = () => {
   const recipes = data?.recommendedRecipes || [];
 
   return (
-    <div className="p-4">
+    <div className="favorites-page">
       <h1 className="text-2xl font-bold mb-4">Recommended Recipes</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="favorites-grid">
         {recipes.map((recipe: any) => (
-          <div
-            key={recipe.id}
-            className="bg-white rounded-xl shadow p-4 hover:shadow-lg transition"
-          >
+          <div key={recipe.id} className="favorite-card">
             <img
               src={recipe.image}
               alt={recipe.name}
-              className="w-full h-48 object-cover rounded-md mb-2"
+              className="recipe-img"
             />
-            <h2 className="text-lg font-semibold">{recipe.name}</h2>
-            {/* Optional: Link to recipe detail page */}
-            {/* <Link to={`/recipes/${recipe.id}`} className="text-blue-500">View Details</Link> */}
+            <h3>{recipe.name}</h3>
           </div>
         ))}
       </div>
