@@ -8,6 +8,7 @@ import { signToken, AuthenticationError } from "../utils/auth.js";
 import {
   searchRecipes,
   searchRecipesByKeyword,
+  searchRecipesByIngredients
 } from "../utils/spoonacularQueries.js";
 // import { getIngredientInfoByName } from "../utils/spoonacularMutations.js";
 import { GraphQLJSON } from "graphql-type-json";
@@ -169,7 +170,7 @@ const resolvers = {
             query.push(item.item);
           }
         });
-        return (await searchRecipesByKeyword(query)) as Promise<
+        return (await searchRecipesByIngredients(query)) as Promise<
           SpoonacularRecipe[]
         >;
       }
@@ -336,9 +337,15 @@ const resolvers = {
         );
 
         if (existingItem) {
+          let passedValue = quantity;
+          if (existingItem.unit !== unit) {
+            const conversionRes = await fetch(`https://api.spoonacular.com/recipes/convert?ingredientName=something&sourceAmount=${quantity}&sourceUnit=${unit}&targetUnit=${existingItem.unit}&apiKey=${process.env.SPOONACULAR_API_KEY}`);
+            const conversionData = await conversionRes.json();
+            passedValue += conversionData.targetAmount;
+          }
           const updatedProfile = await Profile.findOneAndUpdate(
             { _id: context.user._id, "pantry.id": id },
-            { $inc: { "pantry.$.quantity": quantity } },
+            { $inc: { "pantry.$.quantity": passedValue } },
             { new: true }
           );
           return updatedProfile;
