@@ -23,6 +23,10 @@ export const QUERY_ME = gql`
     me {
       _id
       name
+      recipes {
+           name
+           id
+      }
       calendarMeals
     }
   }

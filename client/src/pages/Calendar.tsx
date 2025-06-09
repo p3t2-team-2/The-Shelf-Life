@@ -30,10 +30,24 @@ const GENERATE_MEALS = gql`
   }
 `;
 
-const Modal: React.FC<{ message: string; onClose: () => void }> = ({ message, onClose }) => (
+const Modal: React.FC<{ recipes: any, message: string; onClose: () => void }> = ({ recipes, message, onClose }) => (
   <div className="modal-backdrop">
     <div className="modal">
       <p>{message}</p>
+
+      <form onSubmit={() => {}}>
+
+        <label htmlFor="recipeSearch">Search for a recipe:</label>
+        <select id="recipeSearch" name="recipeSearch">
+          { recipes.map((recipe: any) => (
+            <option key={recipe.id} value={recipe.id}>
+              {recipe.name}
+            </option>
+          )) }
+        </select>
+      </form>
+
+
       <button onClick={onClose}>OK</button>
     </div>
   </div>
@@ -45,7 +59,9 @@ const Calendar = () => {
   const [removeMealFromDate] = useMutation(REMOVE_MEAL_FROM_DATE);
   const [generateMeals] = useMutation(GENERATE_MEALS);
   const [weekOffset, setWeekOffset] = useState(0);
-  const [modalMessage, setModalMessage] = useState<string | null>(null);
+  const [modalMessage, setModalMessage] = useState<string | null>("testing modal message");
+  // we are adding a STATE for the modal. True | False
+  const [showModal, setShowModal] = useState(false);
 
   const profile = data?.me || {};
   const calendarMeals =
@@ -68,6 +84,9 @@ const Calendar = () => {
   });
 
   const handleAddMeal = async (dateStr: string) => {
+    // Update Modal STATE - TRUE - IS SHOWING
+    setShowModal(true);
+
     const meal = prompt(`Add a meal for ${dateStr}`);
     if (meal) {
       try {
@@ -81,6 +100,12 @@ const Calendar = () => {
       }
     }
   };
+
+  const openModal = () => {
+    // Update Modal STATE - TRUE - IS SHOWING
+    setShowModal(true);
+
+  }
 
   const handleDeleteMeal = async (dateStr: string, index: number, category: string) => {
     try {
@@ -116,6 +141,19 @@ const Calendar = () => {
   const handleNextWeek = () => setWeekOffset(weekOffset + 1);
 
   if (loading) return <div>Loading calendar...</div>;
+
+  if(showModal) { 
+    return (
+      <Modal
+        recipes={data.me.recipes}
+        message={modalMessage || "Select a recipe to add to your meal plan."}
+        onClose={() => {
+          setShowModal(false);
+          setModalMessage(null);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="calendar-page">
@@ -201,15 +239,19 @@ const Calendar = () => {
                 </div>
               ))}
 
-              <button className="btn small-btn" onClick={() => handleAddMeal(dateStr)}>
+             { <button className="btn small-btn" onClick={() => /* handleAddMeal(dateStr) */ openModal()}>
                 ➕ Add Meal
               </button>
+             }
+
             </div>
           );
         })}
       </div>
 
-      {modalMessage && <Modal message={modalMessage} onClose={() => setModalMessage(null)} />}
+      { /*modalMessage showModal && <Modal recipes={data.me.recipes} message={modalMessage} onClose={() => setModalMessage(null)} /> */}
+
+     
     </div>
   );
 };
