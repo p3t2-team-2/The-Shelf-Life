@@ -1,16 +1,11 @@
 .favorites-page {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   /* background-color: rgba(250, 5, 5, 0.75);  */
-  color: #fffbe6;
+  color: black;
   min-height: 100vh;
   padding: 20px;
   animation: fadeInUp 0.6s ease;
 }
-
-
-
-
-
 
 .favorites-grid {
   display: grid;
@@ -21,12 +16,12 @@
 
 
 .favorite-card {
-  background-color: rgba(250, 5, 5, 0.75); 
+  background-color: white; 
   border: 1px solid #6d5240;
   padding: 20px;
   border-radius: 16px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
-  color: #fff9f0;
+  color: black;
   line-height: 1.6;
   transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
   animation: fadeInUp 0.6s ease;
@@ -42,7 +37,7 @@
   margin: 12px 0;
   font-size: 1.2rem;
   text-align: center;
-  color: #fffbe6;
+  color: black;
 }
 
 

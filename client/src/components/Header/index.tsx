@@ -24,6 +24,7 @@ const Header = () => {
               <Link to="/shoppinglist">Shopping List</Link>
               <Link to="/calendar">Meal Planner</Link>
               <Link to="/bio">Bio</Link>
+              <Link to="/recommended">Recommended</Link>
               <button onClick={logout} className="logout-button">
                 Logout
               </button>

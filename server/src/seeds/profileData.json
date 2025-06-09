@@ -52,6 +52,6 @@
   {
     "name": "name",
     "email": "e@mail.com",
-    "password": "password",
+    "password": "password"
   }
 ]
